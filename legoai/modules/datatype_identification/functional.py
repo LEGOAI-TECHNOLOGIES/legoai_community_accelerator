@@ -11,15 +11,15 @@ import multiprocessing
 
 
 # from core.logger import Logger
-from core.path_configuration import PATH_CONFIG
-from core.model_configuration import MODEL_CONFIG
+from legoai.core.path_configuration import PATH_CONFIG
+from legoai.core.model_configuration import MODEL_CONFIG
 
 # ====================================================================
 #  Importing the required custom module packages
 # ====================================================================
 from functional import pseq
-from legoai.datatype_identification.custom_features import extract_additional_feats
-from legoai.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, additional_processing, \
+from legoai.modules.datatype_identification.custom_features import extract_additional_feats
+from legoai.modules.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, additional_processing, \
     remove_table_column_name
 
 # Creating an logger object
@@ -134,7 +134,7 @@ def extract_features(col_values: list) -> OrderedDict:
 def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
     start = datetime.now()
 
-    print("Feature Creation Started..")
+    print("[*] Feature Creation Started...")
     features_df = pd.DataFrame()
     
     ### Remove the table and column from the data points for feature creation
@@ -175,6 +175,6 @@ def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
     features_df['end_time'] = datetime.now()
     features_df['execution_time'] = datetime.now() - start
 
-    print(f"Feature Creation Finished. Processed {len(parquet_df)} rows in {datetime.now() - start}")
+    print(f"[*] Feature Creation Finished. Processed {len(parquet_df)} rows in {datetime.now() - start}")
     
     return features_df

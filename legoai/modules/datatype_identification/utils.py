@@ -3,13 +3,14 @@
 # ====================================================================
 import pandas as pd
 import json
-from legoai.datatype_identification.preprocessing import remove_non_ascii
-from legoai.datatype_identification.preprocessing import data_standarization
+from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
+from legoai.modules.datatype_identification.preprocessing import data_standarization
 import os
+from tqdm import tqdm
 
 # from core.logger import Logger
-from core.path_configuration import PATH_CONFIG
-from core.model_configuration import MODEL_CONFIG
+
+from legoai.core.model_configuration import MODEL_CONFIG
 
 
 # Creating an logger object
@@ -90,9 +91,9 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
 # ====================================================================
 
 def source_file_conversion(folder_path: str) -> str:
-    
+    t = tqdm(os.listdir(folder_path),desc="[*] preprocessing files...")
     ### Iterating through each file in the folder path
-    for file_name in os.listdir(folder_path):
+    for file_name in t:
 
         #logger.debug('filename: %s',file_name)
 
@@ -103,7 +104,8 @@ def source_file_conversion(folder_path: str) -> str:
         
         ### Create the destination directory if not present
         if os.path.isdir(dest_folder):
-            print("Directory exist." + dest_folder)
+            # print("[*] Directory exist." + dest_folder)
+            pass
         else:
             #logger.debug("Directory does not exists. Creating new one. %s" + dest_folder)
             os.makedirs(dest_folder)
@@ -130,5 +132,8 @@ def source_file_conversion(folder_path: str) -> str:
         data.columns = check_column_duplicates(data.columns)
         data_std = data_standarization(data)
         data_std.to_csv(dest_path, index=False)
+
+        t.set_description(f"[*] processed {file_name}",refresh=True)
+
         
     return dest_folder

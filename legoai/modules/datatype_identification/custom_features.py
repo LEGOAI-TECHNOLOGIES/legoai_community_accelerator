@@ -13,14 +13,13 @@ import nltk
 from nltk.corpus import words
 from trieregex import TrieRegEx as TRE
 # from core.logger import Logger
-from core.model_configuration import MODEL_CONFIG
+from legoai.core.model_configuration import MODEL_CONFIG
 
 # logger = Logger.getLogger(parent_folder_name = "datatype_l1_identification",child_folder_name="feature")
 # ====================================================================
 # Creating the words list for spell check or valid text
 # Creating the TRIE Regex Branch based on the word list created
 # ====================================================================
-nltk.download('words')
 
 words_list = []
 for value in words.words():
@@ -392,10 +391,10 @@ def extract_additional_feats(col_values: list, col_values_wo_nan_uncased:list , 
                  'alphaNumRatio','alphaRatio','frac_unique_sample','flag_numcells']
 
     ### Call the additional features for the input values
-    start_time = datetime.now()
+    # start_time = datetime.now()
     #logger.info('Custom feature creation started:%s', start_time)
     l1_feats_list = l1_level_features(col_values,col_values_wo_nan_uncased)
-    end_time = datetime.now()
+    # end_time = datetime.now()
     #logger.info('Custom feature creation completed:%s', end_time)
     #logger.info('Total time taken:%s', end_time - start_time)
 
