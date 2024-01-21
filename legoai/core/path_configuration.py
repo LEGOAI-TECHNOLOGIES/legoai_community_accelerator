@@ -18,7 +18,6 @@ def prepare_path_configuration():
         "INF_OUT_PATH":"inference/test_output",
         "INF_REF_DATA_PATH":"inference/reference_files",
         "LOG_PATH":"logs",
-        "CODE_PATH": "../legoai/datatype_identification",
         "LOG_LEVEL":"info"
     }
 
@@ -26,8 +25,8 @@ def prepare_path_configuration():
     loaded_path_config = dotenv_values(".env")
     
     return {
-        **default_path_config,
-        # **loaded_path_config
+        **loaded_path_config,
+        **default_path_config
     }
 
 
