@@ -47,6 +47,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.prof
 
 # Data files
 legoai/Lego_AI/*
