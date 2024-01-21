@@ -9,7 +9,6 @@ from collections import Counter, OrderedDict
 from datetime import datetime
 from functional import pseq
 import multiprocessing
-import nltk
 from nltk.corpus import words
 from trieregex import TrieRegEx as TRE
 # from core.logger import Logger

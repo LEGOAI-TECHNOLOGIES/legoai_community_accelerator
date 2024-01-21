@@ -91,15 +91,15 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
 # ====================================================================
 
 def source_file_conversion(folder_path: str) -> str:
-    t = tqdm(os.listdir(folder_path),desc="[*] preprocessing files...")
+    t = tqdm(os.listdir(folder_path),desc="[*] preprocessing dataset...")
     ### Iterating through each file in the folder path
     for file_name in t:
 
         #logger.debug('filename: %s',file_name)
 
         ### Source and destination file path
-        file_path = os.path.join(folder_path,file_name)
-        dest_path = file_path.rsplit('.',1)[0].replace('/inference_repo/','/inference_repo_processed/')+'.csv'
+        file_path = os.path.join(os.sep,folder_path,file_name)
+        dest_path = file_path.rsplit('.',1)[0].replace('inference_repo','inference_repo_processed')+'.csv'
         dest_folder = os.path.split(dest_path)[0]
         
         ### Create the destination directory if not present
@@ -131,6 +131,7 @@ def source_file_conversion(folder_path: str) -> str:
         data = data.drop_duplicates().reset_index(drop=True)
         data.columns = check_column_duplicates(data.columns)
         data_std = data_standarization(data)
+        # print(dest_path)
         data_std.to_csv(dest_path, index=False)
 
         t.set_description(f"[*] processed {file_name}",refresh=True)

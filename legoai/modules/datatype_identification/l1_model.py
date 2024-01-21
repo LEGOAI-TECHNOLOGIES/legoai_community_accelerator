@@ -42,7 +42,7 @@ class L1Model:
     # Parameters: 
     #     datatype- input datatype 
     # ====================================================================     
-    def group_labels(self,datatype: str) -> str:
+    def _group_labels(self,datatype: str) -> str:
         
         # groups the similar datatypes into one single type
         if datatype in ['Short_Integer', 'Long_Integer']:
@@ -62,7 +62,7 @@ class L1Model:
     # feature_subset: 
     #  - Returns the list of required features for the modeling
     # ====================================================================             
-    def feature_subset(self) -> list:
+    def _feature_subset(self) -> list:
         
         ##logger.debug('Subsetting the char, par, word, rest features')
         feats_cols = ['dateRatio', 'wordlen_mean', 'rangeRatio', 'floatRatio', 'zero_flag', 'intRatio', 'alphaNumRatio', 'alphaRatio', 'frac_unique_sample','flag_numcells']
@@ -99,7 +99,7 @@ class L1Model:
         model_label_data = pd.merge(model_data,labelled_data[['master_id','datatype']],on='master_id')
         
         #logger.debug('Grouping datatype')        
-        model_label_data['grouped_datatype'] = model_label_data['datatype'].apply(self.group_labels)
+        model_label_data['grouped_datatype'] = model_label_data['datatype'].apply(self._group_labels)
         model_label_data['grouped_datatype'] = model_label_data['grouped_datatype'].str.lower()
         
         #logger.debug('Train - Test dataset creation started...')
@@ -220,11 +220,12 @@ class L1Model:
     #    process_type - train/inference for getting the prediction    
     # ====================================================================                      
     def model_prediction(self,test_df: pd.DataFrame, model_version = datetime.now().strftime('%d%m%Y'),process_type: str ='train') -> pd.DataFrame:
-                
+        print("[*] L1 model prediction started...")
+        
         X_test = test_df.copy()
         
         # Features subset from the dataset for prediction          
-        features_list = self.feature_subset()
+        features_list = self._feature_subset()
             
         # Loading the model objects for model prediction
         #logger.debug('Reading the model objects')
@@ -255,6 +256,7 @@ class L1Model:
         else:
             test_subset = X_test[['master_id','grouped_datatype','predicted_datatype_l1','predicted_probability_l1']]
             
+        print("[*] L1 model prediction complete...")
         return test_subset
     
     # ====================================================================
@@ -277,7 +279,7 @@ class L1Model:
     def build_ML_Model(self,X_train, y_train, X_validation, y_validation, X_test, y_test, optimize=False , label_name='grouped_datatype', model_version = datetime.now().strftime('%d%m%Y')):
         
         # Features subset from the dataset for training          
-        features_list = self.feature_subset()
+        features_list = self._feature_subset()
 
         #logger.debug('Building Voting Classifier..')
         
@@ -286,7 +288,9 @@ class L1Model:
         rfc = RandomForestClassifier()
         svc = SVC(probability=True)
         
-        clf = VotingClassifier(estimators=[('XGB', XGB), ('RF', rfc), ('SVC', svc)], voting='soft', weights=[config['THRESHOLD']['XGB_MODEL_WEIGHT'],config['THRESHOLD']['RF_MODEL_WEIGHT'],config['THRESHOLD']['SVM_MODEL_WEIGHT']])
+        clf = VotingClassifier(estimators=[('XGB', XGB), ('RF', rfc), ('SVC', svc)], voting='soft', 
+                               weights=[MODEL_CONFIG['THRESHOLD']['XGB_MODEL_WEIGHT'],
+                                        MODEL_CONFIG['THRESHOLD']['RF_MODEL_WEIGHT'],MODEL_CONFIG['THRESHOLD']['SVM_MODEL_WEIGHT']])
 
         # Creating the model on Training Data
         clf.fit(X_train[features_list].values,y_train)
@@ -313,5 +317,6 @@ class L1Model:
         ### Get the model metrics for the validation dataset
         #logger.debug('Calculating the model metrics on Validation dataset')
         class_report, conf_df = self.model_metrics(actual = X_validation_pred[label_name],pred = X_validation_pred['predicted_datatype_l1'], types='di_l1_classifier_validation_predicted_xgb', model_version = model_version)
+
         
         # #logging.debug('Model building completed')

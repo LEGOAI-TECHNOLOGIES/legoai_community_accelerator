@@ -175,6 +175,6 @@ def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
     features_df['end_time'] = datetime.now()
     features_df['execution_time'] = datetime.now() - start
 
-    print(f"[*] Feature Creation Finished. Processed {len(parquet_df)} rows in {datetime.now() - start}")
+    print(f"[*] Feature Creation Finished. Processed {len(parquet_df)} rows in {(datetime.now() - start)}")
     
     return features_df
