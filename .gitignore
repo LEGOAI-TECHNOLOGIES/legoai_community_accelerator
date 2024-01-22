@@ -54,3 +54,7 @@ legoai/Lego_AI/*
 
 # virtual environment
 venv
+env
+
+# work dir
+data

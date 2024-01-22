@@ -94,11 +94,10 @@ def source_file_conversion(folder_path: str) -> str:
     t = tqdm(os.listdir(folder_path),desc="[*] preprocessing dataset...")
     ### Iterating through each file in the folder path
     for file_name in t:
-
         #logger.debug('filename: %s',file_name)
 
         ### Source and destination file path
-        file_path = os.path.join(os.sep,folder_path,file_name)
+        file_path = os.path.join(folder_path,file_name)
         dest_path = file_path.rsplit('.',1)[0].replace('inference_repo','inference_repo_processed')+'.csv'
         dest_folder = os.path.split(dest_path)[0]
         
