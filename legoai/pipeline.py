@@ -4,43 +4,62 @@ from legoai.modules.datatype_identification.functional import extract_features_t
 from legoai.core.path_configuration import PATH_CONFIG
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l3_model import L3Model
-import openai
-
+from legoai.modules.datatype_identification import MODEL_CONFIG
+from legoai.helper import download_default_dataset , check_openai_key
 import pandas as pd
-import os , sys
+import os
 import time
-import datetime
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning) 
-
-
-MODEL_VERSION = '13052023'
-DEFAULT_DATASET = "ecommerce_data"
-
-def check_openai_key(key:str):
-    key_clean = key.strip().replace(" ","") if key is not None else ""
-    if len(key_clean) == 0:
-        print("[!] openai api key not provided")
-        sys.exit(-1)
-    else:
-        try:
-            openai.api_key = key
-            openai.Model.list()
-        except openai.error.AuthenticationError as e:
-            print("[!] provide valid openai key")
-            sys.exit(-1)
-
 
 class DataTypeIdentificationPipeline:
+    '''
+    A pipeline that identifies datatypes for specific columns in a dataset.
 
-    def __init__(self,dataset_name:str,open_api_key:str = None):
-        check_openai_key(open_api_key)
-        self.dataset_name = dataset_name
-        self.open_api_key = open_api_key
+        Details:
+            the Datatype identification pipeline is divided into 3 parts:
+                - features extraction:
+                    Here, column level features is extracted from each files (like .csv) , the main features includes 
+                   ('dateRatio','wordlen_mean','rangeRatio','floatRatio','zero_flag','intRatio','alphaNumRatio','alphaRatio','frac_unique_sample','flag_numcells')
+                
+                - l1 model:
+                    l1 model uses pretrained xgbclassifier that classifies the columns into one of datatype in 
+                    ('alphanumeric','close_ended_text','open_ended_text','float','integer', 'date & time', 'others').
 
-        
+                - l3 model:
+                    l3 model is mainly responsible for classifying the integer and float datatype into integer_measure or integer_dimension and same for float,
+                    this model also finds the specific format the date & time datatype lies in (eg. YYYY:MM:DD , YYYY-MM-DD, YYYY:MM:DD H:m:s , etc...)
+                    this model uses llm for dimension & measure classification and a regex based approach for the date & time classification.     
+
+        Attributes:
+            dataset_name (str): folder consiting of files (like .csv) whose column datatypes is to be identified.
+            open_api_key (str): open api key for l3 model.
     
+        Methods:
+            run_pretrained_model(save_to:str=None):
+                runs the model on pretrained l1 model (xgbclassifier) and l3 (llm model) and saves to specified path
+            
+            load_example_dataset(open_api_key:str=None):
+                loads example dataset ('ecommerce_data') to use pipeline on the dataset.
+            
+            extract_features(datset_name:str=None):
+                extracts necessary features used by l1 model.
+            
+            run_l1_model(features_df:pd.DataFrame=None):
+                solely runs the l1 models from the extracted features.
+
+            run_l3_model(open_api_key:str,l1_model_prediction:pd.DataFrame,features_df:pd.DataFrame,df:pd.DataFrame):
+                solely runs the l1 models , from predictions obtained from l1 model , features obtained from extracting the dataset files and
+                the dataframe of the dataset itself.
+    '''
+
+    def __init__(self,dataset_name:str = None,openai_api_key:str = None) -> None:
+        
+        if dataset_name is None or openai_api_key is None:
+            raise ValueError("[!] dataset name or api key cannot be empty")
+        
+        check_openai_key(openai_api_key)
+        self.dataset_name = dataset_name
+        self.openai_api_key = openai_api_key
+
     def __features_preparation(self,df:pd.DataFrame) -> pd.DataFrame:
         feature_df = extract_features_to_csv(df)
         return feature_df
@@ -54,7 +73,7 @@ class DataTypeIdentificationPipeline:
     
     def __dataset_preprocessing(self):
         ### Source file path
-        folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],'inference_repo', self.dataset_name)
+        folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],self.dataset_name)
 
         ### 1. If you want convert the inference repo to inference processed 
         source_path = source_file_conversion(folder_path)
@@ -62,7 +81,15 @@ class DataTypeIdentificationPipeline:
         # source_path = folder_path.replace('/inference_repo/','/inference_repo_processed/')
         return source_path
 
-    def run_pipeline(self,save_result = False):
+    def run_pretrained_pipeline(self,save_to=None):
+        '''
+        Runs the datatype identification pipeline on the pretrained l1 model.
+            Parameters:
+                save_to (str): path to save the final output from the pipeline.
+            Returns:
+                l1_l3_model_prediction (pd.DataFrame): final pipeline result.
+        '''
+
         di_start = time.time()
         
         # 1st part of di pipeline (data preparation)
@@ -70,41 +97,61 @@ class DataTypeIdentificationPipeline:
         processed_input_file_path = self.__dataset_preprocessing()
         df = self.__dataframe_preparation(processed_input_file_path)
 
-
         # 2nd part of di pipeline (features extraction)
         features_df = self.__features_preparation(df)
 
         # 3rd part of di pipeline (l1 model prediction)
         l1_model = L1Model()
-        l1_model_prediction = l1_model.model_prediction(features_df,model_version=MODEL_VERSION,process_type="inference")
+        l1_model_prediction = l1_model.model_prediction(features_df,model_version=MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"],process_type="inference")
 
         #final part of the di pipeline ( l3 model prediction)
-        l3_model = L3Model(openai_api_key=self.open_api_key)
+        l3_model = L3Model(openai_api_key=self.openai_api_key)
         l1_l3_model_prediction = l3_model.model_prediction(l1_pred=l1_model_prediction,feat_df=features_df,df=df)
         
         di_end = time.time()
         print(f"[*] datatype identification pipeline complete... took {round((di_end-di_start)/60,2)} minute")
 
-        if save_result:
-            l1_l3_model_prediction.to_csv(f"di_predicted_{self.dataset_name}_{datetime.now().strftime('%Y%m%d')}")
-            print("[*] final result saved...")
+        if save_to is not None:
+            
+            try:
+                l1_l3_model_prediction.to_csv(save_to)
+            except Exception:
+                print("[*] couldnot save to specified path...")
+                l1_l3_model_prediction.to_csv("di_output.csv")
+
+            print(f"[*] final result saved at {save_to}")
+            
 
         return l1_l3_model_prediction
     
 
     @classmethod
-    def load_default_model(cls,open_api_key:str):
-
-        return cls(
-            dataset_name = DEFAULT_DATASET,
-            open_api_key = open_api_key
-        )
+    def load_example_dataset(cls,open_api_key:str=None):
+        '''
+        Downloads example dataset ('ecommerce_dataset') , use it to test the pipeline.
+        
+            Parameters:
+                open_api_key (str): your open api key for l3 model.
+            Returns:
+                object (DatatypeIdentification): instance of datatype identification pipeline.
+        '''
+        dataset_name = download_default_dataset()
+        return cls(dataset_name = dataset_name,openai_api_key = open_api_key)
 
 
     # exposing individual endpoints of the datatype identificaion module
 
     @staticmethod
-    def extract_features(dataset_name) -> pd.DataFrame:
+    def extract_features(dataset_name:str) -> pd.DataFrame:
+        '''
+        extract features from the dataset / repo
+            
+            Parameters:
+                dataset_name (str): name of the dataset / directory from where you want to extract the features.
+            Returns:
+                pd.DataFrame: features extracted dataframe.
+        '''
+
         folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],'inference_repo', dataset_name)
         if os.path.isdir(folder_path):
             parquet_df = input_file_transformation(folder_path)
@@ -114,14 +161,23 @@ class DataTypeIdentificationPipeline:
 
     @staticmethod
     def run_l1_model(features_df:pd.DataFrame,) -> pd.DataFrame:
+        '''
+        Runs the L1 model seperately. 
+            
+            Parameters:
+                features_df (pd.DataFrame): dataframe that consists of features extracted from extract_features()
+            Returns:
+                pd.DataFrame: l1 model prediction.
+        '''
 
-        return L1Model().model_prediction(features_df,model_version=MODEL_VERSION,process_type="inference")
+        return L1Model().model_prediction(features_df,model_version=MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"],process_type="inference")
 
 
     @staticmethod
     def run_l3_model(open_api_key:str,l1_model_prediction:pd.DataFrame,features_df:pd.DataFrame,df:pd.DataFrame) -> pd.DataFrame:
         '''
-            Runs the L3 model seperately ( isolated )
+        Runs the L3 model seperately ( isolated )
+            
             Parameters:
                 open_api_key (str): api key for llm model
                 l1_model_prediction (pd.Dataframe): prediction result from l1 model
