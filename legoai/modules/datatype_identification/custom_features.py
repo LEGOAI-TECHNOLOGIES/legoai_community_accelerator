@@ -12,7 +12,7 @@ import multiprocessing
 from nltk.corpus import words
 from trieregex import TrieRegEx as TRE
 # from core.logger import Logger
-from legoai.core.model_configuration import MODEL_CONFIG
+from legoai.core.configuration import MODEL_CONFIG
 
 # logger = Logger.getLogger(parent_folder_name = "datatype_l1_identification",child_folder_name="feature")
 # ====================================================================

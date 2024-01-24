@@ -16,7 +16,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV, KFold
 
 from legoai.core.path_configuration import PATH_CONFIG
-from legoai.core.model_configuration import MODEL_CONFIG
+from legoai.core.configuration import MODEL_CONFIG
 
 # Creating an object
 # #logger = #logger.get#logger(

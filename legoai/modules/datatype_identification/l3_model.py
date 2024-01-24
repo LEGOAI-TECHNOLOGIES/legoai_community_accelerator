@@ -6,7 +6,7 @@ from langchain.output_parsers import ResponseSchema
 from langchain.output_parsers import StructuredOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
-from legoai.core.model_configuration import MODEL_CONFIG
+from legoai.core.configuration import MODEL_CONFIG
 
 
 ########## Datetype format identifier #############
