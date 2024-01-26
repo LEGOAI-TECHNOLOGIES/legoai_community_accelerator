@@ -1,5 +1,9 @@
-## ![alt-text](https://www.legoai.com/assets/Icons/Picture1.png) 
-### LegoAI: Empowering Business Users With Self Serve Analytics
+<p align="center">
+  <a href="https://github.com/legoai-opensource/legoai">
+    <img src="https://www.legoai.com/assets/Icons/Picture1.png" alt="Logo">
+  </a>
+
+  <h3 align="center">Empowering Business Users With Self Serve Analytics</h3> 
 
 ## What is LegoAI?
 **GenAI** Powered analytics platform that automatically converts business requirements into executable machine language, enabling users with explainable & accurate insights at unparalleled speed & scale.
