@@ -19,7 +19,7 @@ class Logger:
 		log_path = os.path.join(parent_folder_name,child_folder_name)
 		if cls.logger == None or cls.log_path != log_path:
 			import logging
-			from core.path_configuration import PATH_CONFIG
+			from core.configuration import PATH_CONFIG
 			# setting logging
 			full_log_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],log_path)
 			filename=os.path.join(PATH_CONFIG["CONTAINER_PATH"],
