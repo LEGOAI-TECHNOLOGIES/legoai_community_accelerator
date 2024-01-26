@@ -59,13 +59,20 @@ class DataTypeIdentificationPipeline:
     
     def execute_pipeline(self,dataset_name:str):
         di_start = time.time()
-
+        # 1st step to preprocess the dataset for duplicate columns and data standardization
         inference_source_path = self.__dataset_preprocessing(dataset_name)
+
+        # 2nd step is to convert all dataset in one single dataframe
         df = self.__dataframe_preparation(inference_source_path)
         print(f'[*] total columns present in the {dataset_name}',df.shape[0])
+
+        # 3rd step is to create all the features for model inferencing
         features_df = self.__features_preparation(df)
 
+        # 4th step is to run the l1 model prediction
         l1_model_prediction = self.l1_model.model_prediction(features_df,process_type="inference")
+        
+        #5th step is to run the l3 model preidiction
         l1_l3_model_prediction = self.l3_model.model_prediction(l1_pred=l1_model_prediction,feat_df=features_df,df=df)
 
         di_end = time.time()
