@@ -10,7 +10,7 @@
 
 ## Where to get it?
 The source code can be found at https://github.com/legoai-opensource/legoai
-Binary installers for the latest released version are available at the [Python Package Index (PyPI](https://pypi.org/project/)
+Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
 
 ```
 # PyPI
