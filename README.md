@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/legoai-opensource/legoai">
-    <img src="https://www.legoai.com/assets/Icons/Picture1.png" alt="Logo">
+    <img src="https://www.legoai.com/assets/Icons/Picture1.png" alt="LegoAI Logo">
   </a>
 
   <h3 align="center">Empowering Business Users With Self Serve Analytics</h3> 
