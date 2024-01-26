@@ -11,8 +11,8 @@ import multiprocessing
 
 
 # from core.logger import Logger
-from legoai.core.path_configuration import PATH_CONFIG
-from legoai.core.configuration import MODEL_CONFIG
+from legoai.core.configuration import PATH_CONFIG,MODEL_CONFIG
+
 
 # ====================================================================
 #  Importing the required custom module packages

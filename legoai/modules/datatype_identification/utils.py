@@ -2,11 +2,15 @@
 #  Importing the required python packages
 # ====================================================================
 import pandas as pd
+from tqdm import tqdm
+
+import os
 import json
+
 from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
 from legoai.modules.datatype_identification.preprocessing import data_standarization
-import os
-from tqdm import tqdm
+
+
 
 # from core.logger import Logger
 
@@ -99,8 +103,8 @@ def source_file_conversion(folder_path: str) -> str:
         ### Source and destination file path
         file_path = os.path.join(folder_path,file_name)
         dest_path = os.path.split(folder_path)
-        dest_path = os.path.join(dest_path[0],dest_path[1]+"_processed",file_name)
-        # dest_path = file_path.rsplit('.',1)[0].replace('inference_repo','inference_repo_processed')+'.csv'
+        # dest_path = os.path.join(dest_path[0],dest_path[1]+"_processed",file_name)
+        dest_path = file_path.rsplit('.',1)[0].replace('inference_repo','inference_repo_processed')+'.csv'
         dest_folder = os.path.split(dest_path)[0]
         
         ### Create the destination directory if not present

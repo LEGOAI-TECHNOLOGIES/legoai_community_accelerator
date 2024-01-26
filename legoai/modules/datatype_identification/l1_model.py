@@ -1,10 +1,8 @@
 # ====================================================================
 #  Importing the required python packages
 # ====================================================================
-
 import pandas as pd
 import numpy as np
-import os
 from sklearn.preprocessing import LabelEncoder
 from datetime import datetime
 from xgboost import XGBClassifier
@@ -15,8 +13,10 @@ import joblib
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import GridSearchCV, KFold
 
-from legoai.core.path_configuration import PATH_CONFIG
-from legoai.core.configuration import MODEL_CONFIG
+import os
+
+from legoai.core.configuration import PATH_CONFIG,MODEL_CONFIG
+
 
 # Creating an object
 # #logger = #logger.get#logger(
@@ -29,13 +29,24 @@ container_path = PATH_CONFIG["CONTAINER_PATH"]
 class L1Model:
     
     ### Setting the path fir the various path for model related info
-    def __init__(self):
+    def __init__(self,model_version:str=None):
         self.model_objects_directory = os.path.join(PATH_CONFIG['MODEL_OBJECTS_PATH'], 'datatype_l1_identification')
         self.model_results_directory = os.path.join(PATH_CONFIG['MODEL_RESULTS_PATH'], 'datatype_l1_identification')
         self.model_metrics_directory = os.path.join(PATH_CONFIG['MODEL_METRICS_PATH'], 'datatype_l1_identification')
         self.data_directory = os.path.join(PATH_CONFIG['ANALYT_DATA_PATH'], 'datatype_l1_identification')
         self.label_directory =  os.path.join(PATH_CONFIG['GT_PATH'], 'datatype_l1_identification')
-    
+        self.model_version = model_version
+
+
+    @classmethod
+    def load_pretrained(cls):
+        try:
+            model_version = MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"]
+        except KeyError:
+            model_version = "13052023"
+
+        return cls(model_version = model_version)
+
     # ====================================================================
     # group_labels: 
     #  - groups the similar datatypes into one single type
@@ -224,6 +235,8 @@ class L1Model:
         
         X_test = test_df.copy()
         
+        model_version = self.model_version if self.model_version is not None else model_version
+
         # Features subset from the dataset for prediction          
         features_list = self._feature_subset()
             

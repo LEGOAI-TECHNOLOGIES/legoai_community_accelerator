@@ -4,14 +4,14 @@
 
 import pandas as pd
 import numpy as np
-import re
-from collections import Counter, OrderedDict
-from datetime import datetime
-from functional import pseq
-import multiprocessing
 from nltk.corpus import words
 from trieregex import TrieRegEx as TRE
-# from core.logger import Logger
+from functional import pseq
+
+import re
+from collections import Counter, OrderedDict
+import multiprocessing
+
 from legoai.core.configuration import MODEL_CONFIG
 
 # logger = Logger.getLogger(parent_folder_name = "datatype_l1_identification",child_folder_name="feature")

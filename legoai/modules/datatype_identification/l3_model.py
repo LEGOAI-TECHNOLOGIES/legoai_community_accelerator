@@ -6,6 +6,7 @@ from langchain.output_parsers import ResponseSchema
 from langchain.output_parsers import StructuredOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
+
 from legoai.core.configuration import MODEL_CONFIG
 
 
@@ -20,7 +21,6 @@ class L3Model:
   
 
     def classify_datetime_format(self,column_values, num_samples):
-    
         """
             Classify the datetime format of a given list of column values.
 
@@ -136,6 +136,17 @@ class L3Model:
 ############# Dimensions and Measures module ##############
 
     def _dim_measure_classify(self,prompt_text_DM, column_name):
+        '''
+        Classifies the integer or float datatype of a column to dimension, measure, or unknown.
+            
+            Parameters:
+                prompt_text_DM (str): prompt to be passed to openai chat llm
+                column_name (str): a column of certain table.
+            
+            Returns:
+                response_as_dict (str): 
+
+        '''
         response_schemas = [self.dm_class_schema]
 
         output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
@@ -201,13 +212,9 @@ class L3Model:
                 ### CLASS CATEGORY:{format_instructions}"""
         
                 value = self._dim_measure_classify(prompt_text_DM, column_name = col_name)
-                pred_feat_df.at[index,"predicted_datatype_l3"] = row["predicted_datatype_l1"]+"_"+value.lower() #### check if this change works
+                pred_feat_df.at[index,"predicted_datatype_l3"] = row["predicted_datatype_l1"]+"_"+value.lower()
                 
             else:
                 pred_feat_df.at[index,"predicted_datatype_l3"] = row["predicted_datatype_l1"]
-
-
-        ### Write the combined dataframe into inference output folder
-       
 
         return pred_feat_df
