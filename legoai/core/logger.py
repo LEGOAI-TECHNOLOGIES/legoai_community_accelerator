@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 
+LOG_LEVEL = "info"
 
 class Logger:
 	logger =None
@@ -27,7 +28,7 @@ class Logger:
 			
 			logging.basicConfig(
 				filename =filename,
-				level = cls.__LOGLEVEL_MAP__[PATH_CONFIG["LOG_LEVEL"].upper() ],
+				level = cls.__LOGLEVEL_MAP__[LOG_LEVEL.upper() ],
 				format='%(asctime)s %(message)s',
 				filemode='w',
 			)
