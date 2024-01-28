@@ -171,7 +171,7 @@ class L3Model:
                 pred_feat_df (pd.DataFrame): final prediction of both l1 and l3 combined along with all the features.
                         
         '''
-        print("[*] L3 model prediction started...")
+        print("[*] L3 model execution started...")
         ### Merge the predicted dataframe and feature dataframe using master id
             
         pred_feat_df = pd.merge(feat_df, l1_pred, on = 'master_id')

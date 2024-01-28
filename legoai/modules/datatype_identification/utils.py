@@ -114,6 +114,7 @@ def source_file_conversion(folder_path: str) -> str:
         else:
             #logger.debug("Directory does not exists. Creating new one. %s" + dest_folder)
             os.makedirs(dest_folder)
+            
 
         ## Check if the file is csv file format and if yes copy
         if file_name.lower().endswith('.csv'):

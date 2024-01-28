@@ -2,6 +2,7 @@ import pandas as pd
 
 import os
 import time
+from datetime import datetime
 
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l3_model import L3Model
@@ -36,16 +37,23 @@ class DataTypeIdentificationPipeline:
         
 
     @classmethod
-    def pretrained_pipeline(cls,open_api_key:str=None):
-        check_openai_key(open_api_key)
+    def pretrained_pipeline(cls,openai_api_key:str=None):
+        '''
+            Returns an object with preloaded L1 model and pre instantiated L3 model
+                Parameters:
+                    open_api_key (str): an openai api key for L3 model
+                Return:
+                    DatatypeIndentification object with l1 and l3 model loaded.
+        '''
+        check_openai_key(openai_api_key)
 
         return cls(
             L1Model.load_pretrained(),
-            L3Model(openai_api_key=open_api_key)
+            L3Model(openai_api_key=openai_api_key)
         )
 
     def __dataset_preprocessing(self,dataset_name:str):
-        folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],dataset_name)
+        folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],"inference_repo",dataset_name)
         source_path = source_file_conversion(folder_path)
         return source_path
     
@@ -58,6 +66,15 @@ class DataTypeIdentificationPipeline:
         return feature_df
     
     def __execute_pipeline(self,dataset_name:str):
+        '''
+            Executes the whole datatype identification pipeline.
+
+            Parameters:
+                dataset_name (str): the dataset name is for the folder in the defined .env path where all the required files are present
+            Returns:
+                l1_l3_model_prediction (pd.DataFrame): the final l1 and l3 combined result.
+
+        '''
         di_start = time.time()
         # 1st step to preprocess the dataset for duplicate columns and data standardization
         inference_source_path = self.__dataset_preprocessing(dataset_name)
@@ -119,7 +136,7 @@ class DataTypeIdentificationPipeline:
                 df (pd.Dataframe): dataframe obtained after converting the dataset
 
             Return:
-                l1_l3_model_prediction (pd.Dataframe): result from l1 and l3 prediction combined 
+                l1_l3_model_prediction (pd.Dataframe): result from l1 and l3 results combined 
         '''
         check_openai_key(open_api_key)
         l1_l3_model_prediction = pd.DataFrame()
@@ -131,7 +148,7 @@ class DataTypeIdentificationPipeline:
             return l1_l3_model_prediction
         
     @staticmethod
-    def extract_features(dataset_name:str) -> pd.DataFrame:
+    def extract_features(dataset_name:str,save_to:str=None) -> pd.DataFrame:
         '''
         extract features from the dataset / repo
             
@@ -144,6 +161,17 @@ class DataTypeIdentificationPipeline:
         folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],'inference_repo', dataset_name)
         if os.path.isdir(folder_path):
             parquet_df = input_file_transformation(folder_path)
+            
+            try:
+                if save_to is not None:
+                    pd.to_csv(save_to)
+            except Exception:
+                new_save_path = f"di_features_{datetime.now().strftime('%Y%M%d')}"
+                print("[*] {save_to} path not found ... saved as {new_save_path}")
+                pd.to_csv(new_save_path)
+
+
+
             return extract_features_to_csv(parquet_df=parquet_df)
         else:
             print("[!] dataset doesnot exists in the path {folder_path}")
@@ -159,19 +187,19 @@ class DataTypeIdentificationPipeline:
             Returns
                 result (pd.DataFrame): final result dataframe
         '''
-        dataset_path =  os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],dataset_name)
+        dataset_path =  os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],"inference_repo",dataset_name)
         
         if os.path.isdir(dataset_path):
             result = self.__execute_pipeline(dataset_name)    
             if save_to is not None:
-            
                 try:
                     result.to_csv(save_to)
                 except Exception:
+                    save_to = f"di_final_{datetime.now().strftime('%Y%M%d')}"
                     print("[*] couldnot save to specified path...")
-                    result.to_csv("di_output.csv")
-
+                    result.to_csv(save_to)
                 print(f"[*] final result saved at {save_to}")
+            
             return result
         else:
             raise FileNotFoundError(f"[!] no such directory as {dataset_path}")

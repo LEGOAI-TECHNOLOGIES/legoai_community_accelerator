@@ -25,7 +25,8 @@ from legoai.core.configuration import PATH_CONFIG,MODEL_CONFIG
  
 
 container_path = PATH_CONFIG["CONTAINER_PATH"]
- 
+DEFAULT_MODEL_VERSION = "13052023"
+
 class L1Model:
     
     ### Setting the path fir the various path for model related info
@@ -43,7 +44,7 @@ class L1Model:
         try:
             model_version = MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"]
         except KeyError:
-            model_version = "13052023"
+            model_version = DEFAULT_MODEL_VERSION
 
         return cls(model_version = model_version)
 
@@ -231,7 +232,7 @@ class L1Model:
     #    process_type - train/inference for getting the prediction    
     # ====================================================================                      
     def model_prediction(self,test_df: pd.DataFrame, model_version = datetime.now().strftime('%d%m%Y'),process_type: str ='train') -> pd.DataFrame:
-        print("[*] L1 model prediction started...")
+        print("[*] L1 model execution started...")
         
         X_test = test_df.copy()
         
@@ -240,13 +241,25 @@ class L1Model:
         # Features subset from the dataset for prediction          
         features_list = self._feature_subset()
             
-        # Loading the model objects for model prediction
-        #logger.debug('Reading the model objects')
-        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+model_version+'.pkl')
-        clf_model = joblib.load(model_path)  
         
-        # Loading the encoder objects for model prediction
+        #logger.debug('Reading the model objects')
+
+
+        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+model_version+'.pkl')
         encoder_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_encoder_'+model_version+'.pkl')
+
+        # load default model and encoder if they donot exists in given path i.e legoai/model folder
+        if not os.path.exists(model_path) or not os.path.exists(encoder_path):
+            dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+            default_model_path = os.path.join(os.path.split(dir_path)[0],"model","model_objects",'datatype_l1_identification')
+
+            model_path = os.path.join(default_model_path,'di_l1_classifier_xgb_'+DEFAULT_MODEL_VERSION+'.pkl')
+            encoder_path = os.path.join(default_model_path,'di_l1_classifier_encoder_'+DEFAULT_MODEL_VERSION+'.pkl')
+                                      
+        
+        # Loading the model objects  for model prediction
+        clf_model = joblib.load(model_path)  
+        # Loading the encoder objects for model prediction
         encoder = joblib.load(encoder_path)
         
         # Model prediction on the test dataset and inverse transform to get the labels for the encoder
@@ -269,7 +282,7 @@ class L1Model:
         else:
             test_subset = X_test[['master_id','grouped_datatype','predicted_datatype_l1','predicted_probability_l1']]
             
-        print("[*] L1 model prediction complete...")
+        print("[*] L1 model excution complete...")
         return test_subset
     
     # ====================================================================
