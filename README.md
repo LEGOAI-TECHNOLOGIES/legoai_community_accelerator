@@ -29,11 +29,11 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
       - [X] close ended text
       - [X] date & time
       - [X] others ( if not found any)
-  - currenlty is based on pretrained xgbclassifier model.
+  - currently uses trained xgbclassifier model.
   
 - [L3 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py)
   - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same.
-   - currently openai chat llm is used for this model.   
+   - currently uses openai chat llm.   
 
 ## Where to get it?
 The source code can be found at https://github.com/legoai-opensource/legoai
