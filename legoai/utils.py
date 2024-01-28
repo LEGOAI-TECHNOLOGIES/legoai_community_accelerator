@@ -19,9 +19,8 @@ def download_default_dataset():
         Returns:
             DEFAULT_DATASET (str): name of the default dataset
     '''
-
     # path to the default dataset
-    inferece_data_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],DEFAULT_DATASET)
+    inferece_data_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],"inference_repo",DEFAULT_DATASET)
     
     download = True
     # create the inference input dir if not exists
@@ -30,6 +29,7 @@ def download_default_dataset():
     except FileExistsError:
         # if exists check if the directory has any file then donot download.
         if len(os.listdir(inferece_data_path)) > 0:
+            print("[*] dataset already downloaded")
             download = False
 
     if download:
