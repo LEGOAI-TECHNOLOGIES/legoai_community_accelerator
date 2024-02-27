@@ -14,13 +14,12 @@ from legoai.core.configuration import MODEL_CONFIG
 
 
 class L3Model:
-     
     def __init__(self,openai_api_key:str,temperature:float = 0.0):
         self.chat_llm = ChatOpenAI(openai_api_key= openai_api_key, temperature= temperature)
         self.dm_class_schema = ResponseSchema(name="DM_class",description="This final class of a column Dimension, Measure & Unknown")
   
-
-    def classify_datetime_format(self,column_values, num_samples):
+    @staticmethod
+    def classify_datetime_format(column_values: list, num_samples: int) -> list:
         """
             Classify the datetime format of a given list of column values.
 
@@ -135,8 +134,8 @@ class L3Model:
 
 ############# Dimensions and Measures module ##############
 
-    def _dim_measure_classify(self,prompt_text_DM, column_name):
-        '''
+    def _dim_measure_classify(self,prompt_text_DM: str, column_name: str) -> str:
+        """
         Classifies the integer or float datatype of a column to dimension, measure, or unknown.
             
             Parameters:
@@ -146,7 +145,7 @@ class L3Model:
             Returns:
                 response_as_dict (str): 
 
-        '''
+        """
         response_schemas = [self.dm_class_schema]
 
         output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
@@ -158,10 +157,9 @@ class L3Model:
         response_as_dict = output_parser.parse(response.content)
         return response_as_dict["DM_class"]
 
-    def model_prediction(self,l1_pred:pd.DataFrame, feat_df: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
-    
-        '''
-            Returns the prediction of l1 and l3 model combined.
+    def model_prediction(self,l1_pred: pd.DataFrame, feat_df: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Returns the prediction of l1 and l3 model combined.
 
             Parameters:
                 l1_pred (pd.DataFrame): result dataframe from l1 prediction
@@ -170,10 +168,9 @@ class L3Model:
             Returns:
                 pred_feat_df (pd.DataFrame): final prediction of both l1 and l3 combined along with all the features.
                         
-        '''
-        print("[*] L3 model execution started...")
+        """
+
         ### Merge the predicted dataframe and feature dataframe using master id
-            
         pred_feat_df = pd.merge(feat_df, l1_pred, on = 'master_id')
     
         ######## Introducing l3: Datetype format identifier and Dimensions & Measures module ########
@@ -195,7 +192,7 @@ class L3Model:
                 col_values = df.loc[(df["dataset_name"] == row["dataset_name"]) & 
                                     (df["table_name"] == row["table_name"]) & 
                                     (df["column_name"] == row["column_name"])]["values"].iloc[0]        
-                value = self.classify_datetime_format(col_values, num_samples)
+                value = self.classify_datetime_format(col_values,num_samples)
                 pred_feat_df.at[index,"predicted_datatype_l3"] = value
         
             elif row["predicted_datatype_l1"] == "integer" or row["predicted_datatype_l1"] == "float":

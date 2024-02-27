@@ -9,17 +9,16 @@ import pandas as pd
 from symspellpy.symspellpy import SymSpell
 import multiprocessing
 
-
 # from core.logger import Logger
-from legoai.core.configuration import PATH_CONFIG,MODEL_CONFIG
-
+from legoai.core.configuration import PATH_CONFIG, MODEL_CONFIG
 
 # ====================================================================
 #  Importing the required custom module packages
 # ====================================================================
 from functional import pseq
 from legoai.modules.datatype_identification.custom_features import extract_additional_feats
-from legoai.modules.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, additional_processing, \
+from legoai.modules.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, \
+    additional_processing, \
     remove_table_column_name
 
 # Creating an logger object
@@ -30,27 +29,29 @@ from legoai.modules.datatype_identification.preprocessing import normalise_strin
 # ====================================================================
 # Set max_dictionary_edit_distance to 0 to avoid spelling correction
 # ====================================================================
-model_dep_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["MODEL_DEP_PATH"],"datatype_l1_identification")
+model_dep_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"], PATH_CONFIG["MODEL_DEP_PATH"],
+                              "datatype_l1_identification")
 
 # default dependency path .i.e legoai/model folder
-if not os.path.isfile(os.path.join(model_dep_path,'en-80k.txt')):
+if not os.path.isfile(os.path.join(model_dep_path, 'en-80k.txt')):
     dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    model_dep_path = os.path.join(os.path.split(dir_path)[0],"model","dependant","datatype_l1_identification")
+    model_dep_path = os.path.join(os.path.split(dir_path)[0], "model", "dependant", "datatype_l1_identification")
 
-sym_spell = SymSpell(max_dictionary_edit_distance=MODEL_CONFIG['THRESHOLD']['SYMSPELL_EDIT_DIST'], prefix_length=MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE'])
-dictionary_path = os.path.join(model_dep_path,'en-80k.txt')
+sym_spell = SymSpell(max_dictionary_edit_distance=MODEL_CONFIG['THRESHOLD']['SYMSPELL_EDIT_DIST'],
+                     prefix_length=MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE'])
+dictionary_path = os.path.join(model_dep_path, 'en-80k.txt')
 
 # ====================================================================
 # term_index is the column of the term and count_index is the column of the term frequency
 # ====================================================================
-sym_spell.load_dictionary(dictionary_path, term_index=MODEL_CONFIG['THRESHOLD']['SYMSPELL_TERM_INDEX'], count_index=MODEL_CONFIG['THRESHOLD']['SYMSPELL_COUNT_INDEX'])
+sym_spell.load_dictionary(dictionary_path, term_index=MODEL_CONFIG['THRESHOLD']['SYMSPELL_TERM_INDEX'],
+                          count_index=MODEL_CONFIG['THRESHOLD']['SYMSPELL_COUNT_INDEX'])
 
 # ====================================================================
 # CPU Core count for multiprocessing and size of partition size
 # ====================================================================
-core_count = multiprocessing.cpu_count()  
+core_count = multiprocessing.cpu_count()
 size = MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE']
-
 
 
 # ====================================================================
@@ -67,7 +68,6 @@ size = MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE']
 # ====================================================================
 
 def extract_features(col_values: list) -> OrderedDict:
-        
     ### Extract the table data column from column values
     master_id = col_values[0]
     id = col_values[1]
@@ -101,7 +101,7 @@ def extract_features(col_values: list) -> OrderedDict:
         random.seed(13)
         cleaned_sample_nan = random.sample(cleaned_population_nan, k=n_samples)
     else:
-        n_samples = n_values
+        # n_samples = n_values
         cleaned_sample_nan = cleaned_population_nan
 
     ### Additional processing on the col values without nan and lower case converted
@@ -110,9 +110,9 @@ def extract_features(col_values: list) -> OrderedDict:
 
     ### Extracting the additional statistical features ( l1 model specific )
     # logger.info('*' * 100)
-    extract_additional_feats(cleaned_sample_nan,cleaned_sample_wo_nan_uncased,features)
+    extract_additional_feats(cleaned_sample_nan, cleaned_sample_wo_nan_uncased, features)
     # logger.info('*' * 100)
-    
+
     ### Adding the metadata specific information of the features
     features['master_id'] = master_id
     features['id'] = id
@@ -138,10 +138,9 @@ def extract_features(col_values: list) -> OrderedDict:
 
 def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
     start = datetime.now()
-
-    print("[*] Feature Creation Started...")
+    print(f"[*] Feature Extraction Started... {start.strftime('%Y-%m-%d %H:%M:%S')}")
     features_df = pd.DataFrame()
-    
+
     ### Remove the table and column from the data points for feature creation
     parquet_df['clean_values'] = parquet_df.apply(
         lambda x: remove_table_column_name(x['values'], x['dataset_name'], x['table_name'], x['column_name']), axis=1)
@@ -174,12 +173,11 @@ def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
     ### Get the total number of null features and replace them with 0
     # logger.info('Null Features column: %s', [col for col in features_df.columns if sum(pd.isnull(features_df[col])) > 0])
     features_df = features_df.fillna(0)
-    
+
     ### Get the feature execution stats
     features_df['start_time'] = start
     features_df['end_time'] = datetime.now()
     features_df['execution_time'] = datetime.now() - start
 
     print(f"[*] Feature Creation Finished. Processed {len(parquet_df)} rows in {(datetime.now() - start)}")
-    
     return features_df

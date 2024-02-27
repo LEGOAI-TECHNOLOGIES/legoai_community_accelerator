@@ -156,7 +156,7 @@ def check_other_date(strs) -> int:
 # ==================================================================== 
 def check_date_range(strs) -> int:
     try:
-        if int(strs) >= minRange and int(strs) <= maxRange:
+        if minRange <= int(strs) <= maxRange:
             return 1
         else:
             return 0

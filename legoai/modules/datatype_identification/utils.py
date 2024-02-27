@@ -1,6 +1,7 @@
 # ====================================================================
 #  Importing the required python packages
 # ====================================================================
+import traceback
 import pandas as pd
 from tqdm import tqdm
 
@@ -9,12 +10,12 @@ import json
 
 from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
 from legoai.modules.datatype_identification.preprocessing import data_standarization
-
+from legoai.core.configuration import MODEL_CONFIG, PATH_CONFIG
 
 
 # from core.logger import Logger
 
-from legoai.core.configuration import MODEL_CONFIG
+
 
 
 # Creating an logger object
@@ -69,8 +70,8 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
         ### read the input csv file format with datatype encoding and file encoding
         data_values = []
         for idx, col_name in enumerate(data.columns):
-               
-            dataset_name = source_folder.split('/')[-1].strip()  ## Get the dataset name from source folder
+            dataset_name = os.path.split(source_folder)[-1].strip()
+            # dataset_name = source_folder.split('/')[-1].strip()  ## Get the dataset name from source folder
             file_name = file_name.replace('.csv','').strip()  ## Get the file name from source folder
             
             ### Append the extracted data into temp dataframe
@@ -82,7 +83,7 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
     df['master_id'] = df['master_id'].str.lower()
     df = df.reset_index(drop=True).reset_index()
     df = df.rename(columns={'index':'id'})
-    
+
     return df
     
 # ====================================================================
@@ -95,7 +96,9 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
 # ====================================================================
 
 def source_file_conversion(folder_path: str) -> str:
-    t = tqdm(os.listdir(folder_path),desc="[*] preprocessing dataset...")
+
+    t = tqdm(os.listdir(folder_path), desc="[*] preprocessing dataset...")
+
     ### Iterating through each file in the folder path
     for file_name in t:
         #logger.debug('filename: %s',file_name)
@@ -142,5 +145,180 @@ def source_file_conversion(folder_path: str) -> str:
 
         t.set_description(f"[*] processed {file_name}",refresh=True)
 
-        
     return dest_folder
+
+
+# For training purposes checking meta information about the table
+def meta_information_check(data_df: pd.DataFrame,filename: str, reponame: str) -> pd.DataFrame:
+    """
+    Metadata Information check
+    - Dataframe with columns and values is passed as parameter to function
+    - Check if the unique "id" column is present or not. If not present then create index as the "id" column
+    - Check if the table name or column name is present, if not derive from file name or assign it as empty string
+    - Create master id from the repo name, table name and column name
+    Parameters
+    ----------
+    data_df (pd.DataFrame): dataframe with values and related columns
+    filename (str): input filename
+    reponame (str): input repo / dataset name
+
+    Returns
+    -------
+        data_df (pd.DataFrame):Dataframe with relevant and required columns along with additional metadata info
+    """
+    
+    ### ID creation for dataframe if not present
+    if 'id' in data_df.columns:
+        
+        if data_df['id'].nunique() != data_df.shape[0]:
+            data_df['id'] = [i for i in range(len(data_df))]        
+            
+    ### If column id is present, then we use column id as id
+    elif 'column_id' in data_df.columns:
+        data_df['id'] = data_df['column_id']
+    else:
+        data_df = data_df.reset_index(drop=True).reset_index()
+        data_df = data_df.rename(columns={'index':'id'})
+    
+    #### Mandatory column checks for column name
+    if 'column_name' not in data_df.columns:
+        
+        if 'type' in data_df.columns:    ### Assigning "type" as column name if they are not present
+            data_df['column_name'] = data_df['type']
+        else:
+            data_df['column_name'] = ''   ### If column name is not present, then we assign it as empty
+
+    #### Mandatory column checks for table name            
+    if 'table_name' not in data_df.columns:
+        data_df['table_name'] = filename.rsplit('.',1)[0] ### If table name is not present, then extract from file name
+        
+    ### Renaming certain column values to values
+    data_df = data_df.rename(columns={'column_values':'values','value':'values'})
+        
+    ### Convert the datatype to list format
+    data_df['values'] = data_df.apply(lambda x: list(x['values']),axis=1)
+    # print('Unique Type of values:', list(set([type(val) for val in data_df['values'].tolist()])))
+        
+    ### Check if the values are of list types
+    assert list(set([type(val) for val in data_df['values'].tolist()]))[0] == list
+        
+    ### For Specific repo name, we are using dataset name as repo name
+    if reponame == 'db_extract':
+        data_df['repo_name'] = data_df['dataset_name']
+    else:
+        data_df['repo_name'] = reponame
+        
+    ### Creating the master id from repo name, table name and column name and convert to lower type
+    data_df['master_id'] = data_df.apply(lambda x: x['repo_name']+'$$##$$'+x['table_name']+'$$##$$'+x['column_name'],axis=1)        
+    data_df['master_id'] = data_df['master_id'].str.lower()
+        
+    ### Check if the master id is unique or not
+    assert data_df['master_id'].nunique() == data_df.shape[0]
+
+    return data_df
+
+def data_conversion(filename: str,filepath: str) -> pd.DataFrame:
+    """
+     Data extraction and creation
+     - Pass the filename and filepath as input parameter to the function
+     - Extract the file extension from the filename
+     - Based on the extension, read the respective file formats
+     - Convert the file into dataframe format and return the dataframes
+
+    Parameters
+    ----------
+    filename(str): Input filename
+    filepath (str): Input file path
+
+    Returns
+    -------
+        pd.DataFrame: Dataframe with relevant and required columns
+    """
+    
+    ## Identify the file extension
+    file_extension = filename.rsplit('.',1)[1]
+    
+    ## Read the data based on extension
+    
+    ### File format in json or txt format
+    if file_extension in ('json','txt'):
+        with open(filepath, 'r') as f:
+            data_json = json.load(f)
+        
+        data = pd.DataFrame(data_json)
+
+    ### File format in parquet format
+    elif file_extension == 'parquet':
+        data = pd.read_parquet(filepath)
+            
+    ### File format in csv format
+    elif file_extension == 'csv':
+        data = pd.read_csv(filepath)
+        
+    ### else return empty dataframe if they are in neither format
+    else:
+        data = pd.DataFrame(columns=['id','table_name','column_name','values']) 
+    
+    return data
+
+#  extract file meta information
+def extract_file_meta_info(dataset_path:str) -> pd.DataFrame:
+    """
+     Iterating through the data and get all the required file info
+     - Iterating through the Raw data path for and reading the filenames present
+     - Checking if the files are of json type and split the path to get the folder/repo name, file name and file path for each
+     - Create the list of file related info into a dataframe
+    Parameters
+    ----------
+    dataset_path(str): repo or folder path
+    Returns
+    -------
+    pd.Dataframe: Dataframe with relevant and required columns along with additional metadata info
+    """
+    print("[*] Extracting files meta information ...")
+    data_content = []
+    data_path = os.path.join(PATH_CONFIG['CONTAINER_PATH'],dataset_path)
+    try:
+        for path, subdirs, files in os.walk(data_path):
+            for name in files:
+                data_content.append(os.path.join(path,name))
+        _meta_info = []
+        for cont in data_content:
+            file_meta_informations = cont.split(os.sep)
+            source , location , reponame , filename = file_meta_informations[1] , file_meta_informations[-3] , file_meta_informations[-2], file_meta_informations[-1]
+            _meta_info.append([source,location,reponame,filename,cont])
+
+        _meta_df = pd.DataFrame(_meta_info , columns = ['source','location','reponame','filename','filepath'])
+        return _meta_df
+    
+    except Exception as e:
+        print(traceback.format_exc())
+        print(e)
+
+
+def generate_id(id: str,name: str) -> str:
+    """
+     Generate ID for training data¶
+    - Based on the type of repo passed as parameter then we create the respective id
+    - Return the final ID based on the repo as column id
+
+    Parameters
+    ----------
+    id (str):
+    name (str): dataset name
+
+    Returns
+    -------
+        id (str): id for training data
+    """
+
+    ### Check if the data is real world data features, then retain the ID
+    if name == 'real_world_dataset':
+        if id.startswith('ID_'):
+            return id
+        else:
+            return 'SH_' + str(id)
+    elif name == 'web_crawl_dataset':
+        return 'WDC_' + str(id)
+    else:
+        return id
