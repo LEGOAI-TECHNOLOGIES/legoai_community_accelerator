@@ -7,15 +7,16 @@ import sys
 
 
 def load_model_configuration():
-    '''
+    """
         loads the configuration needed for the modules
 
-        Parameters:
-            None
+        Parameters
+        ----------
         
-        Returns:
+        Returns
+        -------
             dictionary of configuration either loaded from default path or through used defined config.yaml file
-    '''
+    """
    
     dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
     config_file = "config.yaml"
@@ -44,22 +45,28 @@ def load_model_configuration():
 
 MODEL_CONFIG = load_model_configuration()
 
-
+L1_FINAL_FOLDER_NAME = "datatype_l1_identification"
 def check_path_exists_or_not(path_config:dict):
     
     all_requirement_paths = path_config.keys()
     main_entry_path = path_config["CONTAINER_PATH"]
+
     non_required = ["CONTAINER_PATH","DATASET_PATH_URL"]
+
     # checks if necessary path is made or not if not the it creates one
-    if not os.path.isdir(main_entry_path):
+    if not os.path.exists(main_entry_path):
         os.makedirs(main_entry_path)
 
     # check all the other paths
     for inner_path in set(all_requirement_paths):
         
         if inner_path not in non_required:
-            full_inner_path = os.path.join(main_entry_path,path_config[inner_path])
-            if not os.path.isdir(full_inner_path):
+            special_case = ""
+            if not inner_path.startswith("INF"):
+                special_case += "datatype_l1_identification"
+
+            full_inner_path = os.path.join(main_entry_path,path_config[inner_path],special_case)
+            if not os.path.exists(full_inner_path):
                 # not exists then create the paths
                 os.makedirs(full_inner_path)
         
@@ -77,27 +84,27 @@ def load_path_configuration():
         "DEV_REF_DATA_PATH":os.path.join(*"input","reference_data"),
         "INT_DATA_PATH":"intermediate",
         "ANALYT_DATA_PATH": "analytical_data",
-        "INF_DATA_PATH":os.path.join("inference","input"),
-        "INF_OUT_PATH":os.path.join("inference","test_output"),
+        "INF_DATA_PATH":os.path.join(*"inference","input"),
+        "INF_OUT_PATH":os.path.join(*"inference","test_output"),
         "INF_REF_DATA_PATH":os.path.join(*"inference","reference_files"),
-        "MODEL_DEP_PATH":os.path.join("model","dependant"),
-        "MODEL_METRICS_PATH":os.path.join("model","model_metrics"),
-        "MODEL_OBJECTS_PATH":os.path.join("model","model_objects"),
-        "MODEL_RESULTS_PATH":os.path.join("model","model_results"),
+        "MODEL_DEP_PATH":os.path.join(*"model","dependant"),
+        "MODEL_METRICS_PATH":os.path.join(*"model","model_metrics"),
+        "MODEL_OBJECTS_PATH":os.path.join(*"model","model_objects"),
+        "MODEL_RESULTS_PATH":os.path.join(*"model","model_results"),
         "LOG_PATH":"logs",
         "DATASET_PATH_URL":"http://localhost:8000/Lego_AI/inference/"
     }
 
 
-    loaded_path_config = dotenv_values(".env")
+    custom_path_config = dotenv_values(".env")
     # checks all requirement directories , if not then it creates one
-    check_path_exists_or_not({**default_path_config,**loaded_path_config})
+    check_path_exists_or_not({**default_path_config,**custom_path_config})
 
    
     # file_abs_path = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
     return {
         **default_path_config,
-        **loaded_path_config,
+        **custom_path_config,
         }
 
 
