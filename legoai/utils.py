@@ -1,3 +1,5 @@
+from typing import List
+
 import openai
 
 import os
@@ -5,44 +7,72 @@ from urllib.request import urlopen
 from zipfile import ZipFile
 from io import BytesIO
 import sys
+from datetime import datetime
 
 from legoai.core.configuration import PATH_CONFIG
 
 DEFAULT_DATASET = "ecommerce_data"
 
-def download_default_dataset():
-    '''
-        Downloads the default dataset "ecommerce" from the path configured URL
-        Parameters:
-            None
+VALID_DATASET_EXTENSIONS = ['csv', 'json', 'txt', 'xslx']
 
-        Returns:
-            DEFAULT_DATASET (str): name of the default dataset
-    '''
+
+def check_dataset_path(*args):
+    for dataset_path in args:
+        if not os.path.exists(dataset_path):
+            print(f"\n[!] Given path {dataset_path} not valid")
+            sys.exit(-1)
+        elif not len(os.listdir(dataset_path)) > 0:
+            print(f"\n[!] Given path {dataset_path} doesn't hold any files for processing")
+            sys.exit(-1)
+        else:
+            for path, subdir, files in os.walk(dataset_path):
+                for file in files:
+                    extension = file.split(".")[-1]
+                    if extension not in VALID_DATASET_EXTENSIONS:
+                        print(f"\n[!] {os.path.join(path, file)} is not a valid file ... must be one of {VALID_DATASET_EXTENSIONS}")
+                        sys.exit(-1)
+
+
+def download_default_dataset():
+    """
+        Downloads the default dataset "ecommerce" from the path configured URL
+        Parameters
+        ---------
+
+        Returns
+        -------
+        inference_data_path (str): path to the default example inference data
+    """
+    # path to default dataset
+    inference_data_path = os.path.join(f"default_data_{datetime.now().strftime('%d%m%Y')}",
+                                       "inference",
+                                       "inference_repo",
+                                       DEFAULT_DATASET)
+
     # path to the default dataset
-    inferece_data_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],"inference_repo",DEFAULT_DATASET)
-    
+    # inference_data_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],"inference_repo",DEFAULT_DATASET)
+
     download = True
     # create the inference input dir if not exists
     try:
-        os.makedirs(inferece_data_path)
+        os.makedirs(inference_data_path)
     except FileExistsError:
-        # if exists check if the directory has any file then donot download.
-        if len(os.listdir(inferece_data_path)) > 0:
+        # the directory has any file then don't download.
+        if len(os.listdir(inference_data_path)) > 0:
             print("[*] dataset already downloaded")
             download = False
 
     if download:
-        with urlopen(PATH_CONFIG["DATASET_PATH_URL"]+DEFAULT_DATASET+".zip") as zipresp:
+        with urlopen(PATH_CONFIG["DATASET_PATH_URL"] + DEFAULT_DATASET + ".zip") as zipresp:
             print(f"[*] downloading and extracting {DEFAULT_DATASET}")
             with ZipFile(BytesIO(zipresp.read())) as zfile:
-                zfile.extractall(os.path.split(inferece_data_path)[0])
-    
-    return DEFAULT_DATASET
+                zfile.extractall(os.path.split(inference_data_path)[0])
+
+    return inference_data_path
 
 
-def check_openai_key(key:str):
-    key_clean = key.strip().replace(" ","") if key is not None else ""
+def check_openai_key(key: str):
+    key_clean = key.strip().replace(" ", "") if key is not None else ""
     if len(key_clean) == 0:
         print("[!] openai api key not provided")
         sys.exit(-1)
@@ -50,6 +80,6 @@ def check_openai_key(key:str):
         try:
             openai.api_key = key
             openai.Model.list()
-        except openai.error.AuthenticationError as e:
+        except openai.error.AuthenticationError:
             print("[!] provide valid openai key")
             sys.exit(-1)
