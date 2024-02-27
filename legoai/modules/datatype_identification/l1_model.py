@@ -30,21 +30,26 @@ DEFAULT_MODEL_VERSION = "13052023"
 class L1Model:
     
     ### Setting the path fir the various path for model related info
-    def __init__(self,model_version:str=None):
+    def __init__(self,model_version:str):
         self.model_objects_directory = os.path.join(PATH_CONFIG['MODEL_OBJECTS_PATH'], 'datatype_l1_identification')
         self.model_results_directory = os.path.join(PATH_CONFIG['MODEL_RESULTS_PATH'], 'datatype_l1_identification')
         self.model_metrics_directory = os.path.join(PATH_CONFIG['MODEL_METRICS_PATH'], 'datatype_l1_identification')
         self.data_directory = os.path.join(PATH_CONFIG['ANALYT_DATA_PATH'], 'datatype_l1_identification')
-        self.label_directory =  os.path.join(PATH_CONFIG['GT_PATH'], 'datatype_l1_identification')
-        self.model_version = model_version
+        self.label_directory = os.path.join(PATH_CONFIG['GT_PATH'], 'datatype_l1_identification')
+        self.model_version = str(model_version)
 
 
     @classmethod
-    def load_pretrained(cls):
+    def load_pretrained(cls,model_version:str):
         try:
-            model_version = MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"]
-        except KeyError:
-            model_version = DEFAULT_MODEL_VERSION
+
+            if model_version is None:
+                raise ValueError("model version not given")
+        except ValueError:
+            try:
+                model_version = MODEL_CONFIG["L1PARAMS"]["MODEL_VERSION"]
+            except KeyError:
+                model_version = DEFAULT_MODEL_VERSION
 
         return cls(model_version = model_version)
 
@@ -53,8 +58,9 @@ class L1Model:
     #  - groups the similar datatypes into one single type
     # Parameters: 
     #     datatype- input datatype 
-    # ====================================================================     
-    def _group_labels(self,datatype: str) -> str:
+    # ====================================================================
+    @staticmethod
+    def _group_labels(datatype: str) -> str:
         
         # groups the similar datatypes into one single type
         if datatype in ['Short_Integer', 'Long_Integer']:
@@ -73,8 +79,9 @@ class L1Model:
     # ====================================================================
     # feature_subset: 
     #  - Returns the list of required features for the modeling
-    # ====================================================================             
-    def _feature_subset(self) -> list:
+    # ====================================================================
+    @staticmethod
+    def _feature_subset() -> list:
         
         ##logger.debug('Subsetting the char, par, word, rest features')
         feats_cols = ['dateRatio', 'wordlen_mean', 'rangeRatio', 'floatRatio', 'zero_flag', 'intRatio', 'alphaNumRatio', 'alphaRatio', 'frac_unique_sample','flag_numcells']
@@ -93,23 +100,37 @@ class L1Model:
     #     label- datatype
     #     model_version- model version    
     # ====================================================================         
-    def train_test_creation(self, label: str = 'grouped_datatype',model_version = datetime.now().strftime('%d%m%Y')):
-        
+    def train_test_creation(self, label_path:str,label: str = 'grouped_datatype'): #model_version = datetime.now().strftime('%d%m%Y')):
+
         # Reading the required features file from feature path
         #logger.debug('Reading features data')
         feats_path = os.path.join(container_path, self.data_directory,'di_l1_consolidated_feats_data.csv')
         
         # Reading the required label file from GT path
         #logger.debug('Reading label data')
-        label_path = os.path.join(container_path, self.label_directory,'di_l1_ground_truth.csv')
         
+        # label_path = os.path.join(container_path, self.label_directory,'di_l1_ground_truth.csv')
+
+
         # Reading the required feature and label file from path
-        model_data = pd.read_csv(feats_path)
-        labelled_data = pd.read_csv(label_path)
-        
+        model_data = pd.read_csv(feats_path,low_memory=False)
+
+        try:
+            # for default cases
+            label_path = os.path.join(container_path, label_path, 'di_l1_ground_truth.csv')
+            labelled_data = pd.read_csv(label_path)
+        except Exception:
+            # for if user provides full path for gt
+            labelled_data = pd.read_csv(label_path)
+
+        # convert master id to lower to remove any join inconsitency
+        model_data['master_id'] = model_data['master_id'].str.lower()
+        labelled_data['master_id'] = labelled_data['master_id'].str.lower()
+
+        print(f'[*] Features: {model_data.shape} , Labels: {labelled_data.shape}')
         # Merge the feature and label data to create grouped datatype
         model_label_data = pd.merge(model_data,labelled_data[['master_id','datatype']],on='master_id')
-        
+        print(f'[*] Final Merged Features and Labels: {model_label_data.shape}')
         #logger.debug('Grouping datatype')        
         model_label_data['grouped_datatype'] = model_label_data['datatype'].apply(self._group_labels)
         model_label_data['grouped_datatype'] = model_label_data['grouped_datatype'].str.lower()
@@ -121,11 +142,11 @@ class L1Model:
         
         # Split the data into train, test and validation for model training
         train_val_data = model_label_data[model_label_data['repo_name'].isin(train_file_name)]
-        train_data = train_val_data[train_val_data['repo_name']== MODEL_CONFIG['PREPROCESS_CONSTANT']['TRAIN_DATASET']]
-        valid_data = train_val_data[train_val_data['repo_name']== MODEL_CONFIG['PREPROCESS_CONSTANT']['VALIDATION_DATASET']]        
+        train_data = train_val_data[train_val_data['repo_name'] == MODEL_CONFIG['PREPROCESS_CONSTANT']['TRAIN_DATASET']]
+        valid_data = train_val_data[train_val_data['repo_name'] == MODEL_CONFIG['PREPROCESS_CONSTANT']['VALIDATION_DATASET']]
         test_data = model_label_data[~model_label_data['repo_name'].isin(train_file_name)]
         
-        print('Train: ',train_data.shape, 'Valid: ',valid_data.shape, 'Test: ',test_data.shape)
+        print('[*] Train: ',train_data.shape, 'Valid: ',valid_data.shape, 'Test: ',test_data.shape)
         
         ### Train - Test - Validation Set
         X_train = train_data
@@ -149,13 +170,15 @@ class L1Model:
         y_test = encoder.transform(y_test)
         
         ### Storing the label encoder object
-        model_path  = open(os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_encoder_'+model_version+'.pkl'),'wb')
-        joblib.dump(encoder, model_path)
-        
+        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_encoder_'+self.model_version+'.pkl')
+        with open(model_path,'wb') as enc_file:
+            joblib.dump(encoder, enc_file)
+            print(f"[*] Label encoder saved at {model_path} ...")
+
         #logger.debug('Train - Test dataset creation completed...')
 
         ### Return train, test and validation dataset for modeling
-        return (X_train, y_train, X_validation, y_validation, X_test, y_test)
+        return X_train, y_train, X_validation, y_validation, X_test, y_test
     
     # ====================================================================
     # optimize_model: 
@@ -166,7 +189,8 @@ class L1Model:
     #    X_train - Feature data
     #    y_train - Target data
     # ====================================================================             
-    def optimize_model(self,X_train: pd.DataFrame, y_train: np.array, k: int=3) -> dict:
+    @staticmethod
+    def optimize_model(X_train: pd.DataFrame, y_train: np.array, k: int=3) -> dict:
         
         # Parameters for the model optimization
         params = {
@@ -197,7 +221,7 @@ class L1Model:
     #    types - input model name
     #    model_version - model version
     # ====================================================================              
-    def model_metrics(self, actual, pred, types = 'di_l1_classifier_test_predicted_xgb',model_version = datetime.now().strftime('%d%m%Y')):
+    def model_metrics(self, actual, pred, types = 'di_l1_classifier_test_predicted_xgb'): #model_version = datetime.now().strftime('%d%m%Y')):
         
         #logging.debug('Metrics calculation started')
         
@@ -210,7 +234,7 @@ class L1Model:
         conf_df = pd.DataFrame(conf_mat)
         
         # Path for storing the classification report and confusion matrix report for the input actual and predicted
-        report_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"], self.model_metrics_directory, types+'_'+'classification_report_'+model_version+'.csv')
+        report_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"], self.model_metrics_directory, types+'_'+'classification_report_'+self.model_version+'.csv')
         # #logging.debug('Metrics calculation completed')
         
         ### Storing the results/metrics into csv file 
@@ -231,12 +255,11 @@ class L1Model:
     #    model_version - model version
     #    process_type - train/inference for getting the prediction    
     # ====================================================================                      
-    def model_prediction(self,test_df: pd.DataFrame, model_version = datetime.now().strftime('%d%m%Y'),process_type: str ='train') -> pd.DataFrame:
-        print("[*] L1 model execution started...")
-        
+    def model_prediction(self,test_df: pd.DataFrame,process_type: str ='train') -> pd.DataFrame: #model_version = datetime.now().strftime('%d%m%Y'),
+
         X_test = test_df.copy()
         
-        model_version = self.model_version if self.model_version is not None else model_version
+        # model_version = self.model_version if self.model_version is not None else model_version
 
         # Features subset from the dataset for prediction          
         features_list = self._feature_subset()
@@ -245,11 +268,12 @@ class L1Model:
         #logger.debug('Reading the model objects')
 
 
-        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+model_version+'.pkl')
-        encoder_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_encoder_'+model_version+'.pkl')
+        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+self.model_version+'.pkl')
+        encoder_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_encoder_'+self.model_version+'.pkl')
 
-        # load default model and encoder if they donot exists in given path i.e legoai/model folder
+        # load default model and encoder if they don't exists in given path i.e load from legoai/model folder
         if not os.path.exists(model_path) or not os.path.exists(encoder_path):
+
             dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
             default_model_path = os.path.join(os.path.split(dir_path)[0],"model","model_objects",'datatype_l1_identification')
 
@@ -282,7 +306,7 @@ class L1Model:
         else:
             test_subset = X_test[['master_id','grouped_datatype','predicted_datatype_l1','predicted_probability_l1']]
             
-        print("[*] L1 model excution complete...")
+
         return test_subset
     
     # ====================================================================
@@ -302,8 +326,8 @@ class L1Model:
     #    label_name - Target name   
     #    model_version - model version
     # ====================================================================              
-    def build_ML_Model(self,X_train, y_train, X_validation, y_validation, X_test, y_test, optimize=False , label_name='grouped_datatype', model_version = datetime.now().strftime('%d%m%Y')):
-        
+    def build_ML_Model(self,X_train, y_train, X_validation, y_validation, X_test, y_test, optimize=False , label_name='grouped_datatype'):# model_version = datetime.now().strftime('%d%m%Y')):
+        print(f"[*] Model building started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         # Features subset from the dataset for training          
         features_list = self._feature_subset()
 
@@ -323,26 +347,30 @@ class L1Model:
         
         # Storing the model objects
         #logger.debug('Writing the XGBoost model objects')
-        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+model_version+'.pkl')
+        model_path = os.path.join(container_path, self.model_objects_directory,'di_l1_classifier_xgb_'+self.model_version+'.pkl')
         joblib.dump(clf,model_path,compress=3)
-        
+        print(f"[*] Classifier model saved at {model_path} ...")
         # Predicting on the test dataset
         #logger.debug('Prediction on the test data')
-        X_test_pred = self.model_prediction(test_df=X_test, process_type='test', model_version=model_version)
-        X_test_pred.to_csv(os.path.join(container_path,self.model_results_directory,f"di_l1_classifier_test_predicted_xgb_{datetime.now().strftime('%d%m%Y')}.csv"),index=False)
-        
+        X_test_pred = self.model_prediction(test_df=X_test, process_type='test')# model_version=self.model_version)
+        test_pred_path = os.path.join(container_path, self.model_results_directory,f"di_l1_classifier_test_predicted_xgb_{datetime.now().strftime('%d%m%Y')}.csv")
+        X_test_pred.to_csv(test_pred_path,index=False)
+        print(f"[*] Test predictions saved at {test_pred_path} ...")
         ### Get the model metrics for the test dataset
         #logger.debug('Calculating the model metrics on test dataset')
-        class_report, conf_df = self.model_metrics(actual = X_test_pred[label_name], pred = X_test_pred['predicted_datatype_l1'], types='di_l1_classifier_test_predicted_xgb', model_version = model_version)
+        class_report_test, conf_df_test = self.model_metrics(actual = X_test_pred[label_name], pred = X_test_pred['predicted_datatype_l1'], types='di_l1_classifier_test_predicted_xgb')# model_version = model_version)
 
         ### Predicting on the validation dataset
         #logger.debug('Prediction on the validation data')
-        X_validation_pred = self.model_prediction(test_df=X_validation, process_type='validation' ,model_version = model_version)
-        X_validation_pred.to_csv(os.path.join(container_path,self.model_results_directory,f"di_l1_classifier_validation_predicted_xgb_{datetime.now().strftime('%d%m%Y')}.csv"),index=False)
-        
+        X_validation_pred = self.model_prediction(test_df=X_validation, process_type='validation') #model_version = self.model_version)
+        val_pred_path = os.path.join(container_path, self.model_results_directory,f"di_l1_classifier_validation_predicted_xgb_{datetime.now().strftime('%d%m%Y')}.csv")
+        X_validation_pred.to_csv(val_pred_path,index=False)
+        print(f"[*] Validations predictions saved at {val_pred_path} ...")
+
         ### Get the model metrics for the validation dataset
         #logger.debug('Calculating the model metrics on Validation dataset')
-        class_report, conf_df = self.model_metrics(actual = X_validation_pred[label_name],pred = X_validation_pred['predicted_datatype_l1'], types='di_l1_classifier_validation_predicted_xgb', model_version = model_version)
+        class_report_val, conf_df_val = self.model_metrics(actual = X_validation_pred[label_name],pred = X_validation_pred['predicted_datatype_l1'], types='di_l1_classifier_validation_predicted_xgb')# model_version = model_version)
 
-        
+        print(f"[*] Model building completed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        return X_test_pred , class_report_test, conf_df_test, X_validation_pred, class_report_val, conf_df_val
         # #logging.debug('Model building completed')
