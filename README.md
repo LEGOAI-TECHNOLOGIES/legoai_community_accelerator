@@ -3,20 +3,21 @@
     <img src="https://www.legoai.com/assets/Icons/Picture1.png" alt="LegoAI Logo">
   </a>
 
-  <h3 align="center">Empowering Business Users With Self Serve Analytics</h3> 
+  <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
 
-## What is LegoAI?
-**GenAI** Powered analytics platform that automatically converts business requirements into executable machine language, enabling users with explainable & accurate insights at unparalleled speed & scale.
+## What is LegoAI ?
+_**GenAI** Powered analytics platform that automatically converts business requirements into executable machine language, enabling users with explainable & accurate insights at unparalleled speed & scale._
 ## Table of contents
 - [Main Features](#main-features)
 - [Datatype Identification](#datatype-identification)
 - [Where to get it](#where-to-get-it)
 - [License](#license)
 - [Documentation](#documentation)
+- [Examples](#examples)
 
 ## Main Features
 The project has different pipelines ... currently only released pipeline is:
-- [Datatype Identification](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/legoai/modules/datatype_identification)  [**details**](#datatype-identification)
+- [Datatype Identification](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/legoai/modules/datatype_identification)  <<[**details**](#datatype-identification)>>
 - coming soon ...
 ## Datatype Identification
 As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts
@@ -33,8 +34,10 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
   
 - [L3 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py)
   - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same.
-   - currently uses openai chat llm.   
-
+   - currently uses openai chat llm.
+    > **Note**  
+    > Needs opean ai api key
+    
 ## Where to get it?
 The source code can be found at https://github.com/legoai-opensource/legoai
 Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
@@ -47,6 +50,9 @@ pip install legoai
 ## License
 
 ## Documentation
+
+## Examples
+
 
 
 
