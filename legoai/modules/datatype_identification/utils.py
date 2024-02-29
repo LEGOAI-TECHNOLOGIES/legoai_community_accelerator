@@ -9,29 +9,29 @@ import os
 import json
 
 from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
-from legoai.modules.datatype_identification.preprocessing import data_standarization
+from legoai.modules.datatype_identification.preprocessing import data_standardization
 from legoai.core.configuration import MODEL_CONFIG, PATH_CONFIG
 
 
 # from core.logger import Logger
 
-
-
-
 # Creating an logger object
 # logger = Logger.getLogger(parent_folder_name="datatype_l1_identification",child_folder_name="feature")
+def check_column_duplicates(colNames: list[str]) -> list[str]:
+    """
+    - Read the column names and converts them to dataframe
+    - Clean and convert the column names into lower case
+    - Create an incremental values as cumulative count and replace the first value
+    - Return the cleaned and updated column names
 
-# ====================================================================
-# check_column_duplicates: 
-#     - Read the column names and converts them to dataframe
-#     - Clean and convert the column names into lower case
-#     - Create an incremental values as cumulative count and replace the first value 
-#     - Return the cleaned and updated column names
-# Parameters: 
-#     colNames - List of dataframe column names
-# ====================================================================
-    
-def check_column_duplicates(colNames):
+    Parameters
+    ----------
+    colNames (list): list of column names
+
+    Returns
+    -------
+    list of cleaned column names
+    """
     colNames = [remove_non_ascii(col) for col in colNames]
     col_df = pd.DataFrame(colNames,columns = ['cols'])
     col_df['cleaned_cols'] = col_df['cols'].str.strip().str.lower()
@@ -40,16 +40,21 @@ def check_column_duplicates(colNames):
     colNames = col_df['cols'].tolist()
     return colNames
 
-# ====================================================================
-# input_file_transformation: 
-#     - Read the csv files present in the inference file path
-#     - Concatenate all the csv files into a combined df for inference
-#     - Get the data, column name, table name and dataset name into dataframe
-# Parameters: 
-#     source_folder - Inference source file path
-# ====================================================================
 
 def input_file_transformation(source_folder: str) -> pd.DataFrame:
+    """
+    - Read the csv files present in the inference file path
+    - Concatenate all the csv files into a combined df for inference
+    - Get the data, column name, table name and dataset name into dataframe
+
+    Parameters
+    ----------
+    source_folder (str): path to the pre-processed files
+
+    Returns
+    -------
+    dataframe with all relevant columns and values
+    """
     
     ### data transformation for the required format
     df = pd.DataFrame()
@@ -85,17 +90,21 @@ def input_file_transformation(source_folder: str) -> pd.DataFrame:
     df = df.rename(columns={'index':'id'})
 
     return df
-    
-# ====================================================================
-# source_file_conversion: 
-#     - Iterate through each file present in the inference folder to get the file name
-#     - Check if the file is excel/json/txt format read and write it as csv in processed folder
-#     - If the file is only csv format, then we copy from inference to inference processed folder
-# Parameters: 
-#     folder_path - Inference source file path
-# ====================================================================
 
 def source_file_conversion(folder_path: str) -> str:
+    """
+    - Iterate through each file present in the inference folder to get the file name
+    - Check if the file is excel/json/txt format read and write it as csv in processed folder
+    - If the file is only csv format, then we copy from inference to inference processed folder
+
+    Parameters
+    ----------
+    folder_path (str): path where the data for inference is located
+
+    Returns
+    -------
+    final path of pre-processed files
+    """
 
     t = tqdm(os.listdir(folder_path), desc="[*] preprocessing dataset...")
 
@@ -139,7 +148,7 @@ def source_file_conversion(folder_path: str) -> str:
         
         data = data.drop_duplicates().reset_index(drop=True)
         data.columns = check_column_duplicates(data.columns)
-        data_std = data_standarization(data)
+        data_std = data_standardization(data)
         # print(dest_path)
         data_std.to_csv(dest_path, index=False)
 
@@ -151,11 +160,11 @@ def source_file_conversion(folder_path: str) -> str:
 # For training purposes checking meta information about the table
 def meta_information_check(data_df: pd.DataFrame,filename: str, reponame: str) -> pd.DataFrame:
     """
-    Metadata Information check
     - Dataframe with columns and values is passed as parameter to function
     - Check if the unique "id" column is present or not. If not present then create index as the "id" column
     - Check if the table name or column name is present, if not derive from file name or assign it as empty string
     - Create master id from the repo name, table name and column name
+
     Parameters
     ----------
     data_df (pd.DataFrame): dataframe with values and related columns
@@ -164,7 +173,7 @@ def meta_information_check(data_df: pd.DataFrame,filename: str, reponame: str) -
 
     Returns
     -------
-        data_df (pd.DataFrame):Dataframe with relevant and required columns along with additional metadata info
+    Dataframe with relevant and required columns along with additional metadata info
     """
     
     ### ID creation for dataframe if not present
@@ -215,12 +224,14 @@ def meta_information_check(data_df: pd.DataFrame,filename: str, reponame: str) -
     ### Check if the master id is unique or not
     assert data_df['master_id'].nunique() == data_df.shape[0]
 
+    ### Convert id to string
+    # data_df.id = data_df.id.astype(str)
+
     return data_df
 
 def data_conversion(filename: str,filepath: str) -> pd.DataFrame:
     """
-     Data extraction and creation
-     - Pass the filename and filepath as input parameter to the function
+     - Pass the filename and filepath as input parameter to the function.
      - Extract the file extension from the filename
      - Based on the extension, read the respective file formats
      - Convert the file into dataframe format and return the dataframes
@@ -232,7 +243,7 @@ def data_conversion(filename: str,filepath: str) -> pd.DataFrame:
 
     Returns
     -------
-        pd.DataFrame: Dataframe with relevant and required columns
+    Dataframe with relevant and required columns
     """
     
     ## Identify the file extension
@@ -261,19 +272,20 @@ def data_conversion(filename: str,filepath: str) -> pd.DataFrame:
     
     return data
 
-#  extract file meta information
+
 def extract_file_meta_info(dataset_path:str) -> pd.DataFrame:
     """
-     Iterating through the data and get all the required file info
-     - Iterating through the Raw data path for and reading the filenames present
-     - Checking if the files are of json type and split the path to get the folder/repo name, file name and file path for each
-     - Create the list of file related info into a dataframe
+    - Iterating through the Raw data path for and reading the filenames present
+    - Checking if the files are of json type and split the path to get the folder/repo name, file name and file path for each
+    - Create the list of file related info into a dataframe
+
     Parameters
     ----------
     dataset_path(str): repo or folder path
+
     Returns
     -------
-    pd.Dataframe: Dataframe with relevant and required columns along with additional metadata info
+    Dataframe with relevant and required columns along with additional metadata info
     """
     print("[*] Extracting files meta information ...")
     data_content = []
@@ -298,7 +310,7 @@ def extract_file_meta_info(dataset_path:str) -> pd.DataFrame:
 
 def generate_id(id: str,name: str) -> str:
     """
-     Generate ID for training data¶
+     Generate ID for training data
     - Based on the type of repo passed as parameter then we create the respective id
     - Return the final ID based on the repo as column id
 
@@ -309,7 +321,7 @@ def generate_id(id: str,name: str) -> str:
 
     Returns
     -------
-        id (str): id for training data
+    id for training data
     """
 
     ### Check if the data is real world data features, then retain the ID
@@ -322,3 +334,5 @@ def generate_id(id: str,name: str) -> str:
         return 'WDC_' + str(id)
     else:
         return id
+
+

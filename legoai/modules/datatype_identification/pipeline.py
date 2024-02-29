@@ -50,7 +50,8 @@ class DataTypeIdentificationPipeline:
     @classmethod
     def pretrained_pipeline(cls, openai_api_key: str = None, model_version: str = None):
         """
-            Returns an object with preloaded L1 model and pre instantiated L3 model
+            - Returns an object with preloaded L1 model and pre instantiated L3 model
+            - if openai api key not given only instantiates with L1 model
 
             Parameters
             ----------
@@ -61,25 +62,62 @@ class DataTypeIdentificationPipeline:
             -------
             DatatypeIdentification object with l1 and l3 model loaded.
         """
-        check_openai_key(openai_api_key)
+        if openai_api_key is not None:
+            check_openai_key(openai_api_key)
+            return cls(
+                L1Model.load_pretrained(model_version),
+                L3Model(openai_api_key=openai_api_key)
+            )
 
-        return cls(
-            L1Model.load_pretrained(model_version),
-            L3Model(openai_api_key=openai_api_key)
-        )
+        print("[*] OpenAI api key not provided ... inference will only run for l1 datatype identification ...")
+        return cls(L1Model.load_pretrained(model_version), None)
+
 
     @staticmethod
     def data_preparation(dataset_path: str):
+        """
+        - Data preparation for inference
+
+        Parameters
+        ----------
+        dataset_path (str): path to the dataset folder
+
+        Returns
+        -------
+        Returns path of new preprocessed data folder
+        """
         source_path = source_file_conversion(dataset_path)
         return source_path
 
     @staticmethod
     def dataframe_preparation(input_path: str) -> pd.DataFrame:
+        """
+        - Converts preprocessed data into one single dataframe
+
+        Parameters
+        ----------
+        input_path (str): path to the preprocessed data folder ( can be obtained from data_preparation())
+
+        Returns
+        -------
+        dataframe with all tables combined with columns , values and other relevant information.
+        """
         df = input_file_transformation(input_path)
         return df
 
     @staticmethod
     def features_preparation(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        - Extract the features from the combined dataframe obtained through dataframe_preparation()
+
+        Parameters
+        ----------
+        df (pd.DataFrame): Dataframe with all relevant information such as master_id, table_name ,column_name and column_values
+
+        Returns
+        -------
+        Feature extracted dataframe
+        """
         feature_df = extract_features_to_csv(df)
         return feature_df
 
@@ -99,7 +137,6 @@ class DataTypeIdentificationPipeline:
 
         Returns
         -------
-            None
         """
 
         for row in tqdm(range(len(_meta_df))):
@@ -164,7 +201,7 @@ class DataTypeIdentificationPipeline:
             # print(len(feats_content) - i)
 
         ### Create column id for the mapping features to the respective labels
-        features_df['column_id'] = features_df.apply(lambda x: generate_id(x['id'], x['repo_name']), axis=1)
+        features_df['column_id'] = features_df.apply(lambda x: generate_id(str(x['id']), x['repo_name']), axis=1)
 
         ### Store the features dataframe to the feature location
         full_filepath = os.path.join(container_path, l1_feature_path, "di_l1_consolidated_feats_data.csv")
@@ -172,16 +209,16 @@ class DataTypeIdentificationPipeline:
         print(f"[*] Consolidated features saved at {full_filepath} ...")
 
     @staticmethod
-    def build_l1_model( model_version: str,gt_path: str = l1_raw_gt_path) -> tuple:
+    def build_l1_model( model_version: str = datetime.now().strftime('%d%m%Y'),gt_path: str = l1_raw_gt_path) -> tuple:
         """
         Parameters
         ----------
-        gt_path (str): ground truth f
-        model_version (str): final model version that is to be stored (for classifier and encoder).
+        gt_path (str): ground truth or label path for the training data
+        model_version (str): final model version that is to be stored (for classifier and encoder) if not given today's date will be used.
 
         Returns
         -------
-            tuples: class report and prediction result of test and validation dataset
+        classification report and prediction result of  such as confusion matrix test and validation dataset
         """
 
         l1_model = L1Model(model_version)
@@ -240,7 +277,10 @@ class DataTypeIdentificationPipeline:
 
             Returns:
             --------
+
             l1_l3_model_prediction (pd.DataFrame): the final l1 and l3 combined result.
+            or
+            l1_model_prediction (pd.DataFrame): only l1 model prediction if openai key not given
         """
 
         di_start = time.time()
@@ -255,15 +295,21 @@ class DataTypeIdentificationPipeline:
         features_df = self.features_preparation(df)
 
         # 4th step is to run the l1 model prediction
-        l1_model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
+        _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
 
-        # 5th step is to run the l3 model prediction
-        l1_l3_model_prediction = self.l3_model.model_prediction(l1_pred=l1_model_prediction, feat_df=features_df, df=df)
+        # if api key not given only run l1 model
+        if self.l3_model is None:
+            _model_prediction[['repo','table','column']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
+            _model_prediction.drop(columns=['master_id'],inplace=True)
+            di_end = time.time()
+        else:
 
-        di_end = time.time()
-        print(f"[*] inference complete... took {round((di_end - di_start) / 60, 2)} minute ...")
+            # 5th step is to run the l3 model prediction
+            _model_prediction = self.l3_model.model_prediction(l1_pred= _model_prediction, feat_df=features_df, df=df)
+            di_end = time.time()
 
-        return l1_l3_model_prediction
+        print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
+        return _model_prediction
 
     @staticmethod
     def load_example_dataset():
@@ -340,7 +386,6 @@ class DataTypeIdentificationPipeline:
         # folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],'inference_repo', dataset_name)
         if os.path.exists(folder_path):
             parquet_df = input_file_transformation(folder_path)
-
             try:
                 if save_to is not None:
                     parquet_df.to_csv(save_to)
@@ -353,8 +398,7 @@ class DataTypeIdentificationPipeline:
         else:
             print(f"[!] dataset doesn't exists in the path {folder_path} ...")
 
-    def train(self, dataset_path: str = l1_raw_data_path, gt_path: str = l1_raw_gt_path,
-              model_version: str = datetime.now().strftime('%d%m%Y')):
+    def train(self, dataset_path: str = l1_raw_data_path, gt_path: str = l1_raw_gt_path,*,model_version:str):
         """
         Parameters
         ----------
@@ -390,11 +434,11 @@ class DataTypeIdentificationPipeline:
 
         if save_to is not None:
             try:
-                result.to_csv(save_to)
+                result.to_csv(save_to,index=False)
             except Exception:
                 save_to = f"di_final_{datetime.now().strftime('%Y%M%d')}"
                 print("[*] couldn't save to specified path ...")
-                result.to_csv(save_to)
+                result.to_csv(save_to,index=False)
                 print(f"[*] final result saved at {save_to} ...")
 
         return result

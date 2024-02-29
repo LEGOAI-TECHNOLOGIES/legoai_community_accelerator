@@ -40,14 +40,20 @@ maxRange = MODEL_CONFIG['THRESHOLD']['DATE_MAX_YEAR']
 # Get the number pattern
 NUMBER_PATTERN = re.compile(MODEL_CONFIG['PREPROCESS_CONSTANT']['NUMBER_PATTERN'])
 
-# ====================================================================
-# checkInt: 
-#  - Check if the data is of Integer type or not
-#  - If integer then return 1 else 0
-# Parameters: 
-#     strs - input data (check if the data is integer or not) 
-# ==================================================================== 
-def check_int(strs) -> int:
+
+def check_int(strs: str) -> int:
+    """
+    - Check if the data is of Integer type or not
+    - If integer then return 1 else 0
+
+    Parameters
+    ----------
+    strs(str): input data
+
+    Returns
+    -------
+    int: flag 0 or 1
+    """
     
     ### If integer type then return 1 else return 0
     if isinstance(strs.replace(',', ''), int):
@@ -61,14 +67,19 @@ def check_int(strs) -> int:
         except:
             return 0
 
-# ====================================================================
-# checkFloat: 
-#  - Check if the data is of Float type or not
-#  - If float then return 1 else 0
-# Parameters: 
-#     strs - input data (check if the data is float or not) 
-# ==================================================================== 
 def check_float(strs) -> int:
+    """
+    - Check if the data is of Float type or not
+    - If float then return 1 else 0
+
+    Parameters
+    ----------
+    strs (str): input data
+
+    Returns
+    -------
+    int: flag 0 or 1
+    """
     ### If Float type then return else return 0
     if isinstance(strs, float):
         return 1
@@ -84,16 +95,22 @@ def check_float(strs) -> int:
         except:
             return 0
 
-# ====================================================================
-# alphaAndNumericMatch: 
-#  - Calculate the ratio of alpha to numeric ratio
-#  - If the data is only alpha then returns alpha
-#  - If the data is only numeric then return numeric
-#  - If the data contains both alpha and numeric or special character then return alphanumeric
-# Parameters: 
-#     value - input data
-# ==================================================================== 
+
 def alpha_and_numeric_match(value) -> str:
+    """
+    - Calculate the ratio of alpha to numeric ratio
+    - If the data is only alpha then returns alpha
+    - If the data is only numeric then return numeric
+    - If the data contains both alpha and numeric or special character then return alphanumeric
+
+    Parameters
+    ----------
+    value (str): input data
+
+    Returns
+    -------
+    str: 'alphanumeric' or 'numeric' or 'alphabets' or 'others'
+    """
     
     ### Converts the values into string type
     value = str(value)
@@ -113,14 +130,21 @@ def alpha_and_numeric_match(value) -> str:
     else:
         return 'others'
 
-# ====================================================================
-# checkDate: 
-#  - Validate if the input data is of date/datetime format
-#  - Preprocess and check the string against the pattern and return flag
-# Parameters: 
-#     strs - input data
-# ==================================================================== 
-def check_date(strs) -> int:
+
+def check_date(strs: str) -> int:
+    """
+    - Validate if the input data is of date/datetime format
+    - Preprocess and check the string against the pattern and return flag
+
+    Parameters
+    ----------
+    strs (str): input data
+
+    Returns
+    -------
+    int: flag 0 or 1
+
+    """
     date_pattern = " \d{4}-[0-1][0-9]-[0-3][0-9](-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{4}-[0-3][0-9]-[0-1][0-9](-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | [0-1][0-9]-\d{4}-[0-3][0-9](-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | [0-3][0-9]-\d{4}-[0-1][0-9](-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | [0-1][0-9]-[0-3][0-9]-\d{4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | [0-3][0-9]-[0-1][0-9]-\d{4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-\d{1,2}-\d{4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{4}-\d{1,2}-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-\d{4}-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-\d{1,2}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{2,4}-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)*  | (\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{1,2}-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)*  | \d{1,2}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-\d{2,4}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)*  | \d{2,4}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)*  | \d{2,4}-\d{1,2}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{2,4}-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{1,2}-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-\d{2,4}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{2,4} (-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | (\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-(\\bjanuary\\b|\\bfebruary\\b|\\bmarch\\b|\\bapril\\b|\\bmay\\b|\\bjune\\b|\\bjuly\\b|\\baugust\\b|\\bseptember\\b|\\boctober\\b|\\bnovember\\b|\\bdecember\\b)+-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{2,4}-(\\bjan\\b|\\bfeb\\b|\\bmar\\b|\\bapr\\b|\\bmay\\b|\\bjun\\b|\\bjul\\b|\\baug\\b|\\bsep\\b|\\bsept\\b|\\boct\\b|\\bnov\\b|\\bdec\\b)+-\d{2,4}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}-days-\d{1,2}:\d{1,2}:\d{1,2}(-\d{1,2}:\d{1,2}(:\d{1,2})*(z)*[-\d{0,3}]*(AM|PM|CDT|EDT|IST)*)* | \d{1,2}h[-]*\d{1,2}m | \d{1,2}:\d{2}[:|-]+\d{2} | \d{1,2}:\d{2}[-]*(AM|PM|CDT|EDT|IST)* | (FY|FQ)+[-]*\d{2,4} | \d+[-]*(year[s]*|month[s]*|day[s]*|week[s]*|year[s]*|hour[s]|minute[s]|second[s])+ | \d{1,2}-\d{2}-\d{2}[-]*(AM|PM|CDT|EDT|IST)* | \d{1,2}:\d{2}-(AM|PM|CDT|EDT|IST)+-\d{1,2}:\d{2}-(AM|PM|CDT|EDT|IST)+ | \b(?:20\d{2}|19\d{2}|\d{2})[-/._](0[1-9]|1[0-2])[-/._](0[1-9]|[12]\d|3[01])T([01]\d|2[0-4])[:,.](0[0-9]|[1-5]\d)[:,.](0[0-9]|[1-5]\d)Z\b | \b(?:20\d{2}|19\d{2}|\d{2})[-/._](0[1-9]|[12]\d|3[01])[-/._](0[1-9]|1[0-2])T([01]\d|2[0-4])[:,.](0[0-9]|[1-5]\d)[:,.](0[0-9]|[1-5]\d)Z\b"
     
     ### Preprocess the text for pattern matching 
@@ -131,13 +155,17 @@ def check_date(strs) -> int:
     matched = re.match(string=" " + strs + " ", pattern=date_pattern, flags=re.I)
     return 1 if matched else 0
 
-# ====================================================================
-# checkOtherDate: 
-#  - Match the text with day pattern and return 1 or 0 based on matching    
-# Parameters: 
-#     strs - input data
-# ==================================================================== 
 def check_other_date(strs) -> int:
+    """
+    - Match the text with day pattern and return 1 or 0 based on matching
+    Parameters
+    ----------
+    strs (str): input data
+
+    Returns
+    -------
+    int: flag 0 or 1
+    """
     
     ### Pattern for the day checks
     days_abbr = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'october', 'november',
@@ -148,13 +176,18 @@ def check_other_date(strs) -> int:
     day_check = re.findall(string=strs, pattern=days_abbr_patt, flags=re.I)
     return 1 if len(day_check) > 0 else 0
 
-# ====================================================================
-# checkDateRange: 
-#  - Match the date range and return 1 or 0 based on condition    
-# Parameters: 
-#     strs - input data
-# ==================================================================== 
-def check_date_range(strs) -> int:
+
+def check_date_range(strs: str) -> int:
+    """
+    - Match the date range and return 1 or 0 based on condition
+    Parameters
+    ----------
+    strs (str): string input
+
+    Returns
+    -------
+    int - boolean check 0 or 1
+    """
     try:
         if minRange <= int(strs) <= maxRange:
             return 1
@@ -163,36 +196,52 @@ def check_date_range(strs) -> int:
     except:
         return 0
 
-# ====================================================================
-# checkRange: 
-#  - Match the range pattern and return the flag based on the match condition  
-# Parameters: 
-#     strs - input data
-# ==================================================================== 
-def check_range(vals):
+
+def check_range(vals: str) -> int:
+    """
+    - Match the range pattern and return the flag based on the match condition
+
+    Parameters
+    ----------
+    vals (str): string input
+
+    Returns
+    -------
+    int
+    """
     range_data = re.findall(pattern=MODEL_CONFIG['PREPROCESS_CONSTANT']['RANGE_PATTERN'], string=str(vals))
     if len(range_data) > 0 and float(range_data[0][1]) >= float(range_data[0][0]):
         return 1
 
-# ====================================================================
-# get_word_length: 
-#  -  Check the word length
-# Parameters: 
-#     val - input data
-# ==================================================================== 
 def get_word_length(val: str) -> int:
+    """
+    - Check the word length
+    Parameters
+    ----------
+    val (str): input data
+
+    Returns
+    -------
+    int: length of the word
+    """
     return len(val.split(' '))
 
-# ====================================================================
-# lexical_matching: 
-#  - Check if the cleaned data is empty
-#  - Code should be calculated at Element level and not at word level
-#  - Match each text with the TRIE regex on nltk word list
-#  - Get the total matched text with english dictionary to total data
-# Parameters: 
-#     cleaned_data - list of input data
-# ==================================================================== 
+
 def lexical_matching(cleaned_data: list) -> float:
+    """
+    - Check if the cleaned data is empty
+    - Code should be calculated at Element level and not at word level
+    - Match each text with the TRIE regex on nltk word list
+    - Get the total matched text with english dictionary to total data
+
+    Parameters
+    ----------
+    cleaned_data (list): list of input data
+
+    Returns
+    -------
+    float: ratio of total matched text in english dictionary to total data
+    """
     final_score = []
     
     ### Check if the cleaned data is empty
@@ -213,14 +262,21 @@ def lexical_matching(cleaned_data: list) -> float:
         # Get the total matched text with english dictionary to total data
         return sum(final_score) / len(cleaned_data)
 
-# ====================================================================
-# alphanum_flag_creation: 
-#  - Change in the feature for alphanumeric features
-#  - 
-# Parameters: 
-#     values - list of input data
-# ==================================================================== 
-def alphanum_flag_creation(values, alpha, numeric):
+
+def alphanum_flag_creation(values: list, alpha: int, numeric: int) -> int | float:
+    """
+    - Change in the feature for alphanumeric features
+
+    Parameters
+    ----------
+    values (list): list of input data
+    alpha (int): alphabet flag
+    numeric (int): numeric flag
+
+    Returns
+    -------
+    int | float: boolean flag or ratio of total matched text in english dictionary to total data
+    """
     ### Change in the feature for alphanumeric features
     if alpha == 1:
         return 1
@@ -230,35 +286,43 @@ def alphanum_flag_creation(values, alpha, numeric):
         return lexical_matching(values)
 
 
-# ====================================================================
-# count_pattern_in_cells_with_non_zero_count: 
-#  - Get the length of matching patterns present in the string for each values
-#  - Count the number of elements with pattern matched in each text
-# Parameters: 
-#     values - list of data values
-#     pat - regex pattern for counting within the cells
-# Returns:
-#    Tuple of total number of elements with matched pattern, and total cell counts
-# ====================================================================
-def count_pattern_in_cells_with_non_zero_count(values: list, pat: str):    
+def count_pattern_in_cells_with_non_zero_count(values: list, pat: str) -> tuple:
+    """
+    - Get the length of matching patterns present in the string for each value
+    - Count the number of elements with pattern matched in each text
+
+    Parameters
+    ----------
+    values (list): list of data values
+    pat (str): regex pattern for counting within the cells
+
+    Returns
+    -------
+    tuple: total number of elements with matched pattern, and total cell counts
+    """
     cell_counts = [len(re.findall(pat, s)) for s in values]
     return sum(1 for c in cell_counts if c > 0), cell_counts
 
 
+def l1_level_features(col_values: list, col_values_wo_nan_uncased: list, date_samples: int = 1000) -> list:
+    """
+    - Subset values for the alphanumeric, alpha, numeric and others type
+    - Calculate the upper and lower case characters and ratio and mean values
+    - Iterate through each element and get the int, float, range type, date data for feature creation
+    - Get the ratio of the various features based on total values
+    - Get the statistical values for the Integer, Float, Date type, word length
+    - Get the url length and alphanum dictionary feature for each values
 
-# ====================================================================
-# additional_features: 
-#  - Subset values for the alphanumeric, alpha, numeric and others type
-#  - Calculate the upper and lower case characters and ratio and mean values 
-#  - Iterate through each elements and get the int, float, range type, date data for feature creation
-#  - Get the ratio of the various features based on total values
-#  - Get the statistical values for the Integer, Float, Date type, word length
-#  - Get the url length and alphanum dictionary feature for each values
-# Parameters: 
-#   col_values - list of input data
-#   date_samples - number of rows for the date patten matching
-# ==================================================================== 
-def l1_level_features(col_values: list,col_values_wo_nan_uncased:list, date_samples:int =1000) -> int:
+    Parameters
+    ----------
+    col_values (list): list of input data
+    col_values_wo_nan_uncased (list): list of data without nan and uncased
+    date_samples (int): maximum size of data to extract features ( default: 1000)
+
+    Returns
+    -------
+    list: list of extracted features dateRatio, wordlen_mean, rangeRatio, floatRatio, zero_flag, intRatio, alphaNumRatio, alphaRatio, frac_unique_sample, flag_numcells
+    """
     
     # Define the values for storing the features
     int_type , float_type , alpha_type , alphanum_type , range_type , date_type = [],[],[],[],[],[]
@@ -373,17 +437,23 @@ def l1_level_features(col_values: list,col_values_wo_nan_uncased:list, date_samp
 
     return [dateRatio,wordlen_mean,rangeRatio,floatRatio, zero_flag,intRatio,alphaNumRatio,alphaRatio,frac_unique_sample,flag_numcells]
 
-# ====================================================================
-# extract_addl_feats: 
-#  - Creating of additional/custom features
-#  - Call the additional features for the input values
-#  - Iterate through created features and store it in the feature dictionary
-# Parameters: 
-#   col_values - list of input data
-#   features - dictionary of features
-# ==================================================================== 
-def extract_additional_feats(col_values: list, col_values_wo_nan_uncased:list , features: OrderedDict):
-    
+
+def extract_additional_feats(col_values: list, col_values_wo_nan_uncased: list, features: OrderedDict):
+    """
+    - Creating of additional/custom features
+    - Call the additional features for the input values
+    - Iterate through created features and store it in the feature dictionary
+
+    Parameters
+    ----------
+    col_values (list): list of input data
+    col_values_wo_nan_uncased (list): list of input data with nan and uncased
+    features (dict): dictionary of features
+
+    Returns
+    -------
+
+    """
     ### Creating of additional/custom features
 
     feats_name =['dateRatio','wordlen_mean','rangeRatio','floatRatio','zero_flag','intRatio',

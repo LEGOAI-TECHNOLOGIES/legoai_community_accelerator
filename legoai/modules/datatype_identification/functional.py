@@ -39,6 +39,7 @@ if not os.path.isfile(os.path.join(model_dep_path, 'en-80k.txt')):
 
 sym_spell = SymSpell(max_dictionary_edit_distance=MODEL_CONFIG['THRESHOLD']['SYMSPELL_EDIT_DIST'],
                      prefix_length=MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE'])
+
 dictionary_path = os.path.join(model_dep_path, 'en-80k.txt')
 
 # ====================================================================
@@ -54,20 +55,22 @@ core_count = multiprocessing.cpu_count()
 size = MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE']
 
 
-# ====================================================================
-# extract_features: 
-#     - Extract the required metadata information from values list before feature creation
-#     - Clean the table and column name for the embedding creation
-#     - Additional preprocessing on the data and passed to the feature creation
-#     - Created features one by one from characters, words, and embedding based features
-#     - Created the none related features followed by metadata features added
-# Parameters: 
-#     col_values - List of data for feature creation
-# Returns:
-#     Returns the features dictionary for the input data
-# ====================================================================
-
 def extract_features(col_values: list) -> OrderedDict:
+    """
+    - Extract the required metadata information from values list before feature creation
+    - Clean the table and column name for the embedding creation
+    - Additional preprocessing on the data and passed to the feature creation
+    - Created features one by one from characters, words, and embedding based features
+    - Created the none related features followed by metadata features added
+
+    Parameters
+    ----------
+    col_values (list): list of data for feature creation
+
+    Returns
+    -------
+    dict: feature dictionary for the input data
+    """
     ### Extract the table data column from column values
     master_id = col_values[0]
     id = col_values[1]
@@ -128,15 +131,22 @@ def extract_features(col_values: list) -> OrderedDict:
     return features
 
 
-# ====================================================================
-# extract_features_to_csv: 
-#     - Remove the table and column from the data points for feature creation
-#     - 
-# Parameters: 
-#     parquet_df - Dataframe with the data for feature creation
-# ====================================================================
-
 def extract_features_to_csv(parquet_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    - Remove the table and column from the data points for feature creation
+    - Converts the data to parquet type
+    - normalise string whitespace from the values
+    - extract features from every column
+
+    Parameters
+    ----------
+    parquet_df (pd.DataFrame): Dataframe with data for feature creation
+
+    Returns
+    -------
+    pd.DataFrame: Dataframe with all the features extracted
+
+    """
     start = datetime.now()
     print(f"[*] Feature Extraction Started... {start.strftime('%Y-%m-%d %H:%M:%S')}")
     features_df = pd.DataFrame()

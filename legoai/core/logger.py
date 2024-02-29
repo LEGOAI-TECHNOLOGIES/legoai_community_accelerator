@@ -4,6 +4,9 @@ import os
 LOG_LEVEL = "info"
 
 class Logger:
+	"""
+	- Defining a custom logger class
+	"""
 	logger =None
 	log_path = None
 	__LOGLEVEL_MAP__ = {
@@ -16,7 +19,19 @@ class Logger:
 	}
 
 	@classmethod
-	def getLogger(cls,parent_folder_name:str,child_folder_name:str):
+	def getLogger(cls, parent_folder_name: str, child_folder_name: str):
+		"""
+		- Create a logger class
+
+		Parameters
+		----------
+		parent_folder_name (str): parent folder name ( for logging each phase of e.g. intermediate data preprocess, data generate, inference, model building)
+		child_folder_name (str): child folder name ( for logging within each phase log for which each module, datatype l1 or l3 )"
+
+		Returns
+		-------
+		instance of the logger class
+		"""
 		log_path = os.path.join(parent_folder_name,child_folder_name)
 		if cls.logger is None or cls.log_path != log_path:
 			import logging

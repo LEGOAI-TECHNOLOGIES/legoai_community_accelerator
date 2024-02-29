@@ -12,23 +12,32 @@ from legoai.core.configuration import MODEL_CONFIG
 
 ########## Datetype format identifier #############
 
-
 class L3Model:
-    def __init__(self,openai_api_key:str,temperature:float = 0.0):
-        self.chat_llm = ChatOpenAI(openai_api_key= openai_api_key, temperature= temperature)
-        self.dm_class_schema = ResponseSchema(name="DM_class",description="This final class of a column Dimension, Measure & Unknown")
+    """
+    L3 model is mainly responsible for classifying:
+
+    - the integer and float datatype into integer_measure or
+    - integer_dimension and same for float,
+    - this model also finds the specific format the date & time datatype lies in (e.g. YYYY:MM:DD , YYYY-MM-DD, YYYY:MM:DD H:m:s , etc...)
+    - this model uses llm for dimension & measure classification and a regex based approach for the date & time classification.
+    """
+    def __init__(self, openai_api_key: str, temperature: float = 0.0):
+        self.chat_llm = ChatOpenAI(openai_api_key=openai_api_key, temperature=temperature)
+        self.dm_class_schema = ResponseSchema(name="DM_class", description="This final class of a column Dimension, Measure & Unknown")
   
     @staticmethod
     def classify_datetime_format(column_values: list, num_samples: int) -> list:
         """
-            Classify the datetime format of a given list of column values.
+        - Classify the datetime format of a given list of column values.
 
-        Parameters:
-            - column_values (list): List of values from a column.
-            - num_samples (int): Number of values to sample for classification.
+        Parameters
+        ----------
+        column_values (list): List of values from a column.
+        num_samples (int): Number of values to sample for classification.
 
-        Returns:
-        - str: The majority datetime format group.
+        Returns
+        -------
+        The majority datetime format group.
     """
     
     # Convert non-string items to strings
@@ -136,14 +145,16 @@ class L3Model:
 
     def _dim_measure_classify(self,prompt_text_DM: str, column_name: str) -> str:
         """
-        Classifies the integer or float datatype of a column to dimension, measure, or unknown.
+        - Classifies the integer or float datatype of a column to dimension, measure, or unknown.
             
-            Parameters:
-                prompt_text_DM (str): prompt to be passed to openai chat llm
-                column_name (str): a column of certain table.
+        Parameters
+        ----------
+        prompt_text_DM (str): prompt to be passed to openai chat llm
+        column_name (str): a column of the table.
             
-            Returns:
-                response_as_dict (str): 
+        Returns
+        -------
+        final l3 model prediction
 
         """
         response_schemas = [self.dm_class_schema]
@@ -159,15 +170,17 @@ class L3Model:
 
     def model_prediction(self,l1_pred: pd.DataFrame, feat_df: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Returns the prediction of l1 and l3 model combined.
+        - Returns the prediction of l1 and l3 model combined.
 
-            Parameters:
-                l1_pred (pd.DataFrame): result dataframe from l1 prediction
-                feat_df (pd.DataFrame): features dataframe from the dataset
-                df (pd.DataFrame): dataframe obtained from the dataset    
-            Returns:
-                pred_feat_df (pd.DataFrame): final prediction of both l1 and l3 combined along with all the features.
-                        
+        Parameters
+        ----------
+        l1_pred (pd.DataFrame): result dataframe from l1 prediction
+        feat_df (pd.DataFrame): features dataframe from the dataset
+        df (pd.DataFrame): dataframe obtained from the dataset
+
+        Returns
+        -------
+        final prediction of both l1 and l3 combined along with all the features.
         """
 
         ### Merge the predicted dataframe and feature dataframe using master id

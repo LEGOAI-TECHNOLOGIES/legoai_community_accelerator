@@ -5,17 +5,16 @@ import os
 import sys
 
 
-
 def load_model_configuration():
     """
-        loads the configuration needed for the modules
+    - loads the configuration needed for the modules from config.yaml or default configuration
 
-        Parameters
-        ----------
+    Parameters
+    ----------
         
-        Returns
-        -------
-            dictionary of configuration either loaded from default path or through used defined config.yaml file
+    Returns
+    -------
+    dictionary of configuration either loaded from default path or through used defined config.yaml file
     """
    
     dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -47,13 +46,23 @@ MODEL_CONFIG = load_model_configuration()
 
 L1_FINAL_FOLDER_NAME = "datatype_l1_identification"
 def check_path_exists_or_not(path_config:dict):
+    """
+    - Checks if all the path exists or not from either .env files or default path config obtained from load_path_configuration() if not creates them
+    Parameters
+    ----------
+    path_config (dict): dictionary of all the path to relevant folders
+
+    Returns
+    -------
+
+    """
     
     all_requirement_paths = path_config.keys()
     main_entry_path = path_config["CONTAINER_PATH"]
 
     non_required = ["CONTAINER_PATH","DATASET_PATH_URL"]
 
-    # checks if necessary path is made or not if not the it creates one
+    # checks if necessary path is made or not if not then it creates one
     if not os.path.exists(main_entry_path):
         os.makedirs(main_entry_path)
 
@@ -69,14 +78,16 @@ def check_path_exists_or_not(path_config:dict):
             if not os.path.exists(full_inner_path):
                 # not exists then create the paths
                 os.makedirs(full_inner_path)
-        
-
-
-
 
 
 def load_path_configuration():
-    
+    """
+    - Loads the necessary path configuration for the program from .env file or either loads the default value
+
+    Returns
+    -------
+    final dictionary of all relevant paths
+    """
     default_path_config = {
         "CONTAINER_PATH" : os.path.join("data", "Lego_AI"),
         "GT_PATH" : os.path.join(*"input/ground_truth".split("/")),
@@ -92,7 +103,7 @@ def load_path_configuration():
         "MODEL_OBJECTS_PATH":os.path.join(*"model","model_objects"),
         "MODEL_RESULTS_PATH":os.path.join(*"model","model_results"),
         "LOG_PATH":"logs",
-        "DATASET_PATH_URL":"http://localhost:8000/Lego_AI/inference/"
+
     }
 
 

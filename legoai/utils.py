@@ -1,6 +1,7 @@
 from typing import List
 
 import openai
+import pandas as pd
 
 import os
 from urllib.request import urlopen
@@ -8,6 +9,8 @@ from zipfile import ZipFile
 from io import BytesIO
 import sys
 from datetime import datetime
+import json
+
 
 from legoai.core.configuration import PATH_CONFIG
 
@@ -15,8 +18,20 @@ DEFAULT_DATASET = "ecommerce_data"
 
 VALID_DATASET_EXTENSIONS = ['csv', 'json', 'txt', 'xslx']
 
+DATASET_PATH_URL = "http://localhost:8000/Lego_AI/inference/"
+
 
 def check_dataset_path(*args):
+    """
+    - Checks if the given path has valid files or not
+    Parameters
+    ----------
+    args: list of paths to check for valid files
+
+    Returns
+    -------
+
+    """
     for dataset_path in args:
         if not os.path.exists(dataset_path):
             print(f"\n[!] Given path {dataset_path} not valid")
@@ -35,13 +50,13 @@ def check_dataset_path(*args):
 
 def download_default_dataset():
     """
-        Downloads the default dataset "ecommerce" from the path configured URL
-        Parameters
-        ---------
+    - Downloads the default dataset "ecommerce" from the path configured URL
+    Parameters
+    ---------
 
-        Returns
-        -------
-        inference_data_path (str): path to the default example inference data
+    Returns
+    -------
+    path to the default example inference data
     """
     # path to default dataset
     inference_data_path = os.path.join(f"default_data_{datetime.now().strftime('%d%m%Y')}",
@@ -72,6 +87,16 @@ def download_default_dataset():
 
 
 def check_openai_key(key: str):
+    """
+    - Checks provided openai key ( requires internet )
+    Parameters
+    ----------
+    key (str): api key
+
+    Returns
+    -------
+
+    """
     key_clean = key.strip().replace(" ", "") if key is not None else ""
     if len(key_clean) == 0:
         print("[!] openai api key not provided")
@@ -83,3 +108,41 @@ def check_openai_key(key: str):
         except openai.error.AuthenticationError:
             print("[!] provide valid openai key")
             sys.exit(-1)
+
+
+REQUIRED_GT_COLUMNS = {"master_id","datatype"}
+def combine_gt_file(path:str) -> pd.DataFrame:
+    """
+    Combines all the ground truth files for training
+    Parameters
+    ----------
+    path (str): directory path to ground truth data
+
+    Returns
+    -------
+        pd.DataFrame: combined ground truth dataframe
+    """
+    gt_df = pd.DataFrame()
+    for path, subdir, files in os.walk(path):
+        for file in files:
+            df = pd.DataFrame()
+            extension = file.split(".")[-1]
+            file_path = os.path.join(path,file)
+            if extension == "csv":
+                df = pd.read_csv(file_path)
+            elif extension in ('json', 'txt'):
+                with open(os.path.join(file_path), 'r') as f:
+                    data_json = json.load(f)
+                    df = pd.DataFrame(data_json)
+            elif extension == "xslx":
+                df = pd.read_excel(file_path)
+
+            df.columns = map(str.lower, df.columns)
+            if REQUIRED_GT_COLUMNS.issubset(df.columns.tolist()):
+                gt_df = pd.concat([gt_df,df[['master_id','datatype']]])
+    return gt_df
+
+
+
+
+
