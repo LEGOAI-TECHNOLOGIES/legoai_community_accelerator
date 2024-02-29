@@ -78,7 +78,7 @@ def download_default_dataset():
             download = False
 
     if download:
-        with urlopen(PATH_CONFIG["DATASET_PATH_URL"] + DEFAULT_DATASET + ".zip") as zipresp:
+        with urlopen(DATASET_PATH_URL + DEFAULT_DATASET + ".zip") as zipresp:
             print(f"[*] downloading and extracting {DEFAULT_DATASET}")
             with ZipFile(BytesIO(zipresp.read())) as zfile:
                 zfile.extractall(os.path.split(inference_data_path)[0])
