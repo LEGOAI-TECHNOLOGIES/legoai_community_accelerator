@@ -52,22 +52,79 @@ Binary installers for the latest released version are available at the [Python P
 ## Documentation
 
 ## Examples  
-- _**Inference Example**_
+_**Inference Example**_
+``` 
+from legoai import DataTypeIdentificationPipeline
+
+# provide dataset path and openai key
+dataset_path = "D:\LegoAI\data\ecommerce_data
+api_key = "your-api-key"
+
+# load the pretrained pipeline
+di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
+
+# provide the dataset and final output save path, also final result dataframe is returned
+result = di_pipeline.predict(dataset_path = dataset_path, save_to = "di_output.csv")
+
+print(result.head())
+```
+  _**Inference Example Output**_
   ``` 
-  from legoai import DataTypeIdentificationPipeline
+  [*] MODEL VERSION: 13052023  
+  [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]  
+  [*] total columns present in the ecommerce_data 52  
+  [*] Feature Extraction Started... 2024-02-29 15:35:21  
+  [*] Feature Creation Finished. Processed 52 rows in 0:01:43.627949  
+  [*] Inference complete ... took 2.29 minute ...  
+             column_name_clean predicted_datatype_l1 predicted_datatype_l3    
+   0               customer id          alphanumeric          alphanumeric  
+   1        customer unique id          alphanumeric          alphanumeric  
+   2  customer zip code prefix               integer     integer_dimension  
+   3             customer city      close_ended_text      close_ended_text  
+   4            customer state      close_ended_text      close_ended_text  
+```
+_**Training Example**_
+```
+di = DataTypeIdentificationPipeline()  
 
-  # provide dataset path and openai key
-  dataset_path = "D:\LegoAI\data\ecommerce_data
-  api_key = "your-api-key"
+# provide data path for training and its corresponding ground truth or labels  
+dataset_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"  
+ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"  
 
-  # load the pretrained pipeline
-  di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
+#give model version to save the final encoders and classifier model under the given version  
+model_version = "13052023"  
+di.train(dataset_path=dataset_path, gt_path=ground_truth_path, model_version=model_version)  
+```
+  _**Training Example Output**_
+``` 
+[*] Extracting files meta information ...    
+0%|          | 0/3 [00:00<?, ?it/s]  
+[*] Meta Data Row Count db_extract.json:  (362, 13)  
+[*] Feature Extraction Started... 2024-02-29 15:17:29  
+[*] Feature Creation Finished. Processed 362 rows in 0:03:08.564266  
+33%|███▎      | 1/3 [03:11<06:23, 191.52s/it]   
+[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)  
+[*] Feature Extraction Started... 2024-02-29 15:20:39  
+[*] Feature Creation Finished. Processed 36375 rows in 0:01:11.574827  
+67%|██████▋   | 2/3 [04:24<02:01, 121.96s/it]  
+[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)  
+[*] Feature Extraction Started... 2024-02-29 15:21:51    
+[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.684016
+100%|██████████| 3/3 [04:37<00:00, 92.58s/it]    
+[*] Combining all features into single file ...    
+[*] Consolidated features saved at data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv ...  
+[*] MODEL VERSION: 13052023  
+[*] Features: (49794, 1714) , Labels: (49794, 2)  
+[*] Final Merged Features and Labels: (49794, 1715)  
+[*] Train:  (36375, 1716) Valid:  (3585, 1716) Test:  (9834, 1716)  
+[*] Label encoder saved at data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl ...  
+[*] Model building started at 2024-02-29 15:48:32  
+[*] Classifier model saved at data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl ...  
+[*] Test predictions saved at data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_29022024.csv ...  
+[*] Validations predictions saved at data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_29022024.csv ...  
+[*] Model building completed at 2024-02-29 15:49:11  
+```
 
-  # provide the dataset and final output save path, also final result dataframe is returned
-  result = di_pipeline.predict(dataset_path = dataset_path, save_to = "di_output.csv")
-
-  print(result.head())
-  ```
 
 
 
