@@ -23,11 +23,11 @@ The project has different pipelines ... currently only released pipeline is:
 _As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts_
 - [L1 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l1_model.py)
     - _This 1st part classifies the column into one of the 7 datatypes_:  
-      ✅ **Integer**  
-      ✅ **Float**  
-      ✅ **Alphanumeric**  
-      ✅ **open ended text**  
-      ✅ **close ended text**  
+      ✅ **integer**  
+      ✅ **float**  
+      ✅ **alphanumeric**  
+      ✅ **open_ended_text**  
+      ✅ **close_ended_text**  
       ✅ **date & time**  
       ✅ **others ( if not found any)**  
   - _currently uses trained XGBClassifier model._
@@ -56,9 +56,9 @@ _**Inference Example**_
 ``` 
 from legoai import DataTypeIdentificationPipeline
 
-# provide dataset path and openai key
-dataset_path = "D:\LegoAI\data\ecommerce_data
-api_key = "your-api-key"
+# provide input path and openai key
+input_path = "D:\LegoAI\data\ecommerce_data"
+api_key = "your-openai-api-key"
 
 # load the pretrained pipeline
 di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
