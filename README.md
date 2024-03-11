@@ -28,7 +28,7 @@ _As simple as it sounds this pipeline helps in identifying the datype of all col
       ✅ **alphanumeric**  
       ✅ **open_ended_text**  
       ✅ **close_ended_text**  
-      ✅ **date & time**
+      ✅ **date & time**  
       ✅ **range_type**  
       ✅ **others ( if not found any)**  
   - _currently uses trained XGBClassifier model._
