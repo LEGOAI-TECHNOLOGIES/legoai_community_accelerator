@@ -64,25 +64,27 @@ api_key = "your-openai-api-key"
 # load the pretrained pipeline
 di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
 
-# provide the dataset and final output save path, also final result dataframe is returned
-result = di_pipeline.predict(dataset_path = dataset_path, save_to = "di_output.csv")
+# provide the input path and output path, also final result dataframe is returned
+result = di_pipeline.predict(input_path = dataset_path, output_path = "D:\di_opensource")
 
 print(result.head())
 ```
   _**Inference Example Output**_
-  ``` 
-  [*] MODEL VERSION: 13052023  
-  [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]  
-  [*] total columns present in the ecommerce_data 52  
+  ```   
+  [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]
+  [*] Processed filed saved at D:\di_opensource\ecommerce_data_processed  
+  [*] Total columns present in the ecommerce_data 52  
   [*] Feature Extraction Started... 2024-02-29 15:35:21  
-  [*] Feature Creation Finished. Processed 52 rows in 0:01:43.627949  
-  [*] Inference complete ... took 2.29 minute ...  
-             column_name_clean predicted_datatype_l1 predicted_datatype_l3    
-   0               customer id          alphanumeric          alphanumeric  
-   1        customer unique id          alphanumeric          alphanumeric  
-   2  customer zip code prefix               integer     integer_dimension  
-   3             customer city      close_ended_text      close_ended_text  
-   4            customer state      close_ended_text      close_ended_text  
+  [*] Feature Creation Finished. Processed 52 rows in 0:01:43.627949
+  [*] Features saved at D:\di_opensource\features\intermediate_features_12032024.csv  
+  [*] Inference complete ... took 2.29 minute ...
+  [*] Final output saved at D:\di_opensource\output\di_final_output_12032024.csv
+             column_name_clean ... predicted_datatype_l1 predicted_datatype_l3    
+   0               customer id ...          alphanumeric          alphanumeric  
+   1        customer unique id ...          alphanumeric          alphanumeric  
+   2  customer zip code prefix ...               integer     integer_dimension  
+   3             customer city ...      close_ended_text      close_ended_text  
+   4            customer state ...      close_ended_text      close_ended_text  
 ```
 _**Training Example**_
 ```
