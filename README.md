@@ -70,6 +70,22 @@ result = di_pipeline.predict(input_path = dataset_path, output_path = output_pat
 
 print(result.head())
 ```
+_**Input path structure**_
+```
+    Directory: D:\Lego AI\data\ecommerce_data  
+
+Mode                 LastWriteTime         Length Name  
+----                 -------------         ------ ----  
+-a----         1/12/2024   5:17 PM        8562270 olist_customers_dataset.csv  
+-a----         1/12/2024   5:17 PM       43333569 olist_geolocation_dataset.csv  
+-a----         1/12/2024   5:17 PM       17406884 olist_orders_dataset.csv  
+-a----         1/12/2024   5:17 PM       14911576 olist_order_items_dataset.csv  
+-a----         1/12/2024   5:17 PM        5633362 olist_order_payments_dataset.csv  
+-a----         1/12/2024   5:17 PM       13904572 olist_order_reviews_dataset.csv  
+-a----         1/12/2024   5:17 PM        2795930 olist_products_dataset.csv  
+-a----         1/12/2024   5:16 PM         163589 olist_sellers_dataset.csv  
+-a----         1/12/2024   5:17 PM           2540 product_category_name_translation.csv  
+```
   _**Inference Example Output**_
   ```   
   [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]
