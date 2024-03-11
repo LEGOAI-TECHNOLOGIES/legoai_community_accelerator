@@ -57,22 +57,23 @@ _**Inference Example**_
 ``` 
 from legoai import DataTypeIdentificationPipeline
 
-# provide input path and openai key
+# provide input path,output path and openai key
 input_path = "D:\LegoAI\data\ecommerce_data"
+output_path = "D:\di_opensource"
 api_key = "your-openai-api-key"
 
 # load the pretrained pipeline
 di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
 
 # provide the input path and output path, also final result dataframe is returned
-result = di_pipeline.predict(input_path = dataset_path, output_path = "D:\di_opensource")
+result = di_pipeline.predict(input_path = dataset_path, output_path = output_path)
 
 print(result.head())
 ```
   _**Inference Example Output**_
   ```   
   [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]
-  [*] Processed filed saved at D:\di_opensource\ecommerce_data_processed  
+  [*] Processed files saved at D:\di_opensource\ecommerce_data_processed  
   [*] Total columns present in the ecommerce_data 52  
   [*] Feature Extraction Started... 2024-02-29 15:35:21  
   [*] Feature Creation Finished. Processed 52 rows in 0:01:43.627949
