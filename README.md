@@ -14,6 +14,7 @@ _**GenAI** Powered analytics platform that automatically converts business requi
 - [License](#license)
 - [Documentation](#documentation)
 - [Examples](#examples)
+- [Contributing](#contributing)
 
 ## Main Features
 The project has different pipelines ... currently only released pipeline is:
@@ -31,7 +32,7 @@ _As simple as it sounds this pipeline helps in identifying the datype of all col
       ✅ **date & time**  
       ✅ **range_type**  
       ✅ **others ( if not found any)**  
-  - _currently uses trained XGBClassifier model._
+  - _currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique._
   
 - [L3 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py)
   - _This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same._
@@ -51,6 +52,10 @@ Binary installers for the latest released version are available at the [Python P
 ## License
 
 ## Documentation
+  ### Inference
+  legoai.DataTypeIdentificationPipeline.pretrained_pipeline
+  
+  
 
 ## Examples  
 _**Inference Example**_
@@ -66,25 +71,22 @@ api_key = "your-openai-api-key"
 di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
 
 # provide the input path and output path, also final result dataframe is returned
-result = di_pipeline.predict(input_path = dataset_path, output_path = output_path)
+result = di_pipeline.predict(input_path = input_path, output_path = output_path)
 
 print(result.head())
 ```
 _**Input path structure**_
 ```
-    Directory: D:\Lego AI\data\ecommerce_data  
-
-Mode                 LastWriteTime         Length Name  
-----                 -------------         ------ ----  
--a----         1/12/2024   5:17 PM        8562270 olist_customers_dataset.csv  
--a----         1/12/2024   5:17 PM       43333569 olist_geolocation_dataset.csv  
--a----         1/12/2024   5:17 PM       17406884 olist_orders_dataset.csv  
--a----         1/12/2024   5:17 PM       14911576 olist_order_items_dataset.csv  
--a----         1/12/2024   5:17 PM        5633362 olist_order_payments_dataset.csv  
--a----         1/12/2024   5:17 PM       13904572 olist_order_reviews_dataset.csv  
--a----         1/12/2024   5:17 PM        2795930 olist_products_dataset.csv  
--a----         1/12/2024   5:16 PM         163589 olist_sellers_dataset.csv  
--a----         1/12/2024   5:17 PM           2540 product_category_name_translation.csv  
+D:\LEGO AI\DATA
+└───ecommerce_data
+        olist_customers_dataset.csv
+        olist_orders_dataset.csv
+        olist_order_items_dataset.csv
+        olist_order_payments_dataset.csv
+        olist_order_reviews_dataset.csv
+        olist_products_dataset.csv
+        olist_sellers_dataset.csv
+        product_category_name_translation.csv
 ```
   _**Inference Example Output**_
   ```   
@@ -105,15 +107,21 @@ Mode                 LastWriteTime         Length Name
 ```
 _**Training Example**_
 ```
-di = DataTypeIdentificationPipeline()  
+from legoai import DataTypeIdentificationPipeline
 
-# provide data path for training and its corresponding ground truth or labels  
-dataset_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"  
-ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"  
+di = DataTypeIdentificationPipeline()
+
+# provide data path for training and its corresponding ground truth or labels, and the output path to save all the features, model, encoder, classification and confusion report.  
+input_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"  
+ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"
+output_path = "D:\data\Lego_AI" # optional , can be defined in .env file under "CONTAINER_PATH" 
 
 #give model version to save the final encoders and classifier model under the given version  
 model_version = "13052023"  
-di.train(dataset_path=dataset_path, gt_path=ground_truth_path, model_version=model_version)  
+di.train( input_path=inputs_path,
+          gt_path=ground_truth_path,
+          output_path=output_path,
+          model_version=model_version)  
 ```
   _**Training Example Output**_
 ``` 
@@ -132,19 +140,49 @@ di.train(dataset_path=dataset_path, gt_path=ground_truth_path, model_version=mod
 [*] Feature Creation Finished. Processed 3585 rows in 0:00:12.684016
 100%|██████████| 3/3 [04:37<00:00, 92.58s/it]    
 [*] Combining all features into single file ...    
-[*] Consolidated features saved at data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv ...  
-[*] MODEL VERSION: 13052023  
-[*] Features: (49794, 1714) , Labels: (49794, 2)  
-[*] Final Merged Features and Labels: (49794, 1715)  
-[*] Train:  (36375, 1716) Valid:  (3585, 1716) Test:  (9834, 1716)  
-[*] Label encoder saved at data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl ...  
-[*] Model building started at 2024-02-29 15:48:32  
-[*] Classifier model saved at data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl ...  
-[*] Test predictions saved at data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_29022024.csv ...  
-[*] Validations predictions saved at data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_29022024.csv ...  
-[*] Model building completed at 2024-02-29 15:49:11  
+[*] Consolidated features saved at D:\data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv ...  
+[*] MODEL VERSION: 13052023
+[*] Features: (49794, 1714) , Labels: (49794, 2)
+[*] Final Merged Features and Labels: (49794, 1715)
+[*] Train:  (36375, 1716) Valid:  (3585, 1716) Test:  (9834, 1716)
+[*] Encoder saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl ...
+[*] Model building started at 2024-03-12 13:45:07
+[*] Classifier model saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl ...
+[*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_12032024.csv ...
+[*] Classification report for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv
+[*] Confusion matrix for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv
+[*] Validations predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_12032024.csv ...
+[*] Classification report for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv
+[*] Confusion matrix for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv
+[*] Model building completed at 2024-03-12 13:45:48 
 ```
-
+_**Training Input Path Structure**_
+```
+D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\RAW_DATA
+└───datatype_l1_identification
+    ├───db_extract
+    │       db_extract.json
+    │
+    ├───real_world_dataset
+    │       real_world_dataset.json
+    │
+    └───web_crawl_dataset
+            web_crawl_dataset.json
+```
+_**Training Ground Truth (Label) Path Structure**_
+```
+D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\GROUND_TRUTH
+└───datatype_l1_identification
+        di_l1_ground_truth.csv
+```
+## Contributing
+Any contributions to this project is welcomed, you can follow the steps below for contribution:
+1. Fork the repository.
+2. Create a new branch (git checkout -b feature)
+3. Make your changes.
+4. Commit your changes (git commit -am 'Add new feature')
+5. Push to the branch (git push origin feature)
+6. Create a new Pull Request.
 
 
 
