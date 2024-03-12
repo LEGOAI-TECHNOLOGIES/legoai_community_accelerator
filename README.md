@@ -38,7 +38,7 @@ _As simple as it sounds this pipeline helps in identifying the datype of all col
   
 - [L3 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py)
   - _This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same._
-  - llm is used for this
+  - _LLM is used for this._
 > [!IMPORTANT]  
 > L3 model requires OpenAI API key.
     
@@ -67,12 +67,7 @@ Binary installers for the latest released version are available at the [Python P
               └─── customer_name (column)
               └─── customer_address (column)
       ```
-  - **master_id**: _combination of repo, table and column names, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row_.
-
-## Usage
-  ### Inference
-  legoai.DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key
-  
+  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row_.
 
 ## Configuration
   ### Model configuration
@@ -88,7 +83,7 @@ Binary installers for the latest released version are available at the [Python P
     
     L1PARAMS:
         TRAIN_DATASET: 'sherlock' # file or table that will be used as training set  
-        VALIDATION_DATASET: 'web_data_common # file or table that will be used as validation set ( rest will be used as test set)
+        VALIDATION_DATASET: 'web_data_common' # file or table that will be used as validation set ( rest will be used as test set)
     
     THRESHOLD:
         CORPUS_WORD_LIMIT: 3
@@ -118,7 +113,7 @@ Binary installers for the latest released version are available at the [Python P
 ```
   CONTAINER_PATH = data\Lego_AI # Base folder of the entire folder structure
   INT_DATA_PATH = intermediate # Path for storing the intermediate files during feature creation
-  ANALYTICAL_DATA_PATH = analytical_data #Path for storing the final featires used for modeling
+  ANALYTICAL_DATA_PATH = analytical_data # Path for storing the final features used for modeling
   MODEL_METRICS_PATH = model\model_metrics # Storing classification and confusion matrix report after training (for test and validation dataset)
   MODEL_OBJECTS_PATH = model\model_objects # Storing encoder and classifier model
   MODEL_RESULTS_PATH = model\model_results # Storing final results after model training (for test and validataion dataset)
@@ -154,7 +149,56 @@ Binary installers for the latest released version are available at the [Python P
                     di_l1_classifier_test_predicted_xgb_12032024.csv ( prediction result test data )
                     di_l1_classifier_validation_predicted_xgb_12032024.csv ( prediction result validation data )
   ```
+## Usage
+  ### Inference
+  #### Loading pretrained model
+    legoai.DataTypeIdentificationPipeline.pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
+              """
+                - Returns an object with preloaded L1 model and pre instantiated L3 model
+                - if openai api key not given only instantiates with L1 model
+                - encoder and model path can be given to run custom model, else default settings will be used to load pretrained model and encoder
+                
+                Parameters
+                ----------
+                openai_api_key (str): an openai api key for L3 model
+                encoder_path (str) optional: full path to the encoder.
+                model_path (str) optional; full path to the classifier.
+    
+                Returns
+                -------
+                DatatypeIdentification object with l1 and l3 model loaded.
+              """
+            
+      - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
+       
+         di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(
+           openai_api_key = "your-openai-api-key"
+           encoder_path="D:\Lego AI\DI_OPENSOURCE\legoai\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl",
+           model_path = "D:\Lego AI\DI_OPENSOURCE\legoai\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl"
+         )  
+         
+  #### Running inference pipeline
+      legoai.DataTypeIdentification.predict(self, input_path: str = None, output_path: str = "datatype_identification"):
+        """
+        - Executes the inference pipelines and saves the result and also returns the final result
+        
+        Parameters
+        ----------
+        input_path (str): the path to the inference dataset.
+        output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output.
 
+        Returns
+        -------
+        result (pd.DataFrame): final result dataframe
+        """
+        
+        - Example
+          di_pipeline = DataTypeIdentification.pretrained_pipeline(openai_api_key = "your-openai-api-key")
+          di_pipeline.predict(
+            input_path = "D:\LegoAI\data\ecommerce_data",
+            output_path = "D:\di_opensource"
+          )
+        
 ## Examples  
 _**Inference Example**_
 ``` 
