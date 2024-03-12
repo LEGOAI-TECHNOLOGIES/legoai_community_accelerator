@@ -67,7 +67,7 @@ Binary installers for the latest released version are available at the [Python P
               └─── customer_name (column)
               └─── customer_address (column)
       ```
-  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row_.
+  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row during feature processing_.
 
 ## Configuration
   ### Model configuration
