@@ -13,6 +13,8 @@ _**GenAI** Powered analytics platform that automatically converts business requi
 - [Where to get it](#where-to-get-it)
 - [License](#license)
 - [Documentation](#documentation)
+- [Configuration](#configuration)
+- [Usage](#usage)
 - [Examples](#examples)
 - [Contributing](#contributing)
 
@@ -52,10 +54,106 @@ Binary installers for the latest released version are available at the [Python P
 ## License
 
 ## Documentation
+  ### Feature Specific Terminologies
+  - **repo**: _directory or folder that consits of all tables_.
+  - **table**: _tables are files (csv or other extension) that is present with in the repo_.
+  - **column**: _individual columns within the table_.
+    ### Structure
+      ```
+      D:\LEGO AI\DATA
+      └───ecommerce_data ( repo )
+          └───olist_customers_dataset.csv ( table )
+              └─── customer_id (column)
+              └─── customer_name (column)
+              └─── customer_address (column)
+      ```
+  - **master_id**: _combination of repo, table and column names, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row_.
+
+## Usage
   ### Inference
-  legoai.DataTypeIdentificationPipeline.pretrained_pipeline
+  legoai.DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key
   
-  
+
+## Configuration
+  ### Model configuration
+  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**, For example:_
+  ``` 
+    PREPROCESS_CONSTANT:
+        NUMBER_PATTERN: '[0-9]'
+        TEXT_PATTERN: '[a-zA-Z]'
+        WORD_PATTERN: '[\w+]'
+        SPECIAL_CHAR_PATTERN: '[!@#$%^&*(),?":;{}\''|<>~`=_\\/+-]'
+        RANGE_PATTERN: '(\d+)\s*[-|to]+\s*(\d+)' 
+        URL_PATTERN: 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    
+    L1PARAMS:
+        TRAIN_DATASET: 'sherlock' # file or table that will be used as training set  
+        VALIDATION_DATASET: 'web_data_common # file or table that will be used as validation set ( rest will be used as test set)
+    
+    THRESHOLD:
+        CORPUS_WORD_LIMIT: 3
+        PARTITION_SIZE: 100
+        DATE_MIN_YEAR: 1800
+        DATE_MAX_YEAR: 2100
+        SYMSPELL_PREFIX_LEN: 7
+        SYMSPELL_EDIT_DIST: 0
+        SYMSPELL_TERM_INDEX: 0
+        SYMSPELL_COUNT_INDEX: 1
+        DATA_VALUES_LIMIT: 1000000
+        XGB_MODEL_WEIGHT: 0.4 # for voting classifier
+        RF_MODEL_WEIGHT: 0.3 # for voting classifier
+        SVM_MODEL_WEIGHT: 0.3 # for voting classifier
+        TOKENIZE_WORD_LIMIT: 2 
+    
+    L3PARAMS:
+        SAMPLE_SIZE: 100 #  size to sample and identify date time format in a column 
+        DF_SAMPLE_SIZE: 10 # size to sample and  
+    
+    FILE_TYPE:
+        FILE_ENCODING: 'iso-8859-1'
+        DTYPE_ENCODING: 'unicode'
+  ```
+  ### Path Configuration
+  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file._
+```
+  CONTAINER_PATH = data\Lego_AI # Base folder of the entire folder structure
+  INT_DATA_PATH = intermediate # Path for storing the intermediate files during feature creation
+  ANALYTICAL_DATA_PATH = analytical_data #Path for storing the final featires used for modeling
+  MODEL_METRICS_PATH = model\model_metrics # Storing classification and confusion matrix report after training (for test and validation dataset)
+  MODEL_OBJECTS_PATH = model\model_objects # Storing encoder and classifier model
+  MODEL_RESULTS_PATH = model\model_results # Storing final results after model training (for test and validataion dataset)
+```
+  _The folder structure looks like_
+  ```
+    D:\DATA\LEGO_AI ( CONTAINER_PATH )
+    +---analytical_data ( ANALYTICAL_DATA_PATH)
+    |   \---datatype_l1_identification
+    |           di_l1_consolidated_feats_data.csv
+    |
+    +---intermediate ( INT_DATA_PATH )
+    |   \---datatype_l1_identification
+    |           db_extract_feats.csv
+    |           real_world_dataset_feats.csv
+    |           web_crawl_dataset_feats.csv
+    |
+    \---model ( MODEL PATH ) 
+        +---model_metrics ( MODEL_METRICS_PATH )
+        |   \---datatype_l1_identification
+        |           di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv ( classification report  test data )
+        |           di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv ( confusion matrix report test data )
+        |           di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv ( classification report validation data )
+        |           di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv ( confustion matrix report validation data )
+        |
+        +---model_objects ( MODEL_OBJECTS_PATH )
+        |   \---datatype_l1_identification
+        |           di_l1_classifier_encoder_13052023.pkl ( final encoder )
+        |           di_l1_classifier_xgb_13052023.pkl ( final trained classifier model )
+        |
+        \---model_results ( MODEL_RESULTS_PATH )
+            \---datatype_l1_identification
+                    di_l1_classifier_test_predicted_xgb_12032024.csv ( prediction result test data )
+                    di_l1_classifier_validation_predicted_xgb_12032024.csv ( prediction result validation data )
+  ```
 
 ## Examples  
 _**Inference Example**_
@@ -151,7 +249,7 @@ di.train( input_path=inputs_path,
 [*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_12032024.csv ...
 [*] Classification report for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv
-[*] Validations predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_12032024.csv ...
+[*] Validation predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_12032024.csv ...
 [*] Classification report for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv
 [*] Model building completed at 2024-03-12 13:45:48 
