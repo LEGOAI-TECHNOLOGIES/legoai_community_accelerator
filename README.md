@@ -81,10 +81,6 @@ Binary installers for the latest released version are available at the [Python P
         RANGE_PATTERN: '(\d+)\s*[-|to]+\s*(\d+)' 
         URL_PATTERN: 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
-    L1PARAMS:
-        TRAIN_DATASET: 'sherlock' # file or table that will be used as training set  
-        VALIDATION_DATASET: 'web_data_common' # file or table that will be used as validation set ( rest will be used as test set)
-    
     THRESHOLD:
         CORPUS_WORD_LIMIT: 3
         PARTITION_SIZE: 100
@@ -101,8 +97,8 @@ Binary installers for the latest released version are available at the [Python P
         TOKENIZE_WORD_LIMIT: 2 
     
     L3PARAMS:
-        SAMPLE_SIZE: 100 #  size to sample and identify date time format in a column 
-        DF_SAMPLE_SIZE: 10 # size to sample and  
+        SAMPLE_SIZE: 100 #  size to sample values from a column and identify date time 
+        DF_SAMPLE_SIZE: 10 # size to sample values from a column and use for prompt creation in identifying dimension and measure
     
     FILE_TYPE:
         FILE_ENCODING: 'iso-8859-1'
