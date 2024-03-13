@@ -89,9 +89,9 @@ Binary installers for the latest released version are available at the [Python P
           - Feature creation includes character level statistical metrics, and custom features.
  
   2. **L1 - Datatype Identification - Model Building**
-     - Create test, train and validation data obtained from feature creation process ( 60-20-20 ) rule.
+     - Create train, test, and validation data obtained from feature creation process ( 60%-20%-20% ) rule.
      - Fit and save encoder for the label ( i.e. datatype).
-     - Build VotingClassifier model ( i.e soft voting between XGBClassifier, RandomForestClassifier, and SVC).
+     - Build VotingClassifier model ( i.e soft voting technique between XGBClassifier, RandomForestClassifier, and SVC).
      - Save the final classifier model, generate and store prediction result, classification and confustion matrix report for test and validation set.
     
   3. **L1 - Datatype Identification - Inference**
@@ -169,7 +169,7 @@ Binary installers for the latest released version are available at the [Python P
         |           di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv ( classification report  test data )
         |           di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv ( confusion matrix report test data )
         |           di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv ( classification report validation data )
-        |           di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv ( confustion matrix report validation data )
+        |           di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv ( confusion matrix report validation data )
         |
         +---model_objects ( MODEL_OBJECTS_PATH )
         |   \---datatype_l1_identification
@@ -210,7 +210,7 @@ Binary installers for the latest released version are available at the [Python P
          )  
          
   #### Running inference pipeline
-      legoai.DataTypeIdentification.predict(self, input_path: str = None, output_path: str = "datatype_identification"):
+      legoai.DataTypeIdentification.predict(input_path: str = None, output_path: str = "datatype_identification"):
         """
         - Executes the inference pipelines and saves the result and also returns the final result
         
@@ -230,7 +230,35 @@ Binary installers for the latest released version are available at the [Python P
             input_path = "D:\LegoAI\data\ecommerce_data",
             output_path = "D:\di_opensource"
           )
-        
+#### Training
+```
+    legoai.DatatypeIdentification.train(input_path:str=None,gt_path:str=None,output_path:str=None,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
+        """
+        - Executes the training pipeline
+        Parameters
+        ----------
+        input_path (str): raw dataset path for training ( required )
+        gt_path (str): ground truth path for the datatype for all the columns in one single file (required)
+        model_version (str): model version to save under for trained finalized model i.e. ( encoders , and classifier) ( default current date)
+
+        Returns
+        -------
+        tuples: class report and prediction result of test and validation dataset
+        """
+    - Example
+          di = DataTypeIdentificationPipeline()
+          # provide data path for training and its corresponding ground truth or labels
+          dataset_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"
+          ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"
+        # final output path to save intermediate files, classification and confusion matrix reports , and encoder and classifier model. can be defined in .env file under "CONTAINER_PATH" 
+          output_path = "D:\datatype_identification_training"
+        # give model version to save the final encoders and classifier model under the given version
+          model_version = "13052023"
+          di.train(input_path=dataset_path,gt_path=ground_truth_path,
+             output_path= output_path,
+             model_version=model_version)
+```
+
 ## Examples  
 _**Inference Example**_
 ``` 
