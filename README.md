@@ -67,11 +67,48 @@ Binary installers for the latest released version are available at the [Python P
               └─── customer_name (column)
               └─── customer_address (column)
       ```
-  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row during feature processing_.
-
+  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building_.
+    
+  ### How does it works ?
+  1. **L1 - Datatype Identification - Data Preparation**  
+        - Data Preparation includes: ( **for training** )
+          - Reading the files from Raw data folder from each repo and store it in dataframe.
+          - Check if all the required columns such as ID, Column Name, Table Name, Repo Name are present.
+          - If present then use the existing, else create a new ID creation.
+          - Create a master id >> Unique ID for each column (Concatenation of Repo Name/Table Name/Column Name).
+          - Pass the schema processed dataframe for preprocessing and feature creation.
+        - Preprocessing includes:  ( **for training and inference** )
+          - Removing ASCII characters.
+          - Ignoring certain words from adding to the list.
+          - Removing None, NaN, Blanks from the data list.
+          - Remove the data if it contains only punctuations.
+          - Convert the data to string format.
+          - Replacing extra whitespaces from both start and end.  
+      - Feature creation includes:  ( **for training and inference** )
+          - Post preprocessing, the data is passed for feature creation.
+          - Feature creation includes character level statistical metrics, and custom features.
+ 
+  2. **L1 - Datatype Identification - Model Building**
+     - Create train, test, and validation data obtained from feature creation process ( 60%-20%-20% ) rule.
+     - Fit and save encoder for the label ( i.e. datatype).
+     - Build VotingClassifier model ( i.e soft voting technique between XGBClassifier, RandomForestClassifier, and SVC).
+     - Save the final classifier model, generate and store prediction result, classification and confustion matrix report for test and validation set.
+    
+  3. **L1 - Datatype Identification - Inference**
+     - Preprocessing and Feature creation process is same as above.
+     - Load the encoder and classifier model.
+     - Run prediction through the model.
+    
+  4. **L3 - Datatype Identification - Inference**
+     - Uses results obtained from L1 inferencing.
+     - Creates LLM prompt form integer and float datatype and runs prompt, rule based approach for identifying appropriate date & time format for date & time datatype.
+     - Save final L1 and L2 prediction.
+     
+    
+    
 ## Configuration
   ### Model configuration
-  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**, For example:_
+  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**. (**specific to both training and inference**):_
   ``` 
     PREPROCESS_CONSTANT:
         NUMBER_PATTERN: '[0-9]'
@@ -81,35 +118,30 @@ Binary installers for the latest released version are available at the [Python P
         RANGE_PATTERN: '(\d+)\s*[-|to]+\s*(\d+)' 
         URL_PATTERN: 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
-    L1PARAMS:
-        TRAIN_DATASET: 'sherlock' # file or table that will be used as training set  
-        VALIDATION_DATASET: 'web_data_common' # file or table that will be used as validation set ( rest will be used as test set)
-    
     THRESHOLD:
-        CORPUS_WORD_LIMIT: 3
+        CORPUS_WORD_LIMIT: 3 # minimum length of the word to create words list for spell check or valid text ( used in lexical matching of certain values with english dictionary words)
         PARTITION_SIZE: 100
-        DATE_MIN_YEAR: 1800
-        DATE_MAX_YEAR: 2100
-        SYMSPELL_PREFIX_LEN: 7
-        SYMSPELL_EDIT_DIST: 0
-        SYMSPELL_TERM_INDEX: 0
-        SYMSPELL_COUNT_INDEX: 1
-        DATA_VALUES_LIMIT: 1000000
+        DATE_MIN_YEAR: 1800 # minimum range value for date extraction
+        DATE_MAX_YEAR: 2100 # maximum range value for date extraction
+        SYMSPELL_PREFIX_LEN: 7 # symspell related configuration ( symspell is used for retrieving cleaned name ( column name, table name ) ) 
+        SYMSPELL_EDIT_DIST: 0 # symspell related configuration
+        SYMSPELL_TERM_INDEX: 0 # symspell related configuration
+        SYMSPELL_COUNT_INDEX: 1 # symspell related configuration
+        DATA_VALUES_LIMIT: 1000000 # no of samples or column values used for feature creation
         XGB_MODEL_WEIGHT: 0.4 # for voting classifier
         RF_MODEL_WEIGHT: 0.3 # for voting classifier
         SVM_MODEL_WEIGHT: 0.3 # for voting classifier
-        TOKENIZE_WORD_LIMIT: 2 
     
     L3PARAMS:
-        SAMPLE_SIZE: 100 #  size to sample and identify date time format in a column 
-        DF_SAMPLE_SIZE: 10 # size to sample and  
+        SAMPLE_SIZE: 100 #  size to sample values from a column and identify date time 
+        DF_SAMPLE_SIZE: 10 # size to sample values from a column and use for prompt creation in identifying dimension and measure
     
     FILE_TYPE:
         FILE_ENCODING: 'iso-8859-1'
         DTYPE_ENCODING: 'unicode'
   ```
   ### Path Configuration
-  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file._
+  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file. (**specific for training**)_
 ```
   CONTAINER_PATH = data\Lego_AI # Base folder of the entire folder structure
   INT_DATA_PATH = intermediate # Path for storing the intermediate files during feature creation
@@ -137,7 +169,7 @@ Binary installers for the latest released version are available at the [Python P
         |           di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv ( classification report  test data )
         |           di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv ( confusion matrix report test data )
         |           di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv ( classification report validation data )
-        |           di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv ( confustion matrix report validation data )
+        |           di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv ( confusion matrix report validation data )
         |
         +---model_objects ( MODEL_OBJECTS_PATH )
         |   \---datatype_l1_identification
@@ -178,7 +210,7 @@ Binary installers for the latest released version are available at the [Python P
          )  
          
   #### Running inference pipeline
-      legoai.DataTypeIdentification.predict(self, input_path: str = None, output_path: str = "datatype_identification"):
+      legoai.DataTypeIdentification.predict(input_path: str = None, output_path: str = "datatype_identification"):
         """
         - Executes the inference pipelines and saves the result and also returns the final result
         
@@ -198,7 +230,38 @@ Binary installers for the latest released version are available at the [Python P
             input_path = "D:\LegoAI\data\ecommerce_data",
             output_path = "D:\di_opensource"
           )
-        
+### Training
+```
+    legoai.DatatypeIdentification.train(input_path:str=None,gt_path:str=None,output_path:str=None,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
+        """
+        - Executes the training pipeline
+        Parameters
+        ----------
+        input_path (str): raw dataset path for training ( required )
+        gt_path (str): ground truth path for the datatype for all the columns in one single file (required)
+        model_version (str): model version to save under for trained finalized model i.e. ( encoders , and classifier) ( default current date)
+
+        Returns
+        -------
+        tuples: class report and prediction result of test and validation dataset
+        """
+    - Example
+          di = DataTypeIdentificationPipeline()
+          # provide data path for training and its corresponding ground truth or labels
+          dataset_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"
+          ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"
+        # final output path to save intermediate files, classification and confusion matrix reports , and encoder and classifier model. can be defined in .env file under "CONTAINER_PATH" 
+          output_path = "D:\datatype_identification_training"
+        # give model version to save the final encoders and classifier model under the given version
+          model_version = "13052023"
+          di.train(input_path=dataset_path,gt_path=ground_truth_path,
+             output_path= output_path,
+             model_version=model_version)
+```
+
+> [!NOTE]
+> For further clarification see examples below
+
 ## Examples  
 _**Inference Example**_
 ``` 
@@ -266,37 +329,39 @@ di.train( input_path=inputs_path,
           model_version=model_version)  
 ```
   _**Training Example Output**_
-``` 
-[*] Extracting files meta information ...    
-0%|          | 0/3 [00:00<?, ?it/s]  
-[*] Meta Data Row Count db_extract.json:  (362, 13)  
-[*] Feature Extraction Started... 2024-02-29 15:17:29  
-[*] Feature Creation Finished. Processed 362 rows in 0:03:08.564266  
-33%|███▎      | 1/3 [03:11<06:23, 191.52s/it]   
-[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)  
-[*] Feature Extraction Started... 2024-02-29 15:20:39  
-[*] Feature Creation Finished. Processed 36375 rows in 0:01:11.574827  
-67%|██████▋   | 2/3 [04:24<02:01, 121.96s/it]  
-[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)  
-[*] Feature Extraction Started... 2024-02-29 15:21:51    
-[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.684016
-100%|██████████| 3/3 [04:37<00:00, 92.58s/it]    
-[*] Combining all features into single file ...    
-[*] Consolidated features saved at D:\data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv ...  
+```
+[*] Extracting files meta information ...
+  0%|          | 0/3 [00:00<?, ?it/s]
+[*] Meta Data Row Count db_extract.json:  (362, 13)
+[*] Feature Extraction Started... 2024-03-13 20:05:27
+[*] Feature Creation Finished. Processed 362 rows in 0:03:07.700495
+[*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\db_extract_feats.csv...
+ 33%|███▎      | 1/3 [03:11<06:22, 191.23s/it]
+[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)
+[*] Feature Extraction Started... 2024-03-13 20:08:36
+[*] Feature Creation Finished. Processed 36375 rows in 0:01:09.008878
+ 67%|██████▋   | 2/3 [04:21<02:00, 120.29s/it][*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\real_world_dataset_feats.csv...
+[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)
+[*] Feature Extraction Started... 2024-03-13 20:09:46
+[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.406904
+100%|██████████| 3/3 [04:34<00:00, 91.50s/it]
+[*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\web_crawl_dataset_feats.csv...
+[*] Combining all features into single file ...
+[*] Consolidated features saved at D:\data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv
 [*] MODEL VERSION: 13052023
-[*] Features: (49794, 1714) , Labels: (49794, 2)
-[*] Final Merged Features and Labels: (49794, 1715)
-[*] Train:  (36375, 1716) Valid:  (3585, 1716) Test:  (9834, 1716)
+[*] Features: (40322, 23) , Labels: (49794, 2)
+[*] Final Merged Features and Labels: (40322, 24)
+[*] Train:  (24193, 25) Valid:  (8064, 25) Test:  (8065, 25)
 [*] Encoder saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl ...
-[*] Model building started at 2024-03-12 13:45:07
+[*] Model building started at 2024-03-13 20:10:00
 [*] Classifier model saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl ...
-[*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_12032024.csv ...
+[*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_13032024.csv ...
 [*] Classification report for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv
-[*] Validation predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_12032024.csv ...
+[*] Validations predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_13032024.csv ...
 [*] Classification report for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv
-[*] Model building completed at 2024-03-12 13:45:48 
+[*] Model building completed at 2024-03-13 20:10:24
 ```
 _**Training Input Path Structure**_
 ```
@@ -311,12 +376,23 @@ D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\RAW_DATA
     └───web_crawl_dataset
             web_crawl_dataset.json
 ```
+> [!NOTE]
+> for example data refer to this file [real_world_dataset](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/training_directory/Lego_AI/input/raw_data/datatype_l1_identification/real_world_dataset)
+
+
 _**Training Ground Truth (Label) Path Structure**_
 ```
 D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\GROUND_TRUTH
 └───datatype_l1_identification
         di_l1_ground_truth.csv
 ```
+> [!NOTE]
+> for example data refer to this file [ground_truth](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/training_directory/Lego_AI/input/ground_truth/datatype_l1_identification)
+ 
+> [!IMPORTANT]
+> **master_id** column is required in ground truth for merging final data for model building process
+
+
 ## Contributing
 Any contributions to this project is welcomed, you can follow the steps below for contribution:
 1. Fork the repository.
