@@ -56,5 +56,6 @@ legoai/Lego_AI/*
 venv
 env
 
-# work dir
-data
+# work dir data
+training_data/
+
