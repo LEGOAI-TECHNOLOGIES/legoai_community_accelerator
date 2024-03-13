@@ -67,8 +67,45 @@ Binary installers for the latest released version are available at the [Python P
               └─── customer_name (column)
               └─── customer_address (column)
       ```
-  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row during feature processing_.
-
+  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building_.
+    
+  ### How does it works ?
+  1. **L1 - Datatype Identification - Data Preparation**  
+        - Data Preparation includes: ( **for training** )
+          - Reading the files from Raw data folder from each repo and store it in dataframe.
+          - Check if all the required columns such as ID, Column Name, Table Name, Repo Name are present.
+          - If present then use the existing, else create a new ID creation.
+          - Create a master id >> Unique ID for each column (Concatenation of Repo Name/Table Name/Column Name).
+          - Pass the schema processed dataframe for preprocessing and feature creation.
+        - Preprocessing includes:  ( **for training and inference** )
+          - Removing ASCII characters.
+          - Ignoring certain words from adding to the list.
+          - Removing None, NaN, Blanks from the data list.
+          - Remove the data if it contains only punctuations.
+          - Convert the data to string format.
+          - Replacing extra whitespaces from both start and end.  
+      - Feature creation includes:  ( **for training and inference** )
+          - Post preprocessing, the data is passed for feature creation.
+          - Feature creation includes character level statistical metrics, and custom features.
+ 
+  2. **L1 - Datatype Identification - Model Building**
+     - Create test, train and validation data obtained from feature creation process ( 60-20-20 ) rule.
+     - Fit and save encoder for the label ( i.e. datatype).
+     - Build VotingClassifier model ( i.e soft voting between XGBClassifier, RandomForestClassifier, and SVC).
+     - Save the final classifier model, generate and store prediction result, classification and confustion matrix report for test and validation set.
+    
+  3. **L1 - Datatype Identification - Inference**
+     - Preprocessing and Feature creation process is same as above.
+     - Load the encoder and classifier model.
+     - Run prediction through the model.
+    
+  4. **L3 - Datatype Identification - Inference**
+     - Uses results obtained from L1 inferencing.
+     - Creates LLM prompt form integer and float datatype and runs prompt, rule based approach for identifying appropriate date & time format for date & time datatype.
+     - Save final L1 and L2 prediction.
+     
+    
+    
 ## Configuration
   ### Model configuration
   _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**. (**specific to both training and inference**):_
@@ -320,6 +357,9 @@ D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\GROUND_TRUTH
 ```
 > [!NOTE]
 > for example data refer to this file [ground_truth](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/training_directory/Lego_AI/input/ground_truth/datatype_l1_identification)
+ 
+> [!IMPORTANT]
+> **master_id** column is required in ground truth for merging final data for model building process
 
 
 ## Contributing
