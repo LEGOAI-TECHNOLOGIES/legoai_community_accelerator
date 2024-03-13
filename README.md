@@ -266,37 +266,39 @@ di.train( input_path=inputs_path,
           model_version=model_version)  
 ```
   _**Training Example Output**_
-``` 
-[*] Extracting files meta information ...    
-0%|          | 0/3 [00:00<?, ?it/s]  
-[*] Meta Data Row Count db_extract.json:  (362, 13)  
-[*] Feature Extraction Started... 2024-02-29 15:17:29  
-[*] Feature Creation Finished. Processed 362 rows in 0:03:08.564266  
-33%|███▎      | 1/3 [03:11<06:23, 191.52s/it]   
-[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)  
-[*] Feature Extraction Started... 2024-02-29 15:20:39  
-[*] Feature Creation Finished. Processed 36375 rows in 0:01:11.574827  
-67%|██████▋   | 2/3 [04:24<02:01, 121.96s/it]  
-[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)  
-[*] Feature Extraction Started... 2024-02-29 15:21:51    
-[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.684016
-100%|██████████| 3/3 [04:37<00:00, 92.58s/it]    
-[*] Combining all features into single file ...    
-[*] Consolidated features saved at D:\data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv ...  
+```
+[*] Extracting files meta information ...
+  0%|          | 0/3 [00:00<?, ?it/s]
+[*] Meta Data Row Count db_extract.json:  (362, 13)
+[*] Feature Extraction Started... 2024-03-13 20:05:27
+[*] Feature Creation Finished. Processed 362 rows in 0:03:07.700495
+[*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\db_extract_feats.csv...
+ 33%|███▎      | 1/3 [03:11<06:22, 191.23s/it]
+[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)
+[*] Feature Extraction Started... 2024-03-13 20:08:36
+[*] Feature Creation Finished. Processed 36375 rows in 0:01:09.008878
+ 67%|██████▋   | 2/3 [04:21<02:00, 120.29s/it][*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\real_world_dataset_feats.csv...
+[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)
+[*] Feature Extraction Started... 2024-03-13 20:09:46
+[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.406904
+100%|██████████| 3/3 [04:34<00:00, 91.50s/it]
+[*] Meta information saved at D:\data\Lego_AI\intermediate\datatype_l1_identification\web_crawl_dataset_feats.csv...
+[*] Combining all features into single file ...
+[*] Consolidated features saved at D:\data\Lego_AI\analytical_data\datatype_l1_identification\di_l1_consolidated_feats_data.csv
 [*] MODEL VERSION: 13052023
-[*] Features: (49794, 1714) , Labels: (49794, 2)
-[*] Final Merged Features and Labels: (49794, 1715)
-[*] Train:  (36375, 1716) Valid:  (3585, 1716) Test:  (9834, 1716)
+[*] Features: (40322, 23) , Labels: (49794, 2)
+[*] Final Merged Features and Labels: (40322, 24)
+[*] Train:  (24193, 25) Valid:  (8064, 25) Test:  (8065, 25)
 [*] Encoder saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl ...
-[*] Model building started at 2024-03-12 13:45:07
+[*] Model building started at 2024-03-13 20:10:00
 [*] Classifier model saved at D:\data\Lego_AI\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl ...
-[*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_12032024.csv ...
+[*] Test predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_13032024.csv ...
 [*] Classification report for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for test data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv
-[*] Validation predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_12032024.csv ...
+[*] Validations predictions saved at D:\data\Lego_AI\model\model_results\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_13032024.csv ...
 [*] Classification report for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv
 [*] Confusion matrix for validation data saved at D:\data\Lego_AI\model\model_metrics\datatype_l1_identification\di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv
-[*] Model building completed at 2024-03-12 13:45:48 
+[*] Model building completed at 2024-03-13 20:10:24
 ```
 _**Training Input Path Structure**_
 ```
@@ -311,12 +313,20 @@ D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\RAW_DATA
     └───web_crawl_dataset
             web_crawl_dataset.json
 ```
+> [!NOTE]
+> for example data refer to this file [real_world_dataset](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/training_directory/Lego_AI/input/raw_data/datatype_l1_identification/real_world_dataset)
+
+
 _**Training Ground Truth (Label) Path Structure**_
 ```
 D:\LEGO AI\DI_OPENSOURCE\DATA\LEGO_AI\INPUT\GROUND_TRUTH
 └───datatype_l1_identification
         di_l1_ground_truth.csv
 ```
+> [!NOTE]
+> for example data refer to this file [ground_truth](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/training_directory/Lego_AI/input/ground_truth/datatype_l1_identification)
+
+
 ## Contributing
 Any contributions to this project is welcomed, you can follow the steps below for contribution:
 1. Fork the repository.
