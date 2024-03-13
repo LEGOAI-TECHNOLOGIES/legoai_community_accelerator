@@ -29,13 +29,9 @@ from legoai.modules.datatype_identification.preprocessing import normalise_strin
 # ====================================================================
 # Set max_dictionary_edit_distance to 0 to avoid spelling correction
 # ====================================================================
-model_dep_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"], PATH_CONFIG["MODEL_DEP_PATH"],
-                              "datatype_l1_identification")
 
-# default dependency path .i.e legoai/model folder
-if not os.path.isfile(os.path.join(model_dep_path, 'en-80k.txt')):
-    dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-    model_dep_path = os.path.join(os.path.split(dir_path)[0], "model", "dependant", "datatype_l1_identification")
+dir_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+model_dep_path = os.path.join(os.path.split(dir_path)[0], "model", "dependant", "datatype_l1_identification")
 
 sym_spell = SymSpell(max_dictionary_edit_distance=MODEL_CONFIG['THRESHOLD']['SYMSPELL_EDIT_DIST'],
                      prefix_length=MODEL_CONFIG['THRESHOLD']['PARTITION_SIZE'])
