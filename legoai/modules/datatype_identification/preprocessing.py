@@ -26,13 +26,19 @@ def remove_non_ascii(strs) -> str:
     """
     return ''.join([char for word in str(strs) for char in word if ord(char) < 128])
 
-# ====================================================================
-# removePunctuation: 
-#     -  Remove punctuation characters at start and end of the data
-# Parameters: 
-#     strs - input string
-# ====================================================================
+
 def remove_punctuation(strs) -> str:
+    """
+     -  Remove punctuation characters at start and end of the data
+
+    Parameters
+    ----------
+    strs (str): input string
+
+    Returns
+    -------
+    punctuation removed string
+    """
     return strs.strip("'").strip('"')
 
 
