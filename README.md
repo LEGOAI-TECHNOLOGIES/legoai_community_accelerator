@@ -71,7 +71,7 @@ Binary installers for the latest released version are available at the [Python P
 
 ## Configuration
   ### Model configuration
-  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**, For example:_
+  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**. (**specific to both training and inference**):_
   ``` 
     PREPROCESS_CONSTANT:
         NUMBER_PATTERN: '[0-9]'
@@ -82,19 +82,18 @@ Binary installers for the latest released version are available at the [Python P
         URL_PATTERN: 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
     THRESHOLD:
-        CORPUS_WORD_LIMIT: 3
+        CORPUS_WORD_LIMIT: 3 # minimum length of the word to create words list for spell check or valid text ( used in lexical matching of certain values with english dictionary words)
         PARTITION_SIZE: 100
-        DATE_MIN_YEAR: 1800
-        DATE_MAX_YEAR: 2100
-        SYMSPELL_PREFIX_LEN: 7
-        SYMSPELL_EDIT_DIST: 0
-        SYMSPELL_TERM_INDEX: 0
-        SYMSPELL_COUNT_INDEX: 1
-        DATA_VALUES_LIMIT: 1000000
+        DATE_MIN_YEAR: 1800 # minimum range value for date extraction
+        DATE_MAX_YEAR: 2100 # maximum range value for date extraction
+        SYMSPELL_PREFIX_LEN: 7 # symspell related configuration ( symspell is used for retrieving cleaned name ( column name, table name ) ) 
+        SYMSPELL_EDIT_DIST: 0 # symspell related configuration
+        SYMSPELL_TERM_INDEX: 0 # symspell related configuration
+        SYMSPELL_COUNT_INDEX: 1 # symspell related configuration
+        DATA_VALUES_LIMIT: 1000000 # no of samples or column values used for feature creation
         XGB_MODEL_WEIGHT: 0.4 # for voting classifier
         RF_MODEL_WEIGHT: 0.3 # for voting classifier
         SVM_MODEL_WEIGHT: 0.3 # for voting classifier
-        TOKENIZE_WORD_LIMIT: 2 
     
     L3PARAMS:
         SAMPLE_SIZE: 100 #  size to sample values from a column and identify date time 
@@ -105,7 +104,7 @@ Binary installers for the latest released version are available at the [Python P
         DTYPE_ENCODING: 'unicode'
   ```
   ### Path Configuration
-  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file._
+  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file. (**specific for training**)_
 ```
   CONTAINER_PATH = data\Lego_AI # Base folder of the entire folder structure
   INT_DATA_PATH = intermediate # Path for storing the intermediate files during feature creation
