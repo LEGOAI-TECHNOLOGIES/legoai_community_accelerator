@@ -240,7 +240,7 @@ Binary installers for the latest released version are available at the [Python P
         input_path (str): raw dataset path for training ( required )
         gt_path (str): ground truth path for the datatype for all the columns in one single file (required)
         model_version (str): model version to save under for trained finalized model i.e. ( encoders , and classifier) ( default current date)
-
+        output_path (str): final output path to save all models, features, and reports ( default will be 'datatype_identification_training')
         Returns
         -------
         tuples: class report and prediction result of test and validation dataset
