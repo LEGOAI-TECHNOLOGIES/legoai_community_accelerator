@@ -5,8 +5,7 @@ PREPROCESS_CONSTANT:
     SPECIAL_CHAR_PATTERN: '[!@#$%^&*(),?":;{}\''|<>~`=_\\/+-]'
     RANGE_PATTERN: '(\d+)\s*[-|to]+\s*(\d+)'
     URL_PATTERN: 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    TRAIN_DATASET: 'sherlock'
-    VALIDATION_DATASET: 'web_data_common'
+
 
 THRESHOLD:
     CORPUS_WORD_LIMIT: 3
@@ -21,18 +20,10 @@ THRESHOLD:
     XGB_MODEL_WEIGHT: 0.4
     RF_MODEL_WEIGHT: 0.3
     SVM_MODEL_WEIGHT: 0.3
-    TOKENIZE_WORD_LIMIT: 2
-    PAR_EMBED_MIN_SAMPLE: 1000
-    DOC2VEC_DIM_SIZE: 50
-    GLOVE_DIM_SIZE: 50
-
-L1PARAMS:
-    MODEL_VERSION: "13052023"
 
 L3PARAMS:
     SAMPLE_SIZE: 100
     DF_SAMPLE_SIZE: 10
-    OPENAI_API_KEY: ""
 
 FILE_TYPE:
     FILE_ENCODING: 'iso-8859-1'
