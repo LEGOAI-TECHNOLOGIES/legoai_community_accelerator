@@ -230,7 +230,7 @@ Binary installers for the latest released version are available at the [Python P
             input_path = "D:\LegoAI\data\ecommerce_data",
             output_path = "D:\di_opensource"
           )
-#### Training
+### Training
 ```
     legoai.DatatypeIdentification.train(input_path:str=None,gt_path:str=None,output_path:str=None,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
         """
@@ -258,6 +258,9 @@ Binary installers for the latest released version are available at the [Python P
              output_path= output_path,
              model_version=model_version)
 ```
+
+> [!NOTE]
+> For further clarification see examples below
 
 ## Examples  
 _**Inference Example**_
