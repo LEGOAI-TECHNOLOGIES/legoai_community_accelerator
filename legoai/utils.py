@@ -10,7 +10,7 @@ from io import BytesIO
 import sys
 from datetime import datetime
 import json
-
+from functools import wraps
 
 from legoai.core.configuration import PATH_CONFIG
 
@@ -19,7 +19,6 @@ DEFAULT_DATASET = "ecommerce_data"
 VALID_DATASET_EXTENSIONS = ['csv', 'json', 'txt', 'xslx']
 
 DATASET_PATH_URL = "http://localhost:8000/Lego_AI/inference/"
-
 
 def check_dataset_path(*args):
     """
@@ -33,7 +32,7 @@ def check_dataset_path(*args):
 
     """
     for dataset_path in args:
-        if not os.path.exists(dataset_path):
+        if dataset_path is None or not os.path.exists(dataset_path):
             print(f"\n[!] Given path {dataset_path} not valid")
             sys.exit(-1)
         elif not len(os.listdir(dataset_path)) > 0:
@@ -140,6 +139,9 @@ def combine_gt_file(path:str) -> pd.DataFrame:
             df.columns = map(str.lower, df.columns)
             if REQUIRED_GT_COLUMNS.issubset(df.columns.tolist()):
                 gt_df = pd.concat([gt_df,df[['master_id','datatype']]])
+            else:
+                raise Exception("[!] master_id and datatype columns not present in ground truth file...")
+
     return gt_df
 
 
