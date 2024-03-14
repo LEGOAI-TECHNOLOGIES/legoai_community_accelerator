@@ -183,80 +183,75 @@ Binary installers for the latest released version are available at the [Python P
   ```
 ## Usage
   ### Inference
-  #### Loading pretrained model
-    legoai.DataTypeIdentificationPipeline.pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
-              """
-                - Returns an object with preloaded L1 model and pre instantiated L3 model
-                - if openai api key not given only instantiates with L1 model
-                - encoder and model path can be given to run custom model, else default settings will be used to load pretrained model and encoder
-                
-                Parameters
-                ----------
-                openai_api_key (str): an openai api key for L3 model
-                encoder_path (str) optional: full path to the encoder.
-                model_path (str) optional; full path to the classifier.
-    
-                Returns
-                -------
-                DatatypeIdentification object with l1 and l3 model loaded.
-              """
-            
-      - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
+  #### Loading pretrained model  
+  - ```legoai.DataTypeIdentificationPipeline.pretrained_pipeline```  
+> [!Note]
+> - Returns an object with preloaded L1 model and pre instantiated L3 model.  
+> - If openai api key not given only instantiates with L1 model.  
+> - Encoder and model path can be given to run custom model, else default settings will be used to load pretrained model and encoder.  
+ - ```Parameters```
+   - ```openai_api_key (str) (optional): an openai api key for L3 model```
+   - ```encoder_path (str) (optional): full path to the encoder.```
+   - ```model_path (str) (optional): full path to the classifier.```
+- ```Returns```
+   - ```DatatypeIdentification object with L1 and L3 model loaded.```
+```
+  - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
        
          di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(
            openai_api_key = "your-openai-api-key"
-           encoder_path="D:\Lego AI\DI_OPENSOURCE\legoai\model\model_objects\datatype_l1_identification\di_l1_classifier_encoder_13052023.pkl",
-           model_path = "D:\Lego AI\DI_OPENSOURCE\legoai\model\model_objects\datatype_l1_identification\di_l1_classifier_xgb_13052023.pkl"
+           encoder_path="LegoAI\di_l1_classifier_encoder_13052023.pkl",
+           model_path = "Lego_AI\di_l1_classifier_xgb_13052023.pkl"
          )  
-         
-  #### Running inference pipeline
-      legoai.DataTypeIdentification.predict(input_path: str = None, output_path: str = "datatype_identification"):
-        """
-        - Executes the inference pipelines and saves the result and also returns the final result
-        
-        Parameters
-        ----------
-        input_path (str): the path to the inference dataset.
-        output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output.
+   ```
+#### Running inference pipeline
+  - ```legoai.DataTypeIdentification.predict```  
+> [!NOTE] 
+> - Executes the inference pipelines and saves the result and also returns the final result
+  - ```Parameters```
+    - ```input_path (str): the path to the inference dataset```
+    - ```output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output```
+- ```Returns```
+  - ```final L1 and L3 (if openai key given) prediction, with generated features dataframe```
 
-        Returns
-        -------
-        result (pd.DataFrame): final result dataframe
-        """
-        
-        - Example
-          di_pipeline = DataTypeIdentification.pretrained_pipeline(openai_api_key = "your-openai-api-key")
-          di_pipeline.predict(
+```
+  - Example
+      di_pipeline = DataTypeIdentification.pretrained_pipeline(openai_api_key = "your-openai-api-key")
+      di_pipeline.predict(
             input_path = "D:\LegoAI\data\ecommerce_data",
             output_path = "D:\di_opensource"
-          )
-### Training
+        )
 ```
-    legoai.DatatypeIdentification.train(input_path:str=None,gt_path:str=None,output_path:str=None,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
-        """
-        - Executes the training pipeline
-        Parameters
-        ----------
-        input_path (str): raw dataset path for training ( required )
-        gt_path (str): ground truth path for the datatype for all the columns in one single file (required)
-        model_version (str): model version to save under for trained finalized model i.e. ( encoders , and classifier) ( default current date)
-        output_path (str): final output path to save all models, features, and reports ( default will be 'datatype_identification_training')
-        Returns
-        -------
-        tuples: class report and prediction result of test and validation dataset
-        """
-    - Example
-          di = DataTypeIdentificationPipeline()
-          # provide data path for training and its corresponding ground truth or labels
-          dataset_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\\raw_data"
-          ground_truth_path = "D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"
-        # final output path to save intermediate files, classification and confusion matrix reports , and encoder and classifier model. can be defined in .env file under "CONTAINER_PATH" 
-          output_path = "D:\datatype_identification_training"
-        # give model version to save the final encoders and classifier model under the given version
-          model_version = "13052023"
-          di.train(input_path=dataset_path,gt_path=ground_truth_path,
+### Training
+- ```legoai.DatatypeIdentification.train```
+> [!NOTE]
+> - Executes the training pipeline
+  - ```Parameters```
+    - ```input_path (str) (required): raw dataset path for training ```
+    - ```gt_path (str) (required):ground truth path for the datatype for all the columns```
+    - ```model_version (str) (optional): model version to save under for trained finalized model i.e.(encoder, and classifier) (default current date)```
+    - ```output_path (str (optional): final output path to save all models, features, and reports (default will be 'datatype_identification_training\')```
+ - ```Returns```
+    - ```classification and confustion matrix report (dataframe) and prediction result of test and validation dataset```
+
+```
+- Example
+      di = DataTypeIdentificationPipeline()
+
+      # provide data path for training and its corresponding ground truth or labels
+      dataset_path = r"D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\raw_data"
+      ground_truth_path = r"D:\Lego AI\DI_OPENSOURCE\data\Lego_AI\input\ground_truth"
+     # final output path to save intermediate files, classification and confusion matrix reports , and encoder and classifier model. can be defined in .env file under "CONTAINER_PATH" 
+    output_path = r"D:\datatype_identification_training"
+
+    # give model version to save the final encoders and classifier model under the given version
+    model_version = "13052023"
+
+    # training
+    di.train(input_path=dataset_path,gt_path=ground_truth_path,
              output_path= output_path,
-             model_version=model_version)
+             model_version=model_version
+      )
 ```
 
 > [!NOTE]
