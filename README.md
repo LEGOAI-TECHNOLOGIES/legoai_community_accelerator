@@ -56,7 +56,7 @@ Binary installers for the latest released version are available at the [Python P
 ## Documentation
 > [!NOTE]
 >  ### Feature Specific Terminologies
->   - **repo**: _directory or folder that consits of all tables_.
+>   - **repo/dataset**: _directory or folder that consits of all tables_.
 >   - **table**: _tables are files (csv or other extension) that is present with in the repo_.
 >   - **column**: _individual columns within the table_.
 >   - ### Structure
