@@ -1,10 +1,9 @@
 import pandas as pd
 
-import traceback
 import os
 import time
 from datetime import datetime
-from pathlib import Path
+
 
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l3_model import L3Model
@@ -17,6 +16,8 @@ from tqdm import tqdm
 
 int_data_l1_path = os.path.join(PATH_CONFIG['INT_DATA_PATH'], 'datatype_l1_identification')  ## Intermediate data path
 l1_feature_path = os.path.join(PATH_CONFIG['ANALYTICAL_DATA_PATH'],'datatype_l1_identification')  ## Final feature data path
+
+
 class DataTypeIdentificationPipeline:
     """
         A pipeline that identifies datatype for specific columns in a dataset.
@@ -41,8 +42,8 @@ class DataTypeIdentificationPipeline:
     """
 
     def __init__(self, l1_model: L1Model = None, l3_model: L3Model = None):
-        self.l1_model = l1_model
-        self.l3_model = l3_model
+        self.__l1_model = l1_model
+        self.__l3_model = l3_model
 
     @classmethod
     def pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
@@ -134,12 +135,12 @@ class DataTypeIdentificationPipeline:
         -------
         Feature extracted dataframe
         """
-        output_path = os.path.normpath(os.path.join(output_path,"features"))
+
+        output_path = os.path.normpath(os.path.join(output_path, "features"))
+        feature_df = extract_features_to_csv(df)
+        features_path = os.path.join(output_path,f"di_features_{datetime.now().strftime('%Y%M%d')}")
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-
-        feature_df = extract_features_to_csv(df)
-        features_path = os.path.join(output_path,f"intermediate_features_{datetime.now().strftime('%d%m%Y')}.csv")
         feature_df.to_csv(features_path)
         print(f"[*] Features saved at {features_path}")
         return feature_df
@@ -222,8 +223,17 @@ class DataTypeIdentificationPipeline:
         for i, filename in enumerate(feats_content):
             feats_csv = pd.read_csv(filename)
             feats_csv['file_name'] = filename.split(os.sep)[1].replace('.csv', '')
-            feats_csv['repo_name'] = _meta_df[_meta_df['filename'] ==
-            filename.split(os.sep)[-1].replace('_feats.csv', '.json')]['reponame'].tolist()[0]
+
+
+            # for handling any type of files
+            _meta_df['filename'] = _meta_df['filename'].apply(lambda x: x.split(".")[0])
+
+            feats_csv['repo_name'] = _meta_df[_meta_df['filename'] == filename.split(os.sep)[-1].replace(
+                '_feats.csv','')]['reponame'].tolist()[0]
+
+            # feats_csv['repo_name'] = _meta_df[_meta_df['filename'] ==
+            # filename.split(os.sep)[-1].replace('_feats.csv','.json')]['reponame'].tolist()[0]
+            #
             features_df = pd.concat([features_df, feats_csv])
             # print(len(feats_content) - i)
 
@@ -279,7 +289,7 @@ class DataTypeIdentificationPipeline:
 
         # 1st step extract file meta information
         _meta_df = extract_file_meta_info(dataset_path)
-        _meta_df.to_csv("D:\metadata.csv")
+
         # Feature extraction Part
 
         # 2nd step is to extract the features from the data and store it as intermediate result
@@ -325,16 +335,16 @@ class DataTypeIdentificationPipeline:
         features_df = self.features_preparation(df, output_path)
 
         # 4th step is to run the l1 model prediction
-        _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
+        _model_prediction = self.__l1_model.model_prediction(features_df, process_type="inference")
 
         # if api key not given only run l1 model
-        if self.l3_model is None:
+        if self.__l3_model is None:
             _model_prediction[['repo','table','column']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
             _model_prediction.drop(columns=['master_id'],inplace=True)
 
         else:
             # 5th step is to run the l3 model prediction
-            _model_prediction = self.l3_model.model_prediction(l1_pred= _model_prediction, feat_df=features_df, df=df)
+            _model_prediction = self.__l3_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
 
         di_end = time.time()
         print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
@@ -423,30 +433,30 @@ class DataTypeIdentificationPipeline:
             return l1_l3_model_prediction
 
     @staticmethod
-    def extract_features(dataset_path: str, save_to: str = None) -> pd.DataFrame:
+    def extract_features(input_path: str, output_path: str = None) -> pd.DataFrame:
         """
         extract features from the dataset / repo
             
         Parameters
         ---------
-        dataset_path (str): path of the dataset / directory from where you want to extract the features.
+        input_path (str): path of the dataset / directory from where you want to extract the features.
 
         Returns
         -------
         pd.DataFrame: features extracted dataframe.
         """
 
-        folder_path = dataset_path
+        folder_path = input_path
 
         # folder_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],PATH_CONFIG["INF_DATA_PATH"],'inference_repo', dataset_name)
         if os.path.exists(folder_path):
             parquet_df = input_file_transformation(folder_path)
             try:
-                if save_to is not None:
-                    parquet_df.to_csv(save_to)
+                if output_path is not None and bool(output_path.strip()):
+                    parquet_df.to_csv(output_path)
             except Exception:
                 new_save_path = f"di_features_{datetime.now().strftime('%Y%M%d')}"
-                print(f"[*] {save_to} path not found ... saved as {new_save_path} ...")
+                print(f"[*] {output_path} path not found ... saved at {new_save_path} ...")
                 parquet_df.to_csv(new_save_path)
 
             return extract_features_to_csv(parquet_df=parquet_df)
