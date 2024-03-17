@@ -107,6 +107,9 @@ def check_openai_key(key: str):
         except openai.error.AuthenticationError:
             print("[!] provide valid openai key")
             sys.exit(-1)
+        except openai.error.APIConnectionError:
+            print("[!] internet connection not available for l3 model ...")
+            sys.exit(-1)
 
 
 REQUIRED_GT_COLUMNS = {"master_id","datatype"}
