@@ -54,20 +54,21 @@ Binary installers for the latest released version are available at the [Python P
 ## License
 
 ## Documentation
-  ### Feature Specific Terminologies
-  - **repo**: _directory or folder that consits of all tables_.
-  - **table**: _tables are files (csv or other extension) that is present with in the repo_.
-  - **column**: _individual columns within the table_.
-    ### Structure
-      ```
-      D:\LEGO AI\DATA
-      └───ecommerce_data ( repo )
-          └───olist_customers_dataset.csv ( table )
-              └─── customer_id (column)
-              └─── customer_name (column)
-              └─── customer_address (column)
-      ```
-  - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building_.
+> [!NOTE]
+>  ### Feature Specific Terminologies
+>   - **repo/dataset**: _directory or folder that consits of all tables_.
+>   - **table**: _tables are files (csv or other extension) that is present with in the repo_.
+>   - **column**: _individual columns within the table_.
+>   - ### Structure
+>      ```
+>     D:\LEGO AI\DATA
+>     └───ecommerce_data ( repo )
+>         └───olist_customers_dataset.csv ( table )
+>             └─── customer_id (column)
+>             └─── customer_name (column)
+>             └─── customer_address (column)
+>     ```
+>   - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building_.
     
   ### How does it works ?
   1. **L1 - Datatype Identification - Data Preparation**  
