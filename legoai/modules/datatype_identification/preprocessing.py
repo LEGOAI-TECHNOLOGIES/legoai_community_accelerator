@@ -147,7 +147,7 @@ def normalise_whitespace(data) -> str:
 
     Returns
     -------
-    whitesapce normalised datas
+    whitespace normalised datas
     """
     if isinstance(data, str):
         return re.sub(r"\s{2,}", " ", data.strip())

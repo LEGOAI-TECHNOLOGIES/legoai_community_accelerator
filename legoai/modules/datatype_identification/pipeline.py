@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import time
 from datetime import datetime
-
+from dataclasses import  dataclass
 
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l3_model import L3Model
@@ -18,6 +18,7 @@ int_data_l1_path = os.path.join(PATH_CONFIG['INT_DATA_PATH'], 'datatype_l1_ident
 l1_feature_path = os.path.join(PATH_CONFIG['ANALYTICAL_DATA_PATH'],'datatype_l1_identification')  ## Final feature data path
 
 
+@dataclass
 class DataTypeIdentificationPipeline:
     """
         A pipeline that identifies datatype for specific columns in a dataset.
@@ -40,10 +41,8 @@ class DataTypeIdentificationPipeline:
             this model uses llm for dimension & measure classification and
             a regex based approach for the date & time classification.
     """
-
-    def __init__(self, l1_model: L1Model = None, l3_model: L3Model = None):
-        self.__l1_model = l1_model
-        self.__l3_model = l3_model
+    l1_model: L1Model = None
+    l3_model: L3Model = None
 
     @classmethod
     def pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
@@ -68,18 +67,18 @@ class DataTypeIdentificationPipeline:
         if openai_api_key is not None:
             check_openai_key(openai_api_key)
             return cls(
-                L1Model.for_inference(
+               l1_model=  L1Model.for_inference(
                     encoder_path=l1_encoder_path,
                     model_path=l1_model_path
                 ),
-                L3Model(openai_api_key=openai_api_key)
+                l3_model= L3Model(openai_api_key=openai_api_key)
             )
 
-        print("[*] OpenAI api key not provided ... inference will only run for l1 datatype identification ...")
-        return cls(L1Model.for_inference(
+        print("[*] OpenAI api key not provided ... inference will only run for L1 datatype identification ...")
+        return cls(l1_model= L1Model.for_inference(
             encoder_path=l1_encoder_path,
             model_path=l1_model_path
-        ), None)
+        ))
 
 
     @staticmethod
@@ -335,16 +334,16 @@ class DataTypeIdentificationPipeline:
         features_df = self.features_preparation(df, output_path)
 
         # 4th step is to run the l1 model prediction
-        _model_prediction = self.__l1_model.model_prediction(features_df, process_type="inference")
+        _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
 
         # if api key not given only run l1 model
-        if self.__l3_model is None:
+        if self.l3_model is None:
             _model_prediction[['repo','table','column']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
             _model_prediction.drop(columns=['master_id'],inplace=True)
 
         else:
             # 5th step is to run the l3 model prediction
-            _model_prediction = self.__l3_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
+            _model_prediction = self.l3_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
 
         di_end = time.time()
         print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
@@ -508,5 +507,5 @@ class DataTypeIdentificationPipeline:
         -------
         result (pd.DataFrame): final result dataframe
         """
-        result = self.__execute_inference_pipeline(input_path,output_path)
+        result = self.__execute_inference_pipeline(input_path, output_path)
         return result

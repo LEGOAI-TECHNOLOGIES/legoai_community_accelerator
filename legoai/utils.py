@@ -10,7 +10,7 @@ from io import BytesIO
 import sys
 from datetime import datetime
 import json
-from functools import wraps
+
 
 from legoai.core.configuration import PATH_CONFIG
 
@@ -36,15 +36,19 @@ def check_dataset_path(*args):
             print(f"\n[!] Given path {dataset_path} not valid")
             sys.exit(-1)
         elif not len(os.listdir(dataset_path)) > 0:
-            print(f"\n[!] Given path {dataset_path} doesn't hold any files for processing")
-            sys.exit(-1)
+            raise FileNotFoundError(
+                f"\n[!] Given path {dataset_path} doesn't hold any files for processing"
+            )
         else:
             for path, subdir, files in os.walk(dataset_path):
                 for file in files:
                     extension = file.split(".")[-1]
                     if extension not in VALID_DATASET_EXTENSIONS:
-                        print(f"\n[!] {os.path.join(path, file)} is not a valid file ... must be one of {VALID_DATASET_EXTENSIONS}")
-                        sys.exit(-1)
+                        raise Exception(
+                            f"\n[!] {os.path.join(path, file)} is not a valid file ... must be one of {VALID_DATASET_EXTENSIONS}"
+                        )
+
+
 
 
 def download_default_dataset():
@@ -98,8 +102,9 @@ def check_openai_key(key: str):
     """
     key_clean = key.strip().replace(" ", "") if key is not None else ""
     if len(key_clean) == 0:
-        print("[!] openai api key not provided")
-        sys.exit(-1)
+        raise ValueError(
+            "[!] openai api key not provided"
+        )
     else:
         try:
             openai.api_key = key
@@ -143,7 +148,7 @@ def combine_gt_file(path:str) -> pd.DataFrame:
             if REQUIRED_GT_COLUMNS.issubset(df.columns.tolist()):
                 gt_df = pd.concat([gt_df,df[['master_id','datatype']]])
             else:
-                raise Exception("[!] master_id and datatype columns not present in ground truth file...")
+                raise Exception("[!] 'master_id' and 'datatype' columns not present in ground truth file...")
 
     return gt_df
 

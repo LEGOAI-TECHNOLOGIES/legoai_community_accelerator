@@ -92,7 +92,7 @@ class L1Model:
                                         'di_l1_classifier_encoder_' + DEFAULT_MODEL_VERSION + '.pkl')
 
         elif not os.path.isfile(encoder_path) or not os.path.isfile(model_path):
-            raise Exception("[!] Provide a valid encoder or model path ...")
+            raise FileNotFoundError("[!] Provide a valid encoder or model path ...")
 
             # model_version = MODEL_CONFIG.get("L1PARAMS",DEFAULT_MODEL_VERSION).get("MODEL_VERSION",DEFAULT_MODEL_VERSION)
 
