@@ -15,9 +15,6 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 - [Where to get it](#where-to-get-it)
 - [License](#license)
 - [Documentation](#documentation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Examples](#examples)
 - [Contributing](#contributing)
 ## Main Features
 The project has different pipelines ... currently only released pipeline is:
