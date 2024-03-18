@@ -9,8 +9,8 @@
 This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
 
 ## Table of contents
-- [Getting Started](#getting-started)
 - [Main Features](#main-features)
+- [Getting Started](#getting-started)
 - [Datatype Identification](#datatype-identification)
 - [Where to get it](#where-to-get-it)
 - [License](#license)
@@ -18,10 +18,14 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Examples](#examples)
-- [Contributing](#contributing)  
-
+- [Contributing](#contributing)
+## Main Features
+The project has different pipelines ... currently only released pipeline is:
+- [Datatype Identification](legoai/modules/datatype_identification)  <<[**details**](#datatype-identification)>>
+- coming soon ...  
 ##  Getting Started
 To quickly start using the pipeline just [install](#where-to-get-it) and follow code below.
+### Datatype Identification
 ```python
 from legoai.pipeline import DataTypeIdentificationPipeline
 di = DataTypeIdentificationPipeline.pretrained_pipeline(
@@ -34,10 +38,7 @@ result = di.predict(
 print(result.head())
 ```
 
-## Main Features
-The project has different pipelines ... currently only released pipeline is:
-- [Datatype Identification](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/legoai/modules/datatype_identification)  <<[**details**](#datatype-identification)>>
-- coming soon ...
+
 ## Datatype Identification
 As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts
 - [L1 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l1_model.py)
