@@ -28,8 +28,8 @@ di = DataTypeIdentificationPipeline.pretrained_pipeline(
   openai_api_key=<YOUR_OPENAPI_API_KEY>
 )
 result = di.predict(
-  input_path=... ,
-  output_path=...
+  input_path=<DIRECTORY PATH OF THE DATASET> ,
+  output_path=<DIRECTORY PATH TO STORE GENERATED FEATURES AND FINAL RESULT>
 )
 print(result.head())
 ```
