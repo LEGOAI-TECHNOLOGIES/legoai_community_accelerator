@@ -48,7 +48,6 @@ LEGOAI/DATA
         olist_order_reviews_dataset.csv
         olist_products_dataset.csv
         olist_sellers_dataset.csv
-        product_category_name_translation.csv
 ```
 ## Where to get it?
 Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
