@@ -5,9 +5,11 @@
 
   <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
 
-## What is LegoAI ?
-_**GenAI** Powered analytics platform that automatically converts business requirements into executable machine language, enabling users with explainable & accurate insights at unparalleled speed & scale._
+## What is it ?
+This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
+
 ## Table of contents
+- [Getting Started](#getting-started)
 - [Main Features](#main-features)
 - [Datatype Identification](#datatype-identification)
 - [Where to get it](#where-to-get-it)
@@ -16,14 +18,28 @@ _**GenAI** Powered analytics platform that automatically converts business requi
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Examples](#examples)
-- [Contributing](#contributing)
+- [Contributing](#contributing)  
+
+##  Getting Started
+To quickly start using the pipeline just [install](#where-to-get-it) and follow code below.
+```python
+from legoai.pipeline import DataTypeIdentificationPipeline
+di = DataTypeIdentificationPipeline.pretrained_pipeline(
+  openai_api_key=<YOUR_OPENAPI_API_KEY>
+)
+result = di.predict(
+  input_path=... ,
+  output_path=...
+)
+print(result.head())
+```
 
 ## Main Features
 The project has different pipelines ... currently only released pipeline is:
 - [Datatype Identification](https://github.com/narotsitkarki/DI_OPENSOURCE/tree/master/legoai/modules/datatype_identification)  <<[**details**](#datatype-identification)>>
 - coming soon ...
 ## Datatype Identification
-_As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts_
+As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts
 - [L1 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l1_model.py)
     - _This 1st part classifies the column into one of the 7 datatypes_:  
       ✅ **integer**  
@@ -34,11 +50,11 @@ _As simple as it sounds this pipeline helps in identifying the datype of all col
       ✅ **date & time**  
       ✅ **range_type**  
       ✅ **others ( if not found any)**  
-  - _currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique._
+  - Currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique.
   
 - [L3 model](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py)
-  - _This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same._
-  - _LLM is used for this._
+  - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/legoai/modules/datatype_identification/l3_model.py). other than integer , float and date & time others are kept   same.
+  - LLM is used for this.
 > [!IMPORTANT]  
 > L3 model requires OpenAI API key.
     
@@ -56,9 +72,9 @@ Binary installers for the latest released version are available at the [Python P
 ## Documentation
 > [!NOTE]
 >  ### Feature Specific Terminologies
->   - **repo/dataset**: _directory or folder that consits of all tables_.
->   - **table**: _tables are files (csv or other extension) that is present with in the repo_.
->   - **column**: _individual columns within the table_.
+>   - **repo/dataset**: directory or folder that consits of all tables.
+>   - **table**: tables are files (csv or other extension) that is present with in the repo.
+>   - **column**: individual columns within the table.
 >   - ### Structure
 >      ```
 >     LEGO AI/DATA
@@ -68,7 +84,7 @@ Binary installers for the latest released version are available at the [Python P
 >             └─── customer_name (column)
 >             └─── customer_address (column)
 >     ```
->   - **master_id**: _combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building_.
+>   - **master_id**: combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building.
     
   ### How does it works ?
   1. **L1 - Datatype Identification - Data Preparation**  
@@ -109,7 +125,7 @@ Binary installers for the latest released version are available at the [Python P
     
 ## Configuration
   ### Model configuration
-  _All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuartion in **config.yaml**. (**specific to both training and inference**):_
+  All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuration in **config.yaml**. (**specific to both training and inference**):
   ``` 
     PREPROCESS_CONSTANT:
         NUMBER_PATTERN: '[0-9]'
@@ -142,7 +158,7 @@ Binary installers for the latest released version are available at the [Python P
         DTYPE_ENCODING: 'unicode'
   ```
   ### Path Configuration
-  _All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file. (**specific for training**)_
+  All the configuration needed for saving intermediate results, reading the results is stored in **.env** ( environmet variables) and you can define your own **.env** file. (**specific for training**)
 ```
   CONTAINER_PATH = data/Lego_AI # Base folder of the entire folder structure
   INT_DATA_PATH = intermediate # Path for storing the intermediate files during feature creation
@@ -196,11 +212,11 @@ Binary installers for the latest released version are available at the [Python P
    - ```model_path (str) (optional): full path to the classifier.```
 - ```Returns```
    - ```DatatypeIdentification object with L1 and L3 model loaded.```
-```
+```python
   - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
        
          di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(
-           openai_api_key = "your-openai-api-key"
+           openai_api_key = <YOUR-OPENAI-API-KEY>
            encoder_path="LegoAI/di_l1_classifier_encoder_13052023.pkl",
            model_path = "Lego_AI/di_l1_classifier_xgb_13052023.pkl"
          )  
@@ -215,7 +231,7 @@ Binary installers for the latest released version are available at the [Python P
 - ```Returns```
   - ```final L1 and L3 (if openai key given) prediction, with generated features dataframe```
 
-```
+```python
   - Example
       di_pipeline = DataTypeIdentification.pretrained_pipeline(openai_api_key = "your-openai-api-key")
       di_pipeline.predict(
@@ -235,7 +251,7 @@ Binary installers for the latest released version are available at the [Python P
  - ```Returns```
     - ```classification and confustion matrix report (dataframe) and prediction result of test and validation dataset```
 
-```
+```python
 - Example
       di = DataTypeIdentificationPipeline()
 
@@ -260,20 +276,22 @@ Binary installers for the latest released version are available at the [Python P
 
 ## Examples  
 _**Inference Example**_
-``` 
+```python 
 from legoai import DataTypeIdentificationPipeline
 
 # provide input path,output path and openai key
 input_path = "LegoAI/data/ecommerce_data"
 output_path = "di_opensource"
-api_key = "your-openai-api-key"
+api_key = <YOUR-OPENAI-API-KEY>
 
 # load the pretrained pipeline
 di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
 
 # provide the input path and output path, also final result dataframe is returned
-result = di_pipeline.predict(input_path = input_path, output_path = output_path)
-
+result = di_pipeline.predict(
+input_path = input_path,
+output_path = output_path
+)
 print(result.head())
 ```
 _**Input path structure**_
@@ -290,7 +308,7 @@ LEGOAI/DATA
         product_category_name_translation.csv
 ```
   _**Inference Example Output**_
-  ```   
+  ``` 
   [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]
   [*] Processed files saved at di_opensource/ecommerce_data_processed  
   [*] Total columns present in the ecommerce_data 52  
@@ -307,7 +325,7 @@ LEGOAI/DATA
    4            customer state ...      close_ended_text      close_ended_text  
 ```
 _**Training Example**_
-```
+```python
 from legoai import DataTypeIdentificationPipeline
 
 di = DataTypeIdentificationPipeline()
