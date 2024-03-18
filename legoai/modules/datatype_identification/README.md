@@ -72,8 +72,8 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
     
   4. **L3 - Inference**
      - Uses results obtained from L1 inferencing.
-     - Creates LLM prompt form integer and float datatype and runs prompt, rule based approach for identifying appropriate date & time format for date & time datatype.
-     - Save final L1 and L2 prediction.  
+     - Creates LLM prompt from integer and float datatype and runs prompt, rule based approach for identifying appropriate date & time format for date & time datatype.
+     - Save final L1 and L3 prediction.  
 ## Configuration
   ### Model configuration
   All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuration in **config.yaml**. (**specific to both training and inference**):
