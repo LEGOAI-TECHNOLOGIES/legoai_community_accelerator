@@ -177,7 +177,7 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
 > [!NOTE] 
 > - Executes the inference pipelines and saves the result and also returns the final result
   - ```Parameters```
-    - ```input_path (str): the path to the inference dataset```
+    - ```input_path (str): the directory or file path to the inference dataset```
     - ```output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output```
 - ```Returns```
   - ```final L1 and L3 (if openai key given) prediction, with generated features dataframe```
