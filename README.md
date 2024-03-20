@@ -30,7 +30,7 @@ di = DataTypeIdentificationPipeline.pretrained_pipeline(
   openai_api_key=<YOUR_OPENAPI_API_KEY>
 )
 result = di.predict(
-  input_path=<DIRECTORY PATH OF THE DATASET> ,
+  input_path=<DIRECTORY OR FILE PATH OF THE DATASET> ,
   output_path=<DIRECTORY PATH TO STORE GENERATED FEATURES AND FINAL RESULT>
 )
 print(result.head())
@@ -48,6 +48,8 @@ LEGOAI/DATA
         olist_order_reviews_dataset.csv
         olist_products_dataset.csv
         olist_sellers_dataset.csv
+OR
+input_path = LEGOAI/DATA/ecommerce_data/olist_customers_dataset.csv
 ```
 ## Where to get it?
 Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
