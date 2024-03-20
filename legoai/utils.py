@@ -35,7 +35,7 @@ def check_dataset_path(*args):
         if dataset_path is None or not os.path.exists(dataset_path):
             print(f"\n[!] Given path {dataset_path} not valid")
             sys.exit(-1)
-        elif not len(os.listdir(dataset_path)) > 0:
+        elif os.path.isdir(dataset_path) and not len(os.listdir(dataset_path)) > 0:
             raise FileNotFoundError(
                 f"\n[!] Given path {dataset_path} doesn't hold any files for processing"
             )

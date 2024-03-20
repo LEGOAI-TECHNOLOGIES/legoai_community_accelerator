@@ -137,7 +137,7 @@ class DataTypeIdentificationPipeline:
 
         output_path = os.path.normpath(os.path.join(output_path, "features"))
         feature_df = extract_features_to_csv(df)
-        features_path = os.path.join(output_path,f"di_features_{datetime.now().strftime('%Y%M%d')}")
+        features_path = os.path.join(output_path,f"di_features_{datetime.now().strftime('%Y%M%d')}.csv")
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         feature_df.to_csv(features_path)

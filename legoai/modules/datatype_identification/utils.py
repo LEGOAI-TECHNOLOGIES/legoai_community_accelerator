@@ -111,10 +111,17 @@ def source_file_conversion(folder_path: str, output_path: str) -> str:
     final path of pre-processed files
     """
 
-    t = tqdm(os.listdir(folder_path), desc="[*] preprocessing dataset...")
-    dest_folder = os.path.join(output_path,
-                               os.path.split(folder_path)[1] + "_processed")
+    if os.path.isdir(folder_path):
+        t = tqdm(os.listdir(folder_path), desc="[*] preprocessing dataset...")
 
+    # for handling single file
+    elif os.path.isfile(folder_path):
+        folder_path = os.path.normpath(folder_path)
+        t = tqdm([os.path.split(folder_path)[-1]], desc="[*] preprocessing file...")
+        folder_path = os.path.dirname(folder_path)
+
+    dest_folder = os.path.join(output_path,
+                                   os.path.split(folder_path)[1] + "_processed")
     ### Iterating through each file in the folder path
     for file_name in t:
         # logger.debug('filename: %s',file_name)
