@@ -16,7 +16,9 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 ## Main Features
 The project has different pipelines ... currently only released module is:
 - **Data Type Identification**
-    > Classifying datatypes from various values easily through trained ML model.
+    > - Classifying datatypes from various values easily through trained ML model.
+    > - Has two models, L1 model that identifies normal datatypes  ( integer, float, alphanumeric, range_type, date & time, open_ended_text, short_ended_text)
+    > - L3 model further classifes L1 datatype result that are integer or float to measure or dimension and date & time into one of many date-time formats like (YYYY:mm:dd H:m:s).
 - coming soon ...  
 ##  Getting Started
 To quickly start using the pipeline just [install](#where-to-get-it) and follow code below.
@@ -32,6 +34,8 @@ result = di.predict(
 )
 print(result.head())
 ```
+>[!IMPORTANT]
+> **openai_api_key** is required if you want to use L3 model else leave the filed then inference will only run for L1 model
  #### Sample Input path
  ```
 input_path = LEGOAI/DATA/ecommerce_data
