@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/legoai-opensource/legoai">
-      <img src="https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width=350>
+      <img src="documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width=350>
   </a>
 
   <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
