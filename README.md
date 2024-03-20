@@ -35,7 +35,7 @@ result = di.predict(
 print(result.head())
 ```
 >[!IMPORTANT]
-> **openai_api_key** is required if you want to use L3 model else leave the filed then inference will only run for L1 model
+> **openai_api_key** is required if you want to use L3 model else leave the field then inference will only run for L1 model
  #### Sample Input path
  ```
 input_path = LEGOAI/DATA/ecommerce_data
