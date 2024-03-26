@@ -1,9 +1,6 @@
 <p align="center">
-  <a href="https://github.com/legoai-opensource/legoai">
-      <img src="https://github.com/narotsitkarki/DI_OPENSOURCE/blob/master/documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width=350>
-  </a>
-
-  <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
+      <img src="documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width=350>
+ <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
 
 ## What is it ?
 This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
@@ -19,8 +16,10 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 ## Main Features
 The project has different pipelines ... currently only released module is:
 - **Data Type Identification**
-    > Classifying datatypes from various values easily through trained ML model.
-- coming soon ...
+    > - Classifying datatypes from various values easily through trained ML model.
+    > - Has two models, L1 model (_uses Classifier_) that identifies normal datatypes  ( integer, float, alphanumeric, range_type, date & time, open_ended_text, short_ended_text)
+    > - L2 model (_uses LLM_) further classifies L1 datatype result that are integer or float to measure or dimension and date & time into one of many date-time formats like (YYYY:mm:dd H:m:s).
+- coming soon ...  
 
 ## Where to get it?
 Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
@@ -32,7 +31,10 @@ Binary installers for the latest released version are available at the [Python P
 ##  Getting Started
 To quickly start using the pipeline just [install](#where-to-get-it) and follow notebook below.
 ### Datatype Identification ( Inference )
-[Inference Notebook](DataTypeIdentification-Inference%20.ipynb)
+[Inference Notebook](DataTypeIdentification-Inference%20.ipynb)  
+> [!IMPORTANT]
+> **openai_api_key** is required if you want to use L3 model else leave the field then inference will only run for L1 model
+
 
 ## Performance
 ### Data Type Identification  
@@ -193,6 +195,75 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
  <td> 0.68 </td>
  <td> 0.64 </td>
  <td> 249.0 </td>
+</tr>
+<tr> <th rowspan="10"> 
+    <a href="https://www.kaggle.com/datasets/dillonmyrick/bike-store-sample-database"> Bike Retail </a> 
+</th> 
+</tr>
+<tr>
+ <th rowspan="6"> Class </th>
+ <td> alphanumeric </td>
+ <td> 1.0 </td>
+ <td> 1.0 </td>
+ <td> 1.0 </td>
+ <td> 5.0 </td>
+</tr>
+<tr>
+ <td> close_ended_text </td>
+ <td> 1.0 </td>
+ <td> 0.5 </td>
+ <td> 0.67 </td>
+ <td> 4.0 </td>
+</tr>
+<tr>
+ <td> date & time </td>
+ <td> 0.75 </td>
+ <td> 1.0 </td>
+ <td> 0.86 </td>
+ <td> 3.0 </td>
+</tr>
+<tr>
+ <td> float </td>
+ <td> 1.0 </td>
+ <td> 1.0 </td>
+ <td> 1.0 </td>
+ <td> 3.0 </td>
+</tr>
+<tr>
+ <td> integer </td>
+ <td> 1.0 </td>
+ <td> 0.96 </td>
+ <td> 0.98 </td>
+ <td> 26.0 </td>
+</tr>
+<tr>
+ <td> open_ended_text </td>
+ <td> 0.85 </td>
+ <td> 1.0 </td>
+ <td> 0.92 </td>
+ <td> 11.0 </td>
+</tr>
+<tr>
+ <td rowspan="3"> </td>
+ <td> accuracy </td>
+ <td> 0.94 </td>
+ <td> 0.94 </td>
+ <td> 0.94 </td>
+ <td> 0.94 </td>
+</tr>
+<tr>
+ <td> macro avg </td>
+ <td> 0.93 </td>
+ <td> 0.91 </td>
+ <td> 0.9 </td>
+ <td> 52.0 </td>
+</tr>
+<tr>
+ <td> weighted avg </td>
+ <td> 0.95 </td>
+ <td> 0.94 </td>
+ <td> 0.94 </td>
+ <td> 52.0 </td>
 </tr>
 </table>
 
