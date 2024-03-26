@@ -19,8 +19,8 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
       ✅ **others ( if not found any)**  
   - Currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique.
   
-- [L3 model](l3_model.py)
-  - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](l3_model.py). other than integer , float and date & time others are kept   same.
+- [L3 model](l2_model.py)
+  - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](l2_model.py). other than integer , float and date & time others are kept   same.
   - LLM is used for this.
 > [!IMPORTANT]  
 > L3 model requires OpenAI API key.

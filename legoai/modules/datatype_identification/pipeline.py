@@ -3,10 +3,10 @@ import pandas as pd
 import os
 import time
 from datetime import datetime
-from dataclasses import  dataclass
+from dataclasses import dataclass
 
 from legoai.modules.datatype_identification.l1_model import L1Model
-from legoai.modules.datatype_identification.l3_model import L3Model
+from legoai.modules.datatype_identification.l2_model import L2Model
 from legoai.modules.datatype_identification.utils import *
 from legoai.modules.datatype_identification.functional import extract_features_to_csv
 from legoai.core.configuration import check_path_exists_or_not, MODEL_CONFIG, PATH_CONFIG
@@ -33,8 +33,8 @@ class DataTypeIdentificationPipeline:
             l1 model uses pretrained XGBClassifier that classifies the columns into one of datatype in
             ('alphanumeric','close_ended_text','open_ended_text','float','integer', 'date & time' , 'range_type','others').
 
-        - l3 model:
-            l3 model is mainly responsible for classifying the integer and float datatype into integer_measure or
+        - l2 model:
+            l2 model is mainly responsible for classifying the integer and float datatype into integer_measure or
             integer_dimension and same for float,
             this model also finds the specific format the date & time datatype lies in
             (eg. YYYY:MM:DD , YYYY-MM-DD, YYYY:MM:DD H:m:s , etc...)
@@ -42,23 +42,23 @@ class DataTypeIdentificationPipeline:
             a regex based approach for the date & time classification.
     """
     l1_model: L1Model = None
-    l3_model: L3Model = None
+    l2_model: L2Model = None
 
     @classmethod
     def pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
         """
-            - Returns an object with preloaded L1 model and pre instantiated L3 model
+            - Returns an object with preloaded L1 model and pre instantiated L2 model
             - if openai api key not given only instantiates with L1 model
             - encoder and model path can be given to run custom model, else default settings will be used
             Parameters
             ----------
-            openai_api_key (str): an openai api key for L3 model
+            openai_api_key (str): an openai api key for L2 model
             encoder_path (str) optional: full path to the encoder (i.e. pickled object).
             model_path (str) optional; full path to the classifier model (i.e. pickled object).
 
             Returns
             -------
-            DatatypeIdentification object with l1 and l3 model loaded.
+            DatatypeIdentification object with l1 and l2 model loaded.
         """
 
         l1_encoder_path = kwargs.get("encoder_path",None)
@@ -71,7 +71,7 @@ class DataTypeIdentificationPipeline:
                     encoder_path=l1_encoder_path,
                     model_path=l1_model_path
                 ),
-                l3_model= L3Model(openai_api_key=openai_api_key)
+                l2_model= L2Model(openai_api_key=openai_api_key)
             )
 
         print("[*] OpenAI api key not provided ... inference will only run for L1 datatype identification ...")
@@ -137,7 +137,8 @@ class DataTypeIdentificationPipeline:
 
         output_path = os.path.normpath(os.path.join(output_path, "features"))
         feature_df = extract_features_to_csv(df)
-        features_path = os.path.join(output_path,f"di_features_{datetime.now().strftime('%Y%M%d')}.csv")
+        repo_name = feature_df['dataset_name'].tolist()[0].replace("_processed","")
+        features_path = os.path.join(output_path,f"di_features_{repo_name}_{datetime.now().strftime('%d%m%Y')}.csv")
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         feature_df.to_csv(features_path)
@@ -308,7 +309,7 @@ class DataTypeIdentificationPipeline:
             - 2nd step is to convert all data in one single dataframe
             - 3rd step is to create all the features for model inference
             - 4th step is to run the l1 model prediction
-            - 5th step is to run the l3 model prediction
+            - 5th step is to run the l2 model prediction
 
             Parameters:
             ----------
@@ -317,7 +318,7 @@ class DataTypeIdentificationPipeline:
 
             Returns:
             --------
-            l1_l3_model_prediction (pd.DataFrame): the final l1 and l3 combined result.
+            l1_l2_model_prediction (pd.DataFrame): the final l1 and l2 combined result.
             or
             l1_model_prediction (pd.DataFrame): only l1 model prediction if openai key not given
         """
@@ -332,26 +333,28 @@ class DataTypeIdentificationPipeline:
 
         # 3rd step is to create all the features for model inference
         features_df = self.features_preparation(df, output_path)
+        repo_name = features_df['dataset_name'].tolist()[0].replace("_processed","")
 
         # 4th step is to run the l1 model prediction
         _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
 
         # if api key not given only run l1 model
-        if self.l3_model is None:
+        if self.l2_model is None:
             _model_prediction[['repo','table','column']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
-            _model_prediction.drop(columns=['master_id'],inplace=True)
+            # _model_prediction.drop(columns=['master_id'],inplace=True)
+            _model_prediction['master_id'] = df['master_id']
 
         else:
-            # 5th step is to run the l3 model prediction
-            _model_prediction = self.l3_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
+            # 5th step is to run the l2 model prediction
+            _model_prediction = self.l2_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
 
         di_end = time.time()
         print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
         output_path = os.path.normpath(os.path.join(output_path, "output"))
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        final_output_path = os.path.join(output_path, f"di_final_output_{datetime.now().strftime('%d%m%Y')}.csv")
-        _model_prediction.to_csv(final_output_path)
+        final_output_path = os.path.join(output_path, f"di_final_output_{repo_name}_{datetime.now().strftime('%d%m%Y')}.csv")
+        _model_prediction.to_csv(final_output_path,index=False)
         print(f"[*] Final output saved at {final_output_path}")
         return _model_prediction
 
@@ -396,10 +399,10 @@ class DataTypeIdentificationPipeline:
         print(f"[*] L1 prediction output saved at {final_output_path}")
 
     @staticmethod
-    def run_l3_model(open_api_key: str, l1_model_prediction: pd.DataFrame, features_df: pd.DataFrame,
+    def run_l2_model(open_api_key: str, l1_model_prediction: pd.DataFrame, features_df: pd.DataFrame,
                      df: pd.DataFrame,output_path:str) -> pd.DataFrame:
         """
-        Runs the L3 model separately ( isolated )
+        Runs the L2 model separately ( isolated )
         Parameters
         ----------
         open_api_key (str): api key for llm model
@@ -409,27 +412,27 @@ class DataTypeIdentificationPipeline:
 
         Returns
         ------
-        l1_l3_model_prediction (pd.Dataframe): result from l1 and l3 results combined
+        l1_l2_model_prediction (pd.Dataframe): result from l1 and l2 results combined
         """
         check_openai_key(open_api_key)
-        l1_l3_model_prediction = pd.DataFrame()
+        l1_l2_model_prediction = pd.DataFrame()
         try:
-            l1_l3_model_prediction = L3Model(openai_api_key=open_api_key).model_prediction(l1_pred=l1_model_prediction,
+            l1_l2_model_prediction = L2Model(openai_api_key=open_api_key).model_prediction(l1_pred=l1_model_prediction,
                                                                                            feat_df=features_df, df=df)
             output_path = os.path.normpath(os.path.join(output_path,"output"))
 
-            # save l3 model output
+            # save l2 model output
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
 
             final_output_path = os.path.join(output_path,f"di_final_output_{datetime.now().strftime('%d%m%Y')}.csv")
-            l1_l3_model_prediction.to_csv(final_output_path)
+            l1_l2_model_prediction.to_csv(final_output_path)
             print(f"[*] Final output saved at {final_output_path}")
 
         except Exception as ex:
             print(ex)
         finally:
-            return l1_l3_model_prediction
+            return l1_l2_model_prediction
 
     @staticmethod
     def extract_features(input_path: str, output_path: str = None) -> pd.DataFrame:
@@ -500,8 +503,8 @@ class DataTypeIdentificationPipeline:
         Executes the inference pipelines and saves the result and also returns the final result
         Parameters
         ----------
-        input_path (str): the path to the inference dataset.
-        output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output.
+        input_path (str): the directory or file path to the inference dataset.
+        output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l2 model output.
 
         Returns
         -------
@@ -509,3 +512,4 @@ class DataTypeIdentificationPipeline:
         """
         result = self.__execute_inference_pipeline(input_path, output_path)
         return result
+ 

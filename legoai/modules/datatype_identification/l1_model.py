@@ -307,6 +307,7 @@ class L1Model:
         
         return gridSearchCV.best_params_
 
+    @staticmethod
     def model_metrics(self, actual, pred, type = 'test'): #model_version = datetime.now().strftime('%d%m%Y')):
         """
         - Calculate the model metrics such as classification report and confusion matrix

@@ -12,9 +12,9 @@ from legoai.core.configuration import MODEL_CONFIG
 
 ########## Datetype format identifier #############
 
-class L3Model:
+class L2Model:
     """
-    L3 model is mainly responsible for classifying:
+    L2 model is mainly responsible for classifying:
 
     - the integer and float datatype into integer_measure or
     - integer_dimension and same for float,
@@ -154,7 +154,7 @@ class L3Model:
             
         Returns
         -------
-        final l3 model prediction
+        final l2 model prediction
 
         """
         response_schemas = [self.dm_class_schema]
@@ -170,7 +170,7 @@ class L3Model:
 
     def model_prediction(self,l1_pred: pd.DataFrame, feat_df: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
         """
-        - Returns the prediction of l1 and l3 model combined.
+        - Returns the prediction of l1 and l2 model combined.
 
         Parameters
         ----------
@@ -180,23 +180,23 @@ class L3Model:
 
         Returns
         -------
-        final prediction of both l1 and l3 combined along with all the features.
+        final prediction of both l1 and l2 combined along with all the features.
         """
 
         ### Merge the predicted dataframe and feature dataframe using master id
         pred_feat_df = pd.merge(feat_df, l1_pred, on = 'master_id')
     
-        ######## Introducing l3: Datetype format identifier and Dimensions & Measures module ########
+        ######## Introducing l2: Datetype format identifier and Dimensions & Measures module ########
     
-        num_samples = MODEL_CONFIG["L3PARAMS"]["SAMPLE_SIZE"]
-        df_sample_size = MODEL_CONFIG["L3PARAMS"]["DF_SAMPLE_SIZE"]
+        num_samples = MODEL_CONFIG["L2PARAMS"]["SAMPLE_SIZE"]
+        df_sample_size = MODEL_CONFIG["L2PARAMS"]["DF_SAMPLE_SIZE"]
     
         ### Create a dictionary of DataFrames based on unique values in "table_name" from df
         dfs = {name: pd.DataFrame({col: values for col, values in zip(group["column_name"], group["values"])})
                for name, group in df.groupby("table_name")}
 
-        #initally setting all the l3 predictions to others
-        pred_feat_df["predicted_datatype_l3"] = "others"
+        #initally setting all the l2 predictions to others
+        pred_feat_df["predicted_datatype_l2"] = "others"
     
         # iterate through every row
         for index, row in pred_feat_df.iterrows():
@@ -206,25 +206,26 @@ class L3Model:
                                     (df["table_name"] == row["table_name"]) & 
                                     (df["column_name"] == row["column_name"])]["values"].iloc[0]        
                 value = self.classify_datetime_format(col_values,num_samples)
-                pred_feat_df.at[index,"predicted_datatype_l3"] = value
+                pred_feat_df.at[index,"predicted_datatype_l2"] = value
         
             elif row["predicted_datatype_l1"] == "integer" or row["predicted_datatype_l1"] == "float":
                 tab_name = row["table_name"]
                 col_name = row["column_name"]
-
                 prompt_text_DM = """Class Category
                  - Dimensions contain qualitative information. These are descriptive attributes, like a product category, product key, customer address, or country. Dimensions can contain numeric characters (like an alphanumeric customer ID), but are not numeric values (It wouldn’t make sense to add up all the ID numbers in a column, for example).
                  - Measures contain quantitative values that you can measure. Measures can be aggregated.
                     Please analyze the table and classify column as either a 'Measure' or a 'Dimension' or 'Unknown'.
                 INPUT
-                ### TABLE: """+str(dfs[tab_name].sample(df_sample_size))+"""\n\n
+                ### TABLE: """+str(dfs[tab_name].sample(
+                    min(df_sample_size,dfs[tab_name].shape[0])
+                ))+"""\n\n
                 ### COLUMN NAME:{column_name}\n
                 ### CLASS CATEGORY:{format_instructions}"""
         
                 value = self._dim_measure_classify(prompt_text_DM, column_name = col_name)
-                pred_feat_df.at[index,"predicted_datatype_l3"] = row["predicted_datatype_l1"]+"_"+value.lower()
+                pred_feat_df.at[index,"predicted_datatype_l2"] = row["predicted_datatype_l1"]+"_"+value.lower()
                 
             else:
-                pred_feat_df.at[index,"predicted_datatype_l3"] = row["predicted_datatype_l1"]
+                pred_feat_df.at[index,"predicted_datatype_l2"] = row["predicted_datatype_l1"]
 
         return pred_feat_df
