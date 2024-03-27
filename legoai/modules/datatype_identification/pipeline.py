@@ -18,6 +18,7 @@ int_data_l1_path = os.path.join(PATH_CONFIG['INT_DATA_PATH'], 'datatype_l1_ident
 l1_feature_path = os.path.join(PATH_CONFIG['ANALYTICAL_DATA_PATH'],'datatype_l1_identification')  ## Final feature data path
 
 
+L2_PREDICTION = 'predicted_datatype_l2'
 @dataclass
 class DataTypeIdentificationPipeline:
     """
@@ -329,7 +330,7 @@ class DataTypeIdentificationPipeline:
 
         # 2nd step is to convert all dataset in one single dataframe
         df = self.dataframe_preparation(inference_source_path)
-        print(f'[*] Total columns present in the {os.path.split(input_path)[-1]}', df.shape[0])
+        print(f'[*] Total columns present in the {os.path.split(input_path)[-1]} : ', df.shape[0])
 
         # 3rd step is to create all the features for model inference
         features_df = self.features_preparation(df, output_path)
@@ -338,15 +339,21 @@ class DataTypeIdentificationPipeline:
         # 4th step is to run the l1 model prediction
         _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
 
+        FINAL_SUBSET_COLUMNS = ['master_id', 'repo_name', 'table_name','column_name','predicted_datatype_l1',
+                                'predicted_probability_l1']
         # if api key not given only run l1 model
         if self.l2_model is None:
-            _model_prediction[['repo','table','column']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
+            _model_prediction[['repo_name','table_name','column_name']] = df['master_id'].str.split(r"\$\$##\$\$",regex = True,expand = True)
             # _model_prediction.drop(columns=['master_id'],inplace=True)
             _model_prediction['master_id'] = df['master_id']
 
         else:
             # 5th step is to run the l2 model prediction
             _model_prediction = self.l2_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
+            _model_prediction.rename(columns={'dataset_name':'repo_name'},inplace = True)
+            # add  l2 prediction in for final result subset columns
+            FINAL_SUBSET_COLUMNS.append(L2_PREDICTION)
+
 
         di_end = time.time()
         print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
@@ -354,6 +361,9 @@ class DataTypeIdentificationPipeline:
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         final_output_path = os.path.join(output_path, f"di_final_output_{repo_name}_{datetime.now().strftime('%d%m%Y')}.csv")
+
+        # Subset final columns
+        _model_prediction = _model_prediction[FINAL_SUBSET_COLUMNS]
         _model_prediction.to_csv(final_output_path,index=False)
         print(f"[*] Final output saved at {final_output_path}")
         return _model_prediction
