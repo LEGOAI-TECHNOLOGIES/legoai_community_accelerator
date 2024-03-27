@@ -23,11 +23,11 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
       ✅ **others ( if not found any)**  
   - Currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique.
   
-- [L3 model](l2_model.py)
-  - This 2nd part classifies the column into one level deep and further classifies l1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](l2_model.py). other than integer , float and date & time others are kept   same.
+- [L2 model](l2_model.py)
+  - This 2nd part classifies the column into one level deep and further classifies L1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](l2_model.py). other than integer , float and date & time others are kept   same.
   - LLM is used for this.
 > [!IMPORTANT]  
-> L3 model requires OpenAI API key.
+> L2 model requires OpenAI API key.
 ## Details
 > [!NOTE]
 >  ### Feature Specific Terminologies
@@ -128,7 +128,7 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
   #### Loading pretrained model  
   - ```legoai.DataTypeIdentificationPipeline.pretrained_pipeline```  
 > [!Note]
-> - Returns an object with preloaded L1 model and pre instantiated L3 model.  
+> - Returns an object with preloaded L1 model and pre instantiated L2 model.  
 > - If openai api key not given only instantiates with L1 model.  
 > - Encoder and model path can be given to run custom model, else default settings will be used to load pretrained model and encoder.  
  - ```Parameters```
@@ -136,7 +136,7 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
    - ```encoder_path (str) (optional): full path to the encoder.```
    - ```model_path (str) (optional): full path to the classifier.```
 - ```Returns```
-   - ```DatatypeIdentification object with L1 and L3 model loaded.```
+   - ```DatatypeIdentification object with L1 and L2 model loaded.```
 ```python
   - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
        
@@ -152,9 +152,9 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
 > - Executes the inference pipelines and saves the result and also returns the final result
   - ```Parameters```
     - ```input_path (str): the directory or file path to the inference dataset```
-    - ```output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l3 model output```
+    - ```output_path (str): output path to save all the results, i.e. processed files,features, and final L1 and L2 model output```
 - ```Returns```
-  - ```final L1 and L3 (if openai key given) prediction, with generated features dataframe```
+  - ```final L1 and L2 (if openai key given) prediction, with generated features dataframe```
 
 ```python
   - Example
@@ -242,7 +242,7 @@ LEGOAI/DATA
   [*] Features saved at di_opensource/features/intermediate_features_12032024.csv  
   [*] Inference complete ... took 2.29 minute ...
   [*] Final output saved at di_opensource/output/di_final_output_12032024.csv
-             column_name_clean ... predicted_datatype_l1 predicted_datatype_l3    
+             column_name_clean ... predicted_datatype_l1 predicted_datatype_l2    
    0               customer id ...          alphanumeric          alphanumeric  
    1        customer unique id ...          alphanumeric          alphanumeric  
    2  customer zip code prefix ...               integer     integer_dimension  
