@@ -38,7 +38,8 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 
 ## Performance
 ### Data Type Identification
-<table>
+<center> 
+<table width = "100%">
 <tr>
   <th>Dataset</th> 
   <th colspan="2"></th> 
@@ -266,9 +267,9 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
  <td> 52.0 </td>
 </tr>
 </table>
-<p align="center">
-  <img src="documentation/Execution_Char.png" alt="DI Execution Chart" width="350">
-</p>
+</center>
+<img src="documentation/Execution_Chart.png" alt="DI Execution Chart" width="660">
+
 
 
 ## License
