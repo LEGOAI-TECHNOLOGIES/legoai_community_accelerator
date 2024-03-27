@@ -31,7 +31,7 @@ Binary installers for the latest released version are available at the [Python P
 ##  Getting Started
 To quickly start using the pipeline just [install](#where-to-get-it) and follow notebook below.
 ### Datatype Identification ( Inference )
-[Inference Notebook](DataTypeIdentification-Inference%20.ipynb)  
+[Inference Notebook](DataTypeIdentification-Inference.ipynb)  
 > [!IMPORTANT]
 > **openai_api_key** is required if you want to use L3 model else leave the field then inference will only run for L1 model
 
