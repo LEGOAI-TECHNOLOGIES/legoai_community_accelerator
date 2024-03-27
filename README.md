@@ -1,5 +1,5 @@
 <p align="center">
-      <img src="documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width=350>
+      <img src="documentation/gray%20LEG0AI%20Cymk%20color%20JPG.jpg" alt="LegoAI Logo" width="350">
  <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
 
 ## What is it ?
@@ -37,7 +37,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 
 
 ## Performance
-### Data Type Identification  
+### Data Type Identification
 <table>
 <tr>
   <th>Dataset</th> 
@@ -266,6 +266,10 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
  <td> 52.0 </td>
 </tr>
 </table>
+<p align="center">
+  <img src="documentation/Execution_Char.png" alt="DI Execution Chart" width="350">
+</p>
+
 
 ## License
 
