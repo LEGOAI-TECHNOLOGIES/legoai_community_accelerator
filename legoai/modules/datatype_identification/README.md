@@ -46,7 +46,7 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
 >   - **master_id**: combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building.
   ### How does it works ?
   ## Inference
-  <img src="../../../documentation/WorkFLow.png" alt="Inference Working DI">     
+  <img src="../../../documentation/DI_Inference_WorkFlow.png" alt="Inference Working DI">     
  
 ## Configuration
   ### Model configuration
