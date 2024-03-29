@@ -9,7 +9,7 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 - [Main Features](#main-features)
 - [Where to get it](#where-to-get-it)
 - [Getting Started](#getting-started)
-- [Performace](#performance)
+- [Performance](#performance)
 - [License](#license)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -33,7 +33,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 ### Datatype Identification ( Inference )
 [Inference Notebook](DataTypeIdentification-Inference.ipynb)  
 > [!IMPORTANT]
-> **openai_api_key** is required if you want to use L3 model else leave the field then inference will only run for L1 model
+> **openai_api_key** is required if you want to use L2 model, else leave the field then inference will only run for L1 model
 
 
 ## Performance
