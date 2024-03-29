@@ -42,7 +42,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 > **Source Ecommerce:** https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce  
 > **Source Healthcare:** https://mitre.box.com/shared/static/aw9po06ypfb9hrau4jamtvtz0e5ziucz.zip
 
-#### Classification Report
+#### Classification Report ( L1 model )
 <img src="documentation/Classification Metrics.png" alt="DI Classification Metrics" width="600">  
 
 #### Execution Chart ( Google Collab Environment )
