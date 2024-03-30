@@ -43,7 +43,9 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 ### Data Type Identification
 > [!NOTE]
 > **Source Ecommerce:** https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce  
-> **Source Healthcare:** https://mitre.box.com/shared/static/aw9po06ypfb9hrau4jamtvtz0e5ziucz.zip
+>  ```Total Tables: 9``` , ```Total Columns: 52```   
+> **Source Healthcare:** https://mitre.box.com/shared/static/aw9po06ypfb9hrau4jamtvtz0e5ziucz.zip  
+> ```Total Tables: 18```, ```Total Columns: 249``` 
 
 #### Classification Report ( L1 model )
 <img src="documentation/L1_Model_Metrics.png" alt="L1 Model Classification Metrics" width="700">  
