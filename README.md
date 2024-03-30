@@ -14,7 +14,6 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 ## Main Features
-The project has different pipelines ... currently only released module is:
 - **Data Type Identification**
     > - Classifying datatypes from various values easily through trained ML model.
     > - Has two models, **L1 model** (_uses Classifier_) that identifies normal datatypes  ( **integer, float, alphanumeric, range_type, date & time, open_ended_text, close_ended_text**)
@@ -24,7 +23,6 @@ The project has different pipelines ... currently only released module is:
 
   > #### Datatype Identification Inference Workflow  
 <img src="documentation/DI_Inference_WorkFlow.png" alt="DI Inference Workflow">
-- coming soon ...  
 
 ## Where to get it?
 Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
