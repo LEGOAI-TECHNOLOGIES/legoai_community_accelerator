@@ -17,8 +17,8 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 The project has different pipelines ... currently only released module is:
 - **Data Type Identification**
     > - Classifying datatypes from various values easily through trained ML model.
-    > - Has two models, L1 model (_uses Classifier_) that identifies normal datatypes  ( integer, float, alphanumeric, range_type, date & time, open_ended_text, close_ended_text)
-    > - L2 model (_uses LLM_) further classifies L1 datatype result that are integer or float to measure or dimension and date & time into one of many date-time formats like (YYYY:mm:dd H:m:s).
+    > - Has two models, **L1 model** (_uses Classifier_) that identifies normal datatypes  ( integer, float, alphanumeric, range_type, date & time, open_ended_text, close_ended_text)
+    > - **L2 model** (_uses LLM_) further classifies L1 datatype result that are integer or float to measure or dimension and date & time into one of many date-time formats like (YYYY:mm:dd H:m:s).
 - coming soon ...  
 
 ## Where to get it?
@@ -43,7 +43,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 > **Source Healthcare:** https://mitre.box.com/shared/static/aw9po06ypfb9hrau4jamtvtz0e5ziucz.zip
 
 #### Classification Report ( L1 model )
-<img src="documentation/Classification Metrics.png" alt="DI Classification Metrics" width="600">  
+<img src="documentation/L1_Model_Metrics.png" alt="L1 Model Classification Metrics" width="600">  
 
 #### Execution Chart ( Google Collab Environment )
 <img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="600">
