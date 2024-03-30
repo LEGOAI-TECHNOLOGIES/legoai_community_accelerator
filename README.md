@@ -17,8 +17,9 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 The project has different pipelines ... currently only released module is:
 - **Data Type Identification**
     > - Classifying datatypes from various values easily through trained ML model.
-    > - Has two models, **L1 model** (_uses Classifier_) that identifies normal datatypes  ( integer, float, alphanumeric, range_type, date & time, open_ended_text, close_ended_text)
-    > - **L2 model** (_uses LLM_) further classifies L1 datatype result that are integer or float to measure or dimension and date & time into one of many date-time formats like (YYYY:mm:dd H:m:s).
+    > - Has two models, **L1 model** (_uses Classifier_) that identifies normal datatypes  ( **integer, float, alphanumeric, range_type, date & time, open_ended_text, close_ended_text**)
+    > - **L2 model** (_uses LLM_) further classifies L1 datatype result that are **integer** or **float** to measure,dimension or unknown( if not classified) and date & time into one of **41** date-time formats like (YYYY:mm:dd H:m:s), and others ( **alphanumeric, range_type, open_ended_text, close_ended_text** ) remains the same.
+<img src="documentation/L1_&_L2_Model_Output.png" alt="L1 and L2 Model" >  
 - coming soon ...  
 
 ## Where to get it?
