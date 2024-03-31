@@ -47,9 +47,12 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 > **Source Healthcare:** https://mitre.box.com/shared/static/aw9po06ypfb9hrau4jamtvtz0e5ziucz.zip  
 > ```Total Tables: 18```, ```Total Columns: 249``` 
 
-#### Classification Report ( L1 model )
-<img src="documentation/L1_Model_Metrics.png" alt="L1 Model Classification Metrics" width="700">  
-
+#### Classification Report ( L1 Model )
+<img src="documentation/L1_Model_Metrics.png" alt="L1 Model Classification Metrics" width="700">    
+  
+#### Classification Report ( L2 Model )
+<img src="documenatation/L2_Model_Metrics.png" alt="L2 Model Classification Metrics" width="700">   
+  
 #### Execution Chart ( Google Collab Environment )
 <img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="700">
 
