@@ -4,6 +4,7 @@ import os
 import time
 from datetime import datetime
 from dataclasses import dataclass
+from getpass import getpass
 
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l2_model import L2Model
@@ -44,43 +45,6 @@ class DataTypeIdentificationPipeline:
     """
     l1_model: L1Model = None
     l2_model: L2Model = None
-
-    @classmethod
-    def pretrained_pipeline(cls, openai_api_key: str = None,**kwargs):
-        """
-            - Returns an object with preloaded L1 model and pre instantiated L2 model
-            - if openai api key not given only instantiates with L1 model
-            - encoder and model path can be given to run custom model, else default settings will be used
-            Parameters
-            ----------
-            openai_api_key (str): an openai api key for L2 model
-            encoder_path (str) optional: full path to the encoder (i.e. pickled object).
-            model_path (str) optional; full path to the classifier model (i.e. pickled object).
-
-            Returns
-            -------
-            DatatypeIdentification object with l1 and l2 model loaded.
-        """
-
-        l1_encoder_path = kwargs.get("encoder_path",None)
-        l1_model_path = kwargs.get("model_path",None)
-
-        if openai_api_key is not None:
-            check_openai_key(openai_api_key)
-            return cls(
-               l1_model=  L1Model.for_inference(
-                    encoder_path=l1_encoder_path,
-                    model_path=l1_model_path
-                ),
-                l2_model= L2Model(openai_api_key=openai_api_key)
-            )
-
-        print("[*] OpenAI api key not provided ... inference will only run for L1 datatype identification ...")
-        return cls(l1_model= L1Model.for_inference(
-            encoder_path=l1_encoder_path,
-            model_path=l1_model_path
-        ))
-
 
     @staticmethod
     def data_preparation(dataset_path: str,output_path:str):
@@ -335,9 +299,10 @@ class DataTypeIdentificationPipeline:
         # 3rd step is to create all the features for model inference
         features_df = self.features_preparation(df, output_path)
         repo_name = features_df['dataset_name'].tolist()[0].replace("_processed","")
-
+        l2_start_time = time.time()
         # 4th step is to run the l1 model prediction
         _model_prediction = self.l1_model.model_prediction(features_df, process_type="inference")
+        l1_finish_time = time.time()
 
         FINAL_SUBSET_COLUMNS = ['master_id', 'repo_name', 'table_name','column_name','predicted_datatype_l1',
                                 'predicted_probability_l1']
@@ -350,6 +315,7 @@ class DataTypeIdentificationPipeline:
         else:
             # 5th step is to run the l2 model prediction
             _model_prediction = self.l2_model.model_prediction(l1_pred=_model_prediction, feat_df=features_df, df=df)
+
             _model_prediction.rename(columns={'dataset_name':'repo_name'},inplace = True)
             # add  l2 prediction in for final result subset columns
             FINAL_SUBSET_COLUMNS.append(L2_PREDICTION)
@@ -357,6 +323,8 @@ class DataTypeIdentificationPipeline:
 
         di_end = time.time()
         print(f"[*] Inference complete ... took {round((di_end - di_start) / 60, 2)} minute ...")
+        # print(f"[*] L1 took {round((l1_finish_time - di_start) / 60, 2)} minute ")
+        # print(f"[*] L2 took {round((di_end - l2_start_time)/60,2)} minute ")
         output_path = os.path.normpath(os.path.join(output_path, "output"))
         if not os.path.exists(output_path):
             os.makedirs(output_path)
@@ -508,18 +476,44 @@ class DataTypeIdentificationPipeline:
 
         return self.__execute_l1_training_pipeline(input_path, gt_path, model_version, **kwargs)
 
-    def predict(self, input_path: str = None, output_path: str = "datatype_identification"):
+    @classmethod
+    def prediction_pipeline(cls,input_path:str=None, output_path:str="datatype_identification_inference", L2_predict: bool = False,**kwargs):
         """
-        Executes the inference pipelines and saves the result and also returns the final result
-        Parameters
-        ----------
-        input_path (str): the directory or file path to the inference dataset.
-        output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l2 model output.
+            Executes the inference pipelines and saves the result and also returns the final result
 
-        Returns
-        -------
-        result (pd.DataFrame): final result dataframe
+            Parameters
+            ----------
+            input_path (str): the directory or file path to the inference dataset.
+            output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l2 model output.
+            L2_predict (bool): flag to denote whether to run L2 model or not
+            encoder_path (str) optional: full path to the encoder (i.e. pickled object).
+            model_path (str) optional: full path to the classifier model (i.e. pickled object).
+
+            Returns
+            -------
+            DatatypeIdentification object with l1 and l2 model loaded.
         """
-        result = self.__execute_inference_pipeline(input_path, output_path)
-        return result
- 
+
+        l1_encoder_path = kwargs.get("encoder_path",None)
+        l1_model_path = kwargs.get("model_path",None)
+
+        _di_pipeline = None
+        
+        if L2_predict:
+            openai_api_key = getpass("[*] Provide openai api key")
+            check_openai_key(openai_api_key)
+            _di_pipeline = cls(
+               l1_model = L1Model.for_inference(
+                    encoder_path=l1_encoder_path,
+                    model_path=l1_model_path
+                ),
+                l2_model= L2Model(openai_api_key=openai_api_key)
+            )
+        else:
+            # print("[*] OpenAI api key not provided ... inference will only run for L1 datatype identification ...")
+            _di_pipeline = cls(l1_model= L1Model.for_inference(
+                encoder_path=l1_encoder_path,
+                model_path=l1_model_path
+            ))
+
+        return _di_pipeline.__execute_inference_pipeline(input_path=input_path,output_path=output_path)
