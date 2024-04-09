@@ -3,31 +3,10 @@
   <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3>
   
 ## Table of contents
-- [Introduction](#introduction)
 - [Technical Details](#details)
 - [Configuration](#configuration)
 - [Usage](#usage)
-- [Examples](#examples)
-
-## Introduction
-As simple as it sounds this pipeline helps in identifying the datype of all columns within a dataset. The identification is divided into 2 seperate parts
-- [L1 model](l1_model.py)
-    - _This 1st part classifies the column into one of the 7 datatypes_:  
-      ✅ **integer**  
-      ✅ **float**  
-      ✅ **alphanumeric**  
-      ✅ **open_ended_text**  
-      ✅ **close_ended_text**  
-      ✅ **date & time**  
-      ✅ **range_type**  
-      ✅ **others ( if not found any)**  
-  - Currently uses VotingClassifier between (XGBClassifier, RandomForest and SVC) with soft voting techique.
   
-- [L2 model](l2_model.py)
-  - This 2nd part classifies the column into one level deep and further classifies L1 identified datatypes, specifically float and integer into dimension or measure, and         also classifies date and time into certain format of date and time such as YYYY/mm/dd or YYYY-mm-dd H:m:s others [see](l2_model.py). other than integer , float and date & time others are kept   same.
-  - LLM is used for this.
-> [!IMPORTANT]  
-> L2 model requires OpenAI API key.
 ## Details
 > [!NOTE]
 >  ### Feature Specific Terminologies
@@ -44,10 +23,7 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
 >             └─── customer_address (column)
 >     ```
 >   - **master_id**: combination of repo, table and column name, i.e. formed as **repo$$##$$table$$##$$column** to uniquely identify each row used during feature processing and model building.
-  ### How does it works ?
-  ## Inference
-  <img src="../../../documentation/DI_Inference_WorkFlow.png" alt="Inference Working DI">     
- 
+
 ## Configuration
   ### Model configuration
   All the configuration needed for inference and training is stored in legoai/config.yaml and you can define your own configuration in **config.yaml**. (**specific to both training and inference**):
@@ -125,45 +101,24 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
   ```
 ## Usage
   ### Inference
-  #### Loading pretrained model  
-  - ```legoai.DataTypeIdentificationPipeline.pretrained_pipeline```  
+  - ```legoai.DataTypeIdentificationPipeline.prediction_pipeline```  
 > [!Note]
-> - Returns an object with preloaded L1 model and pre instantiated L2 model.  
-> - If openai api key not given only instantiates with L1 model.  
-> - Encoder and model path can be given to run custom model, else default settings will be used to load pretrained model and encoder.  
+> - Returns an datatype identification final result from L1 model and L2 model (if specified).   
  - ```Parameters```
-   - ```openai_api_key (str) (optional): an openai api key for L3 model```
-   - ```encoder_path (str) (optional): full path to the encoder.```
-   - ```model_path (str) (optional): full path to the classifier.```
+   - ```input_path (str): the directory or file path to the inference dataset```
+   - ```output_path (str): output path to save all the results, i.e. processed files,features, and final output```
+   - ```L2_predict (bool): flag to denote whether or not to run L2 model ( default is false )```
 - ```Returns```
-   - ```DatatypeIdentification object with L1 and L2 model loaded.```
+   - ```dataframe with L1 prediction & L2 prediction ( if L2_predict = True )```
 ```python
   - Example ( encoder path and model path taken reference from folder structure in Path configuration above )
        
-         di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(
-           openai_api_key = <YOUR-OPENAI-API-KEY>
-           encoder_path="LegoAI/di_l1_classifier_encoder_13052023.pkl",
-           model_path = "Lego_AI/di_l1_classifier_xgb_13052023.pkl"
+         di_result = DataTypeIdentificationPipeline.pretrained_pipeline(
+            input_path = "LegoAI/data/ecommerce_data",
+            output_path = "di_opensource",
+            L2_predict = True
          )  
    ```
-#### Running inference pipeline
-  - ```legoai.DataTypeIdentification.predict```  
-> [!NOTE] 
-> - Executes the inference pipelines and saves the result and also returns the final result
-  - ```Parameters```
-    - ```input_path (str): the directory or file path to the inference dataset```
-    - ```output_path (str): output path to save all the results, i.e. processed files,features, and final L1 and L2 model output```
-- ```Returns```
-  - ```final L1 and L2 (if openai key given) prediction, with generated features dataframe```
-
-```python
-  - Example
-      di_pipeline = DataTypeIdentification.pretrained_pipeline(openai_api_key = "your-openai-api-key")
-      di_pipeline.predict(
-            input_path = "LegoAI/data/ecommerce_data",
-            output_path = "di_opensource"
-        )
-```
 ### Training
 - ```legoai.DatatypeIdentification.train```
 > [!NOTE]
@@ -171,11 +126,9 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
   - ```Parameters```
     - ```input_path (str) (required): raw dataset path for training ```
     - ```gt_path (str) (required):ground truth path for the datatype for all the columns```
-    - ```model_version (str) (optional): model version to save under for trained finalized model i.e.(encoder, and classifier) (default current date)```
     - ```output_path (str (optional): final output path to save all models, features, and reports (default will be 'datatype_identification_training/')```
  - ```Returns```
     - ```classification and confustion matrix report (dataframe) and prediction result of test and validation dataset```
-
 ```python
 - Example
       di = DataTypeIdentificationPipeline()
@@ -186,123 +139,18 @@ As simple as it sounds this pipeline helps in identifying the datype of all colu
      # final output path to save intermediate files, classification and confusion matrix reports , and encoder and classifier model. can be defined in .env file under "CONTAINER_PATH" 
     output_path = r"datatype_identification_training"
 
-    # give model version to save the final encoders and classifier model under the given version
-    model_version = "13052023"
-
     # training
-    di.train(input_path=dataset_path,gt_path=ground_truth_path,
-             output_path= output_path,
-             model_version=model_version
+    di.train(input_path=dataset_path,
+            gt_path=ground_truth_path,
+             output_path= output_path
       )
 ```
-
+>[!IMPORTANT]
+> Sucessfull training outputs **model_version** which can be used in the inference by providing the model_version the model_version is created by default using current year,month and day.
+  
 > [!NOTE]
-> For full example with output see below.
+> For full example with output see below.  
 
-## Examples  
-_**Inference Example**_
-```python 
-from legoai import DataTypeIdentificationPipeline
-
-# provide input path,output path and openai key
-input_path = "LegoAI/data/ecommerce_data"
-output_path = "di_opensource"
-api_key = <YOUR-OPENAI-API-KEY>
-
-# load the pretrained pipeline
-di_pipeline = DataTypeIdentificationPipeline.pretrained_pipeline(openai_api_key = api_key)
-
-# provide the input path and output path, also final result dataframe is returned
-result = di_pipeline.predict(
-input_path = input_path,
-output_path = output_path
-)
-print(result.head())
-```
-_**Input path structure**_
-```
-LEGOAI/DATA
-└───ecommerce_data
-        olist_customers_dataset.csv
-        olist_orders_dataset.csv
-        olist_order_items_dataset.csv
-        olist_order_payments_dataset.csv
-        olist_order_reviews_dataset.csv
-        olist_products_dataset.csv
-        olist_sellers_dataset.csv
-        product_category_name_translation.csv
-```
-  _**Inference Example Output**_
-  ``` 
-  [*] processed product_category_name_translation.csv: 100%|██████████| 9/9 [00:11<00:00,  1.30s/it]
-  [*] Processed files saved at di_opensource/ecommerce_data_processed  
-  [*] Total columns present in the ecommerce_data 52  
-  [*] Feature Extraction Started... 2024-02-29 15:35:21  
-  [*] Feature Creation Finished. Processed 52 rows in 0:01:43.627949
-  [*] Features saved at di_opensource/features/intermediate_features_12032024.csv  
-  [*] Inference complete ... took 2.29 minute ...
-  [*] Final output saved at di_opensource/output/di_final_output_12032024.csv
-             column_name_clean ... predicted_datatype_l1 predicted_datatype_l2    
-   0               customer id ...          alphanumeric          alphanumeric  
-   1        customer unique id ...          alphanumeric          alphanumeric  
-   2  customer zip code prefix ...               integer     integer_dimension  
-   3             customer city ...      close_ended_text      close_ended_text  
-   4            customer state ...      close_ended_text      close_ended_text  
-```
-_**Training Example**_
-```python
-from legoai import DataTypeIdentificationPipeline
-
-di = DataTypeIdentificationPipeline()
-
-# provide data path for training and its corresponding ground truth or labels, and the output path to save all the features, model, encoder, classification and confusion report.  
-input_path = r"Lego AI/DI_OPENSOURCE/data/Lego_AI/input/raw_data"  
-ground_truth_path = r"Lego AI/DI_OPENSOURCE/data/Lego_AI/input/ground_truth"
-output_path = r"data/Lego_AI" # optional , can be defined in .env file under "CONTAINER_PATH" 
-
-#give model version to save the final encoders and classifier model under the given version  
-model_version = "13052023"  
-di.train( input_path=inputs_path,
-          gt_path=ground_truth_path,
-          output_path=output_path,
-          model_version=model_version)  
-```
-  _**Training Example Output**_
-```
-[*] Extracting files meta information ...
-  0%|          | 0/3 [00:00<?, ?it/s]
-[*] Meta Data Row Count db_extract.json:  (362, 13)
-[*] Feature Extraction Started... 2024-03-13 20:05:27
-[*] Feature Creation Finished. Processed 362 rows in 0:03:07.700495
-[*] Meta information saved at data/Lego_AI/intermediate/datatype_l1_identification/db_extract_feats.csv...
- 33%|███▎      | 1/3 [03:11<06:22, 191.23s/it]
-[*] Meta Data Row Count real_world_dataset.json:  (36375, 7)
-[*] Feature Extraction Started... 2024-03-13 20:08:36
-[*] Feature Creation Finished. Processed 36375 rows in 0:01:09.008878
- 67%|██████▋   | 2/3 [04:21<02:00, 120.29s/it]
-[*] Meta information saved at data/Lego_AI/intermediate/datatype_l1_identification/real_world_dataset_feats.csv...  
-[*] Meta Data Row Count web_crawl_dataset.json:  (3585, 7)
-[*] Feature Extraction Started... 2024-03-13 20:09:46
-[*] Feature Creation Finished. Processed 3585 rows in 0:00:12.406904
-100%|██████████| 3/3 [04:34<00:00, 91.50s/it]
-[*] Meta information saved at data/Lego_AI/intermediate/datatype_l1_identification/web_crawl_dataset_feats.csv...
-[*] Combining all features into single file ...
-[*] Consolidated features saved at data/Lego_AI/analytical_data/datatype_l1_identification/di_l1_consolidated_feats_data.csv
-[*] MODEL VERSION: 13052023
-[*] Features: (40322, 23) , Labels: (49794, 2)
-[*] Final Merged Features and Labels: (40322, 24)
-[*] Train:  (24193, 25) Valid:  (8064, 25) Test:  (8065, 25)
-[*] Encoder saved at data/Lego_AI/model/model_objects/datatype_l1_identification/di_l1_classifier_encoder_13052023.pkl ...
-[*] Model building started at 2024-03-13 20:10:00
-[*] Classifier model saved at data/Lego_AI/model/model_objects/datatype_l1_identification/di_l1_classifier_xgb_13052023.pkl ...
-[*] Test predictions saved at data/Lego_AI/model/model_results/datatype_l1_identification/di_l1_classifier_test_predicted_xgb_13032024.csv ...
-[*] Classification report for test data saved at data/Lego_AI/model/model_metrics/datatype_l1_identification/di_l1_classifier_test_predicted_xgb_classification_report_13052023.csv
-[*] Confusion matrix for test data saved at data/Lego_AI/model/model_metrics/datatype_l1_identification/di_l1_classifier_test_predicted_xgb_confusion_matrix_13052023.csv
-[*] Validations predictions saved at data/Lego_AI/model/model_results/datatype_l1_identification/di_l1_classifier_validation_predicted_xgb_13032024.csv ...
-[*] Classification report for validation data saved at data/Lego_AI/model/model_metrics/datatype_l1_identification/di_l1_classifier_validation_predicted_xgb_classification_report_13052023.csv
-[*] Confusion matrix for validation data saved at data/Lego_AI/model/model_metrics/datatype_l1_identification/di_l1_classifier_validation_predicted_xgb_confusion_matrix_13052023.csv
-[*] Model building completed at 2024-03-13 20:10:24
-```
 _**Training Input Path Structure**_
 ```
 LEGO AI/DI_OPENSOURCE/DATA/LEGO_AI/INPUT/RAW_DATA
@@ -318,7 +166,6 @@ LEGO AI/DI_OPENSOURCE/DATA/LEGO_AI/INPUT/RAW_DATA
 ```
 > [!NOTE]
 > for example data refer to this file [real_world_dataset](../../../training_directory/Lego_AI/input/raw_data/datatype_l1_identification/real_world_dataset)
-
 
 _**Training Ground Truth (Label) Path Structure**_
 ```
