@@ -14,7 +14,7 @@ setup(
     packages=find_packages(),
     package_data= {
         '': ['config.yaml','model/dependant/datatype_l1_identification/*','model/model_objects/datatype_l1_identification/*.pkl'],
-        },
+       },
     long_description=long_desc,
     long_description_content_type="text/markdown",
     url="https://github.com/LEGOAI-TECHNOLOGIES/Data-Type-Identifier",
