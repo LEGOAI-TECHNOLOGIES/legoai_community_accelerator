@@ -6,25 +6,30 @@ with open("README.md", "r") as f:
 with open("requirements.txt", "r") as f:
     requirements = f.read().strip().split("\n")
 
+VERSION = '0.0.1'
 setup(
     name="legoai",
-    version="0.0.10",
-    description="",
-    package_dir={"": "legoai"},
-    packages=find_packages(where="legoai"),
+    version=VERSION,
+    description="An open-source package for identifying data types",
+    #package_dir={"": "legoai"},
+    packages=find_packages(),
+    package_data= {
+        '':['config.yaml'],
+        '': ['model/dependant/datatype_l1_identification/*','model/model_objects/datatype_l1_identification/*.pkl'],
+        },
     long_description=long_desc,
     long_description_content_type="text/markdown",
-    url="",
+    url="https://github.com/LEGOAI-TECHNOLOGIES/Data-Type-Identifier",
     author="LEGOAI Team",
-    author_email="",
-    license="",
+    author_email="contactus@legoai.com",
+    license="MIT",
     classifiers=[
-        "License :: ::",
+        "License :: MIT License",
         "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
         "Environment :: Console",
     ],
-    install_required=requirements,
+    install_requires=requirements,
     extras_require={
         "dev": ["twine >= 4.0.2"]
     },
