@@ -38,7 +38,6 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 
 
 ## Performance
-### Data Type Identification
 > [!NOTE]
 > **Source Ecommerce:** https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce  
 >  ```Total Tables: 9``` , ```Total Columns: 52```   
@@ -52,7 +51,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 <img src="documentation/L2_Model_Metrics.png" alt="L2 Model Classification Metrics" width="700">   
   
 #### Execution Chart ( Google Collab Environment )
-<img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="370" height="270">
+<img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="400" height="300">
 
 
 
