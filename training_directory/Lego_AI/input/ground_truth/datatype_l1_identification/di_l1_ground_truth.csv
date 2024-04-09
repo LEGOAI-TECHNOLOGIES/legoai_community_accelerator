@@ -1,0 +1,21 @@
+master_id,column_id,datatype
+employee$$##$$salaries$$##$$from_date,employee_salaries_3,Date & Time
+predictor_factory$$##$$journal_predictor$$##$$concept_drift_GIFT,predictor_factory_journal_predictor_28,Short_Integer
+sherlock$$##$$sherlock_table$$##$$address_28892,SH_28892,Close_ended_short_text
+sherlock$$##$$sherlock_table$$##$$age in years_38025,SH_38025,Short_Integer
+sherlock$$##$$sherlock_table$$##$$area_942,SH_942,Close_ended_short_text
+sherlock$$##$$sherlock_table$$##$$basic education level_59813,SH_59813,Open_ended_long_text
+sherlock$$##$$sherlock_table$$##$$cipher num_21951,SH_21951,Short_Integer
+sherlock$$##$$sherlock_table$$##$$citizenship_34752,SH_34752,Open_ended_short_text
+sherlock$$##$$sherlock_table$$##$$cluster name_48596,SH_48596,Short_Alphanumeric
+sherlock$$##$$sherlock_table$$##$$description_8601,SH_8601,Open_ended_short_text
+sherlock$$##$$sherlock_table$$##$$franchise_2136,SH_2136,Close_ended_short_text
+sherlock$$##$$sherlock_table$$##$$grade type_41543,SH_41543,Short_Float
+sherlock$$##$$sherlock_table$$##$$long description_8631,SH_8631,Open_ended_short_text
+sherlock$$##$$sherlock_table$$##$$music director name_76660,SH_76660,Close_ended_short_text
+sherlock$$##$$sherlock_table$$##$$number of sales_54786,SH_54786,Short_Integer
+sherlock$$##$$sherlock_table$$##$$person name_70345,SH_70345,Open_ended_short_text
+sherlock$$##$$sherlock_table$$##$$posting name_5610,SH_5610,Long_Float
+sherlock$$##$$sherlock_table$$##$$sales_54547,SH_54547,Short_Integer
+sherlock$$##$$sherlock_table$$##$$subject_25176,SH_25176,Close_ended_short_text
+web_data_common$$##$$1438042989891_18_20150728002309-00063-ip-10-236-191-2_725693126_0$$##$$Points for posts,WDC_1300,Short_Integer
