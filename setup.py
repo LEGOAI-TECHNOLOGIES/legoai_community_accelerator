@@ -11,10 +11,9 @@ setup(
     name="legoai",
     version=VERSION,
     description="An open-source package for identifying data types",
-    #package_dir={"": "legoai"},
     packages=find_packages(),
     package_data= {
-        '':['config.yaml'],
+        '':['*.yaml'],
         '': ['model/dependant/datatype_l1_identification/*','model/model_objects/datatype_l1_identification/*.pkl'],
         },
     long_description=long_desc,
