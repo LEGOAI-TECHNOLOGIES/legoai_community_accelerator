@@ -6,13 +6,20 @@
 This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
 
 ## Table of contents
+- [Getting Started](#getting-started)
 - [Main Features](#main-features)
 - [Where to get it](#where-to-get-it)
-- [Getting Started](#getting-started)
 - [Performance](#performance)
 - [License](#license)
-- [Documentation](#documentation)
 - [Contributing](#contributing)
+
+##  Getting Started
+To quickly start using the pipeline just [install](#where-to-get-it) and follow notebook below.
+### Datatype Identification ( Inference )
+[Inference Notebook](DataTypeIdentification-Inference.ipynb)  
+> [!IMPORTANT]  
+> **openai_api_key** is required for running L2 model inference.
+
 ## Main Features
 #### L1 and L2 Datatype Categorization
 <img src="documentation/L1_&_L2_Model_Output.png" alt="L1 and L2 Model" >
@@ -28,15 +35,6 @@ Binary installers for the latest released version are available at the [Python P
 # PyPI
 > pip install legoai
 ```
-
-##  Getting Started
-To quickly start using the pipeline just [install](#where-to-get-it) and follow notebook below.
-### Datatype Identification ( Inference )
-[Inference Notebook](DataTypeIdentification-Inference.ipynb)  
-> [!IMPORTANT]  
-> **openai_api_key** is required for running L2 model inference.
-
-
 ## Performance
 > [!NOTE]
 > **Source Ecommerce:** https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce  
@@ -53,16 +51,8 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 #### Execution Chart ( Google Collab Environment )
 <img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="400" height="300">
 
-
-
 ## License
 
-## Documentation
-For detailed documentation refer to the following links.
-- [Data Type Identification](legoai/modules/datatype_identification)
-
-    
-    
 ## Contributing
 Any contributions to this project is welcomed, you can follow the steps below for contribution:
 1. Fork the repository.
