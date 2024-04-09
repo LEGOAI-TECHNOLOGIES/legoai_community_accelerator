@@ -1,8 +1,4 @@
-import pandas as pd
-
-import os
 import time
-from datetime import datetime
 from dataclasses import dataclass
 from getpass import getpass
 
@@ -10,8 +6,8 @@ from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l2_model import L2Model
 from legoai.modules.datatype_identification.utils import *
 from legoai.modules.datatype_identification.functional import extract_features_to_csv
-from legoai.core.configuration import check_path_exists_or_not, MODEL_CONFIG, PATH_CONFIG
-from legoai.utils import *
+from legoai.core.configuration import check_path_exists_or_not
+from legoai.core.utils import *
 
 from tqdm import tqdm
 
