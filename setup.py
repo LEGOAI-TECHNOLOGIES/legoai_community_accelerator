@@ -8,14 +8,12 @@ with open("requirements.txt", "r") as f:
 
 VERSION = '0.0.1'
 setup(
-    name="legoai",
+    name="legoai_di",
     version=VERSION,
     description="An open-source package for identifying data types",
-    #package_dir={"": "legoai"},
     packages=find_packages(),
     package_data= {
-        '':['config.yaml'],
-        '': ['model/dependant/datatype_l1_identification/*','model/model_objects/datatype_l1_identification/*.pkl'],
+        '': ['config.yaml','model/dependant/datatype_l1_identification/*','model/model_objects/datatype_l1_identification/*.pkl'],
         },
     long_description=long_desc,
     long_description_content_type="text/markdown",
