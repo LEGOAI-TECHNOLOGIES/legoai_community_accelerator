@@ -35,7 +35,7 @@ class Logger:
 		log_path = os.path.join(parent_folder_name,child_folder_name)
 		if cls.logger is None or cls.log_path != log_path:
 			import logging
-			from legoai.core.configuration import PATH_CONFIG
+			from legoai_di.core.configuration import PATH_CONFIG
 			# setting logging
 			full_log_path = os.path.join(PATH_CONFIG["CONTAINER_PATH"],log_path)
 			filename=os.path.join(PATH_CONFIG["CONTAINER_PATH"],

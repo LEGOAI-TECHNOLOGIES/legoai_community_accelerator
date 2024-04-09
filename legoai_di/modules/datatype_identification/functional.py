@@ -10,14 +10,14 @@ from symspellpy.symspellpy import SymSpell
 import multiprocessing
 
 # from core.logger import Logger
-from legoai.core.configuration import PATH_CONFIG, MODEL_CONFIG
+from legoai_di.core.configuration import PATH_CONFIG, MODEL_CONFIG
 
 # ====================================================================
 #  Importing the required custom module packages
 # ====================================================================
 from functional import pseq
-from legoai.modules.datatype_identification.custom_features import extract_additional_feats
-from legoai.modules.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, \
+from legoai_di.modules.datatype_identification.custom_features import extract_additional_feats
+from legoai_di.modules.datatype_identification.preprocessing import normalise_string_whitespace, special_token_repl, \
     additional_processing, \
     remove_table_column_name
 

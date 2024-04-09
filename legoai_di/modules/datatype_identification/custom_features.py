@@ -12,7 +12,7 @@ import re
 from collections import Counter, OrderedDict
 import multiprocessing
 
-from legoai.core.configuration import MODEL_CONFIG
+from legoai_di.core.configuration import MODEL_CONFIG
 
 # logger = Logger.getLogger(parent_folder_name = "datatype_l1_identification",child_folder_name="feature")
 # ====================================================================

@@ -15,8 +15,8 @@ from sklearn.model_selection import GridSearchCV, KFold
 
 import os
 
-from legoai.core.configuration import MODEL_CONFIG,PATH_CONFIG
-from legoai.core.utils import combine_gt_file
+from legoai_di.core.configuration import MODEL_CONFIG,PATH_CONFIG
+from legoai_di.core.utils import combine_gt_file
 
 
 # Creating an object
