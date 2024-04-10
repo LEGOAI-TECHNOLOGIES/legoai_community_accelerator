@@ -52,6 +52,7 @@ Binary installers for the latest released version are available at the [Python P
 <img src="documentation/Metrics Google Collab.png" alt="DI Execution Chart" width="400" height="300">
 
 ## License
+The project is released under the [MIT License](LICENSE)
 
 ## Contributing
 Any contributions to this project is welcomed, you can follow the steps below for contribution:
