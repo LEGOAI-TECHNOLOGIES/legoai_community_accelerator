@@ -30,7 +30,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 <img src="documentation/DI_Inference_WorkFlow.png" alt="DI Inference Workflow">
 
 ## Where to get it?
-Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/)
+Binary installers for the latest released version are available at the [Python Package Index (PyPI)](https://pypi.org/project/legoai/)
 ```
 # PyPI
 > pip install legoai
