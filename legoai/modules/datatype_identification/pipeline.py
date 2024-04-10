@@ -2,12 +2,12 @@ import time
 from dataclasses import dataclass
 from getpass import getpass
 
-from legoai_di.modules.datatype_identification.l1_model import L1Model
-from legoai_di.modules.datatype_identification.l2_model import L2Model
-from legoai_di.modules.datatype_identification.utils import *
-from legoai_di.modules.datatype_identification.functional import extract_features_to_csv
-from legoai_di.core.configuration import check_path_exists_or_not
-from legoai_di.core.utils import *
+from legoai.modules.datatype_identification.l1_model import L1Model
+from legoai.modules.datatype_identification.l2_model import L2Model
+from legoai.modules.datatype_identification.utils import *
+from legoai.modules.datatype_identification.functional import extract_features_to_csv
+from legoai.core.configuration import check_path_exists_or_not
+from legoai.core.utils import *
 
 from tqdm import tqdm
 
@@ -496,7 +496,7 @@ class DataTypeIdentificationPipeline:
         _di_pipeline = None
         
         if L2_predict:
-            openai_api_key = getpass("[*] Provide openai api key")
+            openai_api_key = getpass("[*] Provide openai api key: ")
             check_openai_key(openai_api_key)
             _di_pipeline = cls(
                l1_model = L1Model.for_inference(

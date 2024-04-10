@@ -12,7 +12,7 @@ from datetime import datetime
 import json
 
 
-from legoai_di.core.configuration import PATH_CONFIG
+from legoai.core.configuration import PATH_CONFIG
 
 DEFAULT_DATASET = "ecommerce_data"
 

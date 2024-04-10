@@ -8,9 +8,9 @@ from tqdm import tqdm
 import os
 import json
 
-from legoai_di.modules.datatype_identification.preprocessing import remove_non_ascii
-from legoai_di.modules.datatype_identification.preprocessing import data_standardization
-from legoai_di.core.configuration import MODEL_CONFIG
+from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
+from legoai.modules.datatype_identification.preprocessing import data_standardization
+from legoai.core.configuration import MODEL_CONFIG
 
 # from core.logger import Logger
 
