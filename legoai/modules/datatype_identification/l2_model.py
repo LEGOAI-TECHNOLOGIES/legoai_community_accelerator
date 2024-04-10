@@ -2,10 +2,9 @@
 #  Importing the required python packages
 # ====================================================================
 import pandas as pd
-from langchain.output_parsers import ResponseSchema
-from langchain.output_parsers import StructuredOutputParser
+from langchain.output_parsers import ResponseSchema,StructuredOutputParser
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 from legoai.core.configuration import MODEL_CONFIG
 
@@ -164,7 +163,7 @@ class L2Model:
         prompt = ChatPromptTemplate.from_template(template=prompt_text_DM)
         messages = prompt.format_messages(column_name = column_name,
                                       format_instructions=format_instructions)
-        response = self.chat_llm(messages)
+        response = self.chat_llm.invoke(messages)
         response_as_dict = output_parser.parse(response.content)
         return response_as_dict["DM_class"]
 

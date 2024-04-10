@@ -108,11 +108,11 @@ def check_openai_key(key: str):
     else:
         try:
             openai.api_key = key
-            openai.Model.list()
-        except openai.error.AuthenticationError:
+            openai.models.list()
+        except openai.AuthenticationError:
             print("[!] provide valid openai key")
             sys.exit(-1)
-        except openai.error.APIConnectionError:
+        except openai.APIConnectionError:
             print("[!] internet connection not available for l3 model ...")
             sys.exit(-1)
 
