@@ -1,12 +1,12 @@
 from setuptools import find_packages, setup
 
-with open("README.md", "r") as f:
+with open("README-pypi.md", "r") as f:
     long_desc = f.read()
 
-with open("requirements.txt", "r") as f:
+with open("requirements-new.txt", "r") as f:
     requirements = f.read().strip().split("\n")
 
-VERSION = '0.3'
+VERSION = '0.0.1'
 setup(
     name="legoai",
     version=VERSION,
