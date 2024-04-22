@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 import os
 import json
+from pathlib import Path
 
 from legoai.modules.datatype_identification.preprocessing import remove_non_ascii
 from legoai.modules.datatype_identification.preprocessing import data_standardization
@@ -240,6 +241,10 @@ def meta_information_check(data_df: pd.DataFrame, filename: str, reponame: str) 
     # else:
     #     data_df['repo_name'] = reponame
 
+    data_df.table_name = data_df.table_name.astype(str)
+    data_df.repo_name = data_df.repo_name.astype(str)
+    data_df.column_name = data_df.column_name.astype(str)
+
     ### Creating the master id from repo name, table name and column name and convert to lower type
     data_df['master_id'] = data_df.apply(
         lambda x: x['repo_name'] + '$$##$$' + x['table_name'] + '$$##$$' + x['column_name'], axis=1)
@@ -315,16 +320,29 @@ def extract_file_meta_info(dataset_path: str) -> pd.DataFrame:
     print("[*] Extracting files meta information ...")
     data_content = []
     # data_path = os.path.join(PATH_CONFIG['CONTAINER_PATH'], dataset_path)
+
+    # new -- normalize and gets abspath
+    dataset_path = os.path.abspath(os.path.normpath(dataset_path))
+
     data_path = dataset_path
     try:
-        for path, subdirs, files in os.walk(data_path):
-            for name in files:
-                data_content.append(os.path.join(path, name))
+        if os.path.isdir(data_path):
+            for path,subdirs, files in os.walk(data_path):
+                for name in files:
+                    data_content.append(os.path.join(path, name))
+        elif os.path.isfile(data_path):
+            data_content.append(data_path)
+
         _meta_info = []
         for cont in data_content:
             file_meta_informations = cont.split(os.sep)
-            source, location, reponame, filename = file_meta_informations[1], file_meta_informations[-3], \
-            file_meta_informations[-2], file_meta_informations[-1]
+            filename = file_meta_informations[-1]
+            try:
+                source, location, reponame = file_meta_informations[1], file_meta_informations[-3], file_meta_informations[-2]
+            except IndexError:
+                path = Path(cont)
+                source , location , reponame = str(path.parent.parent) , str(path.parent) , path.parent.name
+
             _meta_info.append([source, location, reponame, filename, cont])
 
         _meta_df = pd.DataFrame(_meta_info, columns=['source', 'location', 'reponame', 'filename', 'filepath'])
