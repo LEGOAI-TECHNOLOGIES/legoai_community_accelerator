@@ -38,7 +38,7 @@ To quickly start using the library just [install](#where-to-get-it) and follow j
 <img src="documentation/DI_Training_WorkFlow.png" alt="L1 Model Training Workflow">
 
 >  [!IMPORTANT]  
-> In the figure above **master_id** = **dataset_name**$$##$$**table_name**$$##$$**column_name**   
+> In the figure above **master_id** = dataset_name$$##$$table_name$$##$$column_name   
 > that is used to uniquely identify the row and very important when joining labels & training dataset. 
 
 
