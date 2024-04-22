@@ -91,12 +91,14 @@ def load_path_configuration(**kwargs):
         "INT_DATA_PATH": "intermediate",
         "ANALYTICAL_DATA_PATH": "analytical_data",
         # "MODEL_DEP_PATH": os.path.join(*"model", "dependant"),
-        "MODEL_METRICS_PATH": os.path.join(*"model", "model_metrics"),
-        "MODEL_OBJECTS_PATH": os.path.join(*"model", "model_objects"),
-        "MODEL_RESULTS_PATH": os.path.join(*"model", "model_results"),
+        "MODEL_METRICS_PATH": os.path.join("model", "model_metrics"),
+        "MODEL_OBJECTS_PATH": os.path.join("model", "model_objects"),
+        "MODEL_RESULTS_PATH": os.path.join("model", "model_results"),
     }
 
-    custom_path_config = dotenv_values(".env")
+    # custom_path_config = dotenv_values(".env")
+    custom_path_config = {}
+
     # checks all requirement directories , if not then it creates one
     # check_path_exists_or_not({**default_path_config, **custom_path_config})
 
