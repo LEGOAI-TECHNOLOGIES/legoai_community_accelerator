@@ -1,6 +1,9 @@
+import os.path
 import time
 from dataclasses import dataclass
 from getpass import getpass
+from colorama import Fore
+import warnings
 
 from legoai.modules.datatype_identification.l1_model import L1Model
 from legoai.modules.datatype_identification.l2_model import L2Model
@@ -41,6 +44,69 @@ class DataTypeIdentificationPipeline:
     """
     l1_model: L1Model = None
     l2_model: L2Model = None
+
+    @staticmethod
+    def prepare_dataset(input_path:str, output_path:str="l1_training_resource"):
+        """
+        - Method to prepare training file and ground truth file.
+        Parameters
+        ----------
+        input_path (str): directory path where all the training files are present.
+        output_path (str): final directory output path where the training file & a ground truth file will be added
+        """
+        assert not input_path.strip().__eq__(''), "input path cannot be empty"
+        assert not output_path.strip().__eq__(''), "output path cannot be empty"
+        input_path = os.path.normpath(input_path)
+        output_path = os.path.normpath(output_path)
+
+        json_data = prepare_di_training_file(input_path)
+        gt_df = prepare_di_ground_truth(json_data)
+
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        final_training_file_path = os.path.normpath(
+            os.path.join(output_path, f"training_l1_{datetime.now().strftime('%d%m%Y')}.json")
+        )
+        final_gt_file_path = os.path.normpath(
+            os.path.join(output_path, f"ground_truth_l1_{datetime.now().strftime('%d%m%Y')}.xlsx")
+        )
+
+        with open(final_training_file_path, "w") as file:
+            json.dump(json_data, file)
+        print(f"[*] Training file created at: {Fore.RED} {final_training_file_path} {Fore.RESET}")
+        add_data_validation_excel_gt(gt_df,final_gt_file_path)
+        print(f"[*] Ground truth file created at: {Fore.RED} {final_gt_file_path} {Fore.RESET} ... annotate/label the ground truth before proceeding further")
+    @staticmethod
+    def check_dataset(training_path:str='', gt_path:str='',**kwargs):
+        """
+        - Check the DI(Datatype Identification) Training and GT file for null,empty values , missing columns ( required for DI )
+        Parameters
+        ----------
+        training_path (str): path to the training file
+        gt_path (str): path to the ground truth file
+        """
+        # for displaying sucess print statements or not
+        _display_message = kwargs.get('display',True)
+
+        assert not training_path.strip().__eq__(''), "input path cannot be empty"
+        assert not gt_path.strip().__eq__(''), "output path cannot be empty"
+        training_path = os.path.normpath(training_path)
+        gt_path = os.path.normpath(gt_path)
+        if _display_message:
+            print("[*] Checking Training data:")
+        training_df = precheck_di_training_file(training_path, REQUIRED_TRAINING_COLUMNS,_display_message)
+        if _display_message:
+            print("\n[*] Checking Ground truth data:")
+        gt_df = precheck_di_training_file(gt_path, REQUIRED_GT_COLUMNS, _display_message, file_type='gt' )
+
+        # final check for any missing master_id from training in ground truth
+        if not all(training_df['master_id'].isin(gt_df['master_id'])):
+            missing_master_id_in_gt = training_df[~(training_df['master_id'].isin(gt_df['master_id']))]['master_id'].values.tolist()
+            warnings.warn(f"{','.join(missing_master_id_in_gt)} from training missing in ground truth")
+        else:
+            if _display_message:
+                print(f"[\u2713] Every training data present in ground truth\n")
+
 
     @staticmethod
     def data_preparation(dataset_path: str,output_path:str):
@@ -153,7 +219,7 @@ class DataTypeIdentificationPipeline:
                 meta_data_save_path = os.path.join(output_path, int_data_l1_path, full_filepath)
 
                 df.to_csv(meta_data_save_path,index =False)
-                print(f"[*] Meta information saved at {meta_data_save_path}...")
+                print(f"[*] Meta information saved at:\n {meta_data_save_path}")
 
             except Exception as e:
                 print(traceback.format_exc())
@@ -176,13 +242,18 @@ class DataTypeIdentificationPipeline:
         feats_content = []
         data_path = os.path.join(container_path,int_data_l1_path)
 
-        for path, subdirs, files in os.walk(data_path):
-            for name in files:
-                feats_content.append(os.path.join(path, name))
+        if os.path.isdir(data_path):
+            for path, subdirs, files in os.walk(data_path):
+                for name in files:
+                    feats_content.append(os.path.join(path, name))
+        elif os.path.isfile(data_path):
+            feats_content.append(data_path)
+
+
         features_df = pd.DataFrame()
 
         for i, filename in enumerate(feats_content):
-            feats_csv = pd.read_csv(filename)
+            feats_csv = pd.read_csv(filename,low_memory = False)
             feats_csv['file_name'] = filename.split(os.sep)[1].replace('.csv', '')
 
 
@@ -204,10 +275,10 @@ class DataTypeIdentificationPipeline:
         ### Store the features dataframe to the feature location
         full_filepath = os.path.join(container_path, l1_feature_path, "di_l1_consolidated_feats_data.csv")
         features_df.to_csv(full_filepath, index=False)
-        print(f"[*] Consolidated features saved at {full_filepath}")
+        print(f"[*] Consolidated features saved at:\n {full_filepath}")
 
     @staticmethod
-    def build_l1_model(gt_path:str,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs) -> tuple:
+    def build_l1_model(gt_path:str,training_size:float,validation_size:float,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs) -> tuple:
         """
         Parameters
         ----------
@@ -220,7 +291,9 @@ class DataTypeIdentificationPipeline:
         """
 
         l1_model = L1Model.for_training(
-            model_version=model_version
+            model_version=model_version,
+            training_size = training_size,
+            validation_size = validation_size
         )
 
 
@@ -230,9 +303,10 @@ class DataTypeIdentificationPipeline:
         ### Train the model using train, validation and test data from the feature dataset
         X_test_pred, class_report_test, conf_df_test, X_validation_pred, class_report_val, conf_df_val = l1_model.build_ML_Model(
             X_train, y_train, X_validation, y_validation, X_test, y_test)
-        return X_test_pred, class_report_test, conf_df_test, X_validation_pred, class_report_val, conf_df_val
+        print(f"\n[!] Important Model Version: {Fore.RED} {model_version} {Fore.RESET} , Training path: {Fore.RED} {PATH_CONFIG['CONTAINER_PATH']} {Fore.RESET} these information's are used during inference\n")
+        return class_report_test, conf_df_test, class_report_val, conf_df_val
 
-    def __execute_l1_training_pipeline(self, dataset_path: str, gt_path: str,model_version:str,**kwargs) -> tuple:
+    def __execute_l1_training_pipeline(self, dataset_path: str, gt_path: str,training_size:float,validation_size:float,model_version:str,**kwargs) -> tuple:
         """
         runs all the l1 training process at once
 
@@ -261,7 +335,7 @@ class DataTypeIdentificationPipeline:
 
         # Model Building part
         #4th and final step is to build the model by combining features and the gt
-        return self.build_l1_model(gt_path,model_version,**kwargs)
+        return self.build_l1_model(gt_path,training_size,validation_size,model_version,**kwargs)
 
     def __execute_inference_pipeline(self,input_path: str,output_path: str):
         """
@@ -331,20 +405,6 @@ class DataTypeIdentificationPipeline:
         _model_prediction.to_csv(final_output_path,index=False)
         print(f"[*] Final output saved at {final_output_path}")
         return _model_prediction
-
-    @staticmethod
-    def load_example_dataset():
-        """
-        Downloads example dataset ('ecommerce_dataset') , can be used to test the pipeline.
-        Parameters:
-        ----------
-
-        Returns:
-        -------
-        dataset_path (str): an example dataset full path
-        """
-        dataset_path = download_default_dataset()
-        return dataset_path
 
     @staticmethod
     def run_l1_model(features_df: pd.DataFrame,output_path:str) -> pd.DataFrame:
@@ -439,14 +499,16 @@ class DataTypeIdentificationPipeline:
         else:
             print(f"[!] dataset doesn't exists in the path {folder_path}")
 
-    def train(self,input_path:str=None,gt_path:str=None,output_path:str=None,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
+    @classmethod
+    def training_pipeline(cls,input_path:str=None,gt_path:str=None,output_path:str=None,training_size:float=0.6,validation_size:float=0.2,model_version:str=datetime.now().strftime("%d%m%Y"),**kwargs):
         """
         Parameters
         ----------
-        input_path (str): raw dataset path for training
+        input_path (str): dataset file path for training
         gt_path (str): ground truth path for the datatype for all the columns in one single file
         model_version (str): model version to save under for trained finalized model i.e. ( encoders , and classifier)
-
+        trainig_size (float): training data distribution 0.6 = 60% default
+        validation_size (float): validation data distribution 0.2 = 20% default
 
         Returns
         -------
@@ -470,7 +532,25 @@ class DataTypeIdentificationPipeline:
         gt_path = os.path.normpath(gt_path)
         check_dataset_path(input_path, gt_path)
 
-        return self.__execute_l1_training_pipeline(input_path, gt_path, model_version, **kwargs)
+        # check training & ground truth but supress print message. ( for safe failure)
+        DataTypeIdentificationPipeline.check_dataset(
+            training_path= input_path ,
+            gt_path= gt_path,
+            display=False
+        )
+
+        # check training , test & validation data distribution
+        total_data_ratio = 1
+        training_size = float(training_size)
+        validation_size = float(validation_size)
+
+        assert training_size < 1 and training_size > 0,"Provide valid training size between 0 and 1"
+        assert validation_size < 1 and validation_size > 0 and validation_size < (total_data_ratio - training_size),f"Invalid {validation_size} for {training_size} training size"
+        test_size = round(total_data_ratio - (training_size + validation_size),2)
+        assert  round(training_size + validation_size + test_size,1) == total_data_ratio, "Provide valid training & validation size"
+
+
+        return cls().__execute_l1_training_pipeline(input_path, gt_path,training_size , validation_size , model_version,  **kwargs)
 
     @classmethod
     def prediction_pipeline(cls,input_path:str=None, output_path:str="datatype_identification_inference", L2_predict: bool = False,**kwargs):
@@ -489,9 +569,27 @@ class DataTypeIdentificationPipeline:
             -------
             DatatypeIdentification object with l1 and l2 model loaded.
         """
+        training_path = kwargs.get("training_path",None)
+        model_version = kwargs.get("model_version",None)
 
-        l1_encoder_path = kwargs.get("encoder_path",None)
-        l1_model_path = kwargs.get("model_path",None)
+        l1_encoder_path = None
+        l1_model_path = None
+
+        if training_path and model_version:
+            if not os.path.exists(training_path) and not os.path.isdir(training_path):
+                raise FileNotFoundError(f"Training path {training_path} is not valid directory")
+            else:
+                l1_encoder_path = os.path.join(training_path,"model","model_objects","datatype_l1_identification",f"di_l1_classifier_encoder_{model_version}.pkl")
+                l1_model_path = os.path.join(training_path,"model","model_objects","datatype_l1_identification",f"di_l1_classifier_{model_version}.pkl")
+                if not os.path.exists(l1_encoder_path) or not os.path.exists(l1_model_path):
+                    raise FileNotFoundError(f"Training path is invalid required files not found at {training_path}")
+                else:
+                    l1_encoder_path = os.path.normpath(l1_encoder_path)
+                    l1_model_path = os.path.normpath(l1_model_path)
+                    print(f"[*] Using custom trained model, Model Version: {Fore.RED} {model_version} {Fore.RESET}")
+
+        # l1_encoder_path = kwargs.get("encoder_path",None)
+        # l1_model_path = kwargs.get("model_path",None)
 
         _di_pipeline = None
         
@@ -511,5 +609,6 @@ class DataTypeIdentificationPipeline:
                 encoder_path=l1_encoder_path,
                 model_path=l1_model_path
             ))
-
+        input_path = os.path.normpath(input_path)
+        output_path = os.path.normpath(output_path)
         return _di_pipeline.__execute_inference_pipeline(input_path=input_path,output_path=output_path)
