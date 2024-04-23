@@ -18,12 +18,13 @@ To quickly start using the library just [install](#where-to-get-it) and follow j
 ### Inference - DataType Identification
 - [Google Collab Notebook](https://colab.research.google.com/drive/137XKjKA-awa5XYlb1bAnOoFCl3XALh1K?usp=sharing) 
 - [Jupyter Notebook](DataTypeIdentification-Inference.ipynb)
+> [!IMPORTANT]  
+> **openai api key** is required for running L2 model inference.
 ### Training - L1 Model
 - [Google Collab Notebook]()
 - [Jupyter Notebook](DataTypeIdentification-Training.ipynb)
 
-> [!IMPORTANT]  
-> **openai api key** is required for running L2 model inference.
+
 
 ## Main Features
 ### Categorization - L1 & L2 Datatype
