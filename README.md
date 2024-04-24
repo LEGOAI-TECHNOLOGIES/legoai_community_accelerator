@@ -1,6 +1,6 @@
 <p align="center">
       <img src="documentation/logo_white.jpg" alt="LegoAI Logo" width="350">
- <h3 align="center"><i>Empowering Business Users With Self Serve Analytics</i></h3> 
+ <h3 align="center"><i>Empowering Data Teams with utilities to build Data Products</i></h3> 
 
 ## What is it ?
 This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
