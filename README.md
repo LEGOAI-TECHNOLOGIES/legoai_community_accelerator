@@ -21,7 +21,7 @@ To quickly start using the library just [install](#where-to-get-it) and follow j
 > [!IMPORTANT]  
 > **openai api key** is required for running L2 model inference.
 ### Training - L1 Model
-- [Google Collab Notebook]()
+- [Google Collab Notebook](https://colab.research.google.com/drive/1ipNkWzuk1_-yotBiROXbOeWBaSGtdeGD?usp=sharing)
 - [Jupyter Notebook](DataTypeIdentification-Training.ipynb)
 
 
