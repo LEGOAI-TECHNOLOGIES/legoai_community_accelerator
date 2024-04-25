@@ -49,7 +49,7 @@ class DataTypeIdentificationPipeline:
     def prepare_dataset(input_path:str, output_path:str="l1_training_resource"):
         """
         - Method to prepare training file and ground truth file.
-        
+
         Parameters
         ----------
         input_path (str): directory path where all the training files are present.
@@ -60,7 +60,7 @@ class DataTypeIdentificationPipeline:
         input_path = os.path.normpath(input_path)
         output_path = os.path.normpath(output_path)
 
-        if os.path.exists(input_path):
+        if not os.path.exists(input_path):
             raise FileNotFoundError(f"{input_path} does not exist")
 
 
