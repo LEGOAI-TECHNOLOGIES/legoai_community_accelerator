@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 with open("README-pypi.md", "r") as f:
     long_desc = f.read()
 
-with open("requirements-new.txt", "r") as f:
+with open("requirements.txt", "r") as f:
     requirements = f.read().strip().split("\n")
 
 VERSION = '0.0.1'
