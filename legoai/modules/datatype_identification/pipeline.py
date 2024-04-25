@@ -49,6 +49,7 @@ class DataTypeIdentificationPipeline:
     def prepare_dataset(input_path:str, output_path:str="l1_training_resource"):
         """
         - Method to prepare training file and ground truth file.
+        
         Parameters
         ----------
         input_path (str): directory path where all the training files are present.
@@ -58,6 +59,10 @@ class DataTypeIdentificationPipeline:
         assert not output_path.strip().__eq__(''), "output path cannot be empty"
         input_path = os.path.normpath(input_path)
         output_path = os.path.normpath(output_path)
+
+        if os.path.exists(input_path):
+            raise FileNotFoundError(f"{input_path} does not exist")
+
 
         json_data = prepare_di_training_file(input_path)
         gt_df = prepare_di_ground_truth(json_data)
@@ -73,9 +78,11 @@ class DataTypeIdentificationPipeline:
 
         with open(final_training_file_path, "w") as file:
             json.dump(json_data, file)
+
         print(f"[*] Training file created at: {Fore.RED} {final_training_file_path} {Fore.RESET}")
         add_data_validation_excel_gt(gt_df,final_gt_file_path)
         print(f"[*] Ground truth file created at: {Fore.RED} {final_gt_file_path} {Fore.RESET} ... annotate/label the ground truth before proceeding further")
+    
     @staticmethod
     def check_dataset(training_path:str='', gt_path:str='',**kwargs):
         """
@@ -85,7 +92,7 @@ class DataTypeIdentificationPipeline:
         training_path (str): path to the training file
         gt_path (str): path to the ground truth file
         """
-        # for displaying sucess print statements or not
+        # for displaying success print statements or not
         _display_message = kwargs.get('display',True)
 
         assert not training_path.strip().__eq__(''), "input path cannot be empty"
@@ -562,13 +569,18 @@ class DataTypeIdentificationPipeline:
             input_path (str): the directory or file path to the inference dataset.
             output_path (str): output path to save all the results, i.e. processed files,features, and final l1 and l2 model output.
             L2_predict (bool): flag to denote whether to run L2 model or not
-            encoder_path (str) optional: full path to the encoder (i.e. pickled object).
-            model_path (str) optional: full path to the classifier model (i.e. pickled object).
+
+            [!note]
+            - for custom model prediction
+            training_path (str) optional: path to the training directory ( obtained after training_pipeline())
+            model_version (str) optional: model number under with the l1 classifier & encoder is saved also obtained from training_pipeline()
 
             Returns
             -------
             DatatypeIdentification object with l1 and l2 model loaded.
         """
+
+        # ---- For running custom trained model ---
         training_path = kwargs.get("training_path",None)
         model_version = kwargs.get("model_version",None)
 
@@ -587,6 +599,7 @@ class DataTypeIdentificationPipeline:
                     l1_encoder_path = os.path.normpath(l1_encoder_path)
                     l1_model_path = os.path.normpath(l1_model_path)
                     print(f"[*] Using custom trained model, Model Version: {Fore.RED} {model_version} {Fore.RESET}")
+        # --------- #
 
         # l1_encoder_path = kwargs.get("encoder_path",None)
         # l1_model_path = kwargs.get("model_path",None)
