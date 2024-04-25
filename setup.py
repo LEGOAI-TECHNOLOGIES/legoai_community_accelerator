@@ -6,7 +6,7 @@ with open("README-pypi.md", "r") as f:
 with open("requirements.txt", "r") as f:
     requirements = f.read().strip().split("\n")
 
-VERSION = '0.0.1'
+VERSION = '0.1.0'
 setup(
     name="legoai",
     version=VERSION,
