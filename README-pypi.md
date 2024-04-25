@@ -21,7 +21,7 @@ To quickly start using the pipeline just [install](#where-to-get-it) and follow 
 <hr>
 
 ### Training - L1 Model
-- [Google Collab Notebook]()
+- [Google Collab Notebook](https://colab.research.google.com/drive/1ipNkWzuk1_-yotBiROXbOeWBaSGtdeGD?usp=sharing)
 - [Jupyter Notebook](https://github.com/LEGOAI-TECHNOLOGIES/legoai_community_accelerator/blob/main/DataTypeIdentification-Training.ipynb)
 
 >[!IMPORTANT]  
