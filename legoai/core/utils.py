@@ -97,7 +97,7 @@ def check_openai_key(key: str):
     - Checks provided openai key ( requires internet )
     Parameters
     ----------
-    key (str): api key
+    key (str): open ai api key
 
     Returns
     -------
@@ -165,6 +165,16 @@ def combine_gt_file(path:str) -> pd.DataFrame:
     return gt_df
 
 def load_file(path):
+    """
+    Load files with certain extensions as pandas DataFrame
+    Parameters
+    ----------
+    path (str): full path to the file
+
+    Returns
+    -------
+    pd.DataFrame: file read as pandas DataFrame
+    """
     path = Path(path)
 
     if not path.exists():
@@ -190,6 +200,19 @@ def load_file(path):
 
 
 def parallel_json_converter(file_path):
+    """
+    Helper funtion for preparing training json file
+
+    Parameters:
+    ----------
+    file_path (str): full path to the training file
+
+    Returns:
+    --------
+    List[dict]: List of dictionary training data
+
+
+    """
     df = load_file(file_path)
 
     # fill nan values by backfill method
@@ -216,6 +239,18 @@ def parallel_json_converter(file_path):
 
 
 def prepare_di_training_file(path):
+    """
+    Prepare Training data from list of training files
+
+    Parameters
+    ----------
+    path (str): path to the directory that contains training files.
+
+    Returns
+    -------
+    List[dict]: list of dictionary containing training data
+
+    """
     training_files = []
     # get all the training files
     for path, subdirs, files in os.walk(path):
@@ -229,6 +264,11 @@ def prepare_di_training_file(path):
     return list(itertools.chain(*training_json))
 
 def prepare_di_ground_truth(json_training):
+    """
+    Prepare Excel ground truth file for manual labelling
+
+
+    """
     data = {'master_id': [], 'column_values': []}
 
     for training in json_training:
@@ -276,6 +316,22 @@ def check_di_gt_labels(datatype, master_id, path):
 
 
 def precheck_di_training_file(path, required_columns, _display_message, file_type='training', **kwargs):
+    """
+    - Check training & gt file for any inconsitencies.
+    - Checks for null , missing values, missing master_id,
+    - Checks for missing datatype column in gt & validates against ALLOWED_DATATYPES
+
+    Parameters
+    ----------
+    path (str): can be path to training or gt file
+    required_columns (List): list of columns to check in training & gt.
+    _display_message (boolean): flag to whether display print statements or not in the function.
+    file_type (str): default 'training' , denotes file type training or gt.
+
+    Returns 
+    -------
+    pd.DataFrame: gt or training file as dataframe
+    """
     df = load_file(path)
 
     check_columns(df, required_columns, path)
@@ -303,6 +359,18 @@ def precheck_di_training_file(path, required_columns, _display_message, file_typ
 
 
 def add_data_validation_excel_gt(gt_df:pd.DataFrame,save_path:str):
+    """
+    - Add excel data validation for allowing to fill the datatype column with only ALLOWED_DATATYPES
+    - And finally save the excel gt file
+    
+    Parameters
+    ----------
+    gt_df (pd.DataFrame): pandas dataframe with the ground truth.
+    save_path (str): full excel path to save the gt file.
+
+    Returns
+    -------
+    """
 
     with pd.ExcelWriter(save_path,engine='xlsxwriter') as writer:
         gt_df.to_excel(excel_writer=writer,sheet_name="Sheet1",index = False)
