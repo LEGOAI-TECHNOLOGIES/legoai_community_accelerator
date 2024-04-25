@@ -1,6 +1,16 @@
 <p align="center">
       <img src="documentation/logo_white.jpg" alt="LegoAI Logo" width="350">
- <h3 align="center"><i>Empowering Data Teams with utilities to build Data Products</i></h3> 
+ <h3 align="center"><i>Empowering Data Teams with utilities to build Data Products</i></h3>
+</p>
+
+[![Release](https://img.shields.io/github/release/LEGOAI-TECHNOLOGIES/legoai_community_accelerator)](https://github.com/LEGOAI-TECHNOLOGIES/legoai_community_accelerator/releases/tag/v0.1.0)     
+[![Made with Python](https://img.shields.io/badge/Made_with-Python-blue?logo=python&logoColor=white)](https://www.python.org/)
+![contributions - welcome](https://img.shields.io/badge/contributions-welcome-blue)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Open Issues](https://img.shields.io/github/issues-raw/LEGOAI-TECHNOLOGIES/legoai_community_accelerator)](https://github.com/LEGOAI-TECHNOLOGIES/legoai_community_accelerator/issues)
+[![GitHub star chart](https://img.shields.io/github/stars/LEGOAI-TECHNOLOGIES/legoai_community_accelerator?style=social)](https://github.com/LEGOAI-TECHNOLOGIES/legoai_community_accelerator/stargazers)
+
+
 
 ## What is it ?
 This is a cutting-edge project leveraging advanced Machine Learning technologies to accurately discern and classify data types from various values. Designed to enhance data preprocessing and analysis pipelines, this tool automates the often tedious and error-prone task of manually identifying data types.
@@ -16,12 +26,12 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 ##  Getting Started
 To quickly start using the library just [install](#where-to-get-it) and follow jupyter notebook below ( or directly hop on the collab notebook ).
 ### Inference - DataType Identification
-- [Google Collab Notebook](https://colab.research.google.com/drive/137XKjKA-awa5XYlb1bAnOoFCl3XALh1K?usp=sharing) 
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/137XKjKA-awa5XYlb1bAnOoFCl3XALh1K?usp=sharing) 
 - [Jupyter Notebook](DataTypeIdentification-Inference.ipynb)
 > [!IMPORTANT]  
 > **openai api key** is required for running L2 model inference.
 ### Training - L1 Model
-- [Google Collab Notebook](https://colab.research.google.com/drive/1ipNkWzuk1_-yotBiROXbOeWBaSGtdeGD?usp=sharing)
+- [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ipNkWzuk1_-yotBiROXbOeWBaSGtdeGD?usp=sharing)
 - [Jupyter Notebook](DataTypeIdentification-Training.ipynb)
 
 
