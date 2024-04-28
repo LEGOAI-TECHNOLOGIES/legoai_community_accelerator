@@ -27,12 +27,12 @@ This is a cutting-edge project leveraging advanced Machine Learning technologies
 To quickly start using the library just [install](#where-to-get-it) and follow jupyter notebook below ( or directly hop on the collab notebook ).
 ### Inference - DataType Identification
 - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/137XKjKA-awa5XYlb1bAnOoFCl3XALh1K?usp=sharing) 
-- [Jupyter Notebook](DataTypeIdentification-Inference.ipynb)
+- [![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)](DataTypeIdentification-Inference.ipynb)
 > [!IMPORTANT]  
 > **openai api key** is required for running L2 model inference.
 ### Training - L1 Model
 - [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ipNkWzuk1_-yotBiROXbOeWBaSGtdeGD?usp=sharing)
-- [Jupyter Notebook](DataTypeIdentification-Training.ipynb)
+- [![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)](DataTypeIdentification-Training.ipynb)
 
 
 
